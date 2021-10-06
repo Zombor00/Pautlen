@@ -8,7 +8,7 @@ void escribir_cabecera_bss(FILE* fpasm){
   }
 
   fprintf(fpasm,"segment .bss\n");
-  fprintf(fpasm,"__esp resd 4\n");
+  fprintf(fpasm,"__esp resd 1\n");
 }
 
 void escribir_subseccion_data(FILE* fpasm){
@@ -37,7 +37,7 @@ void declarar_variable(FILE* fpasm, char *nombre, int tipo, int tamano){
   }
 
   /*Tal vez hay que buscar la seccion .bss y luego escribir ahí*/
-  fprintf(fpasm,"%s resd %d", nombre, tamano);
+  fprintf(fpasm,"%s resd %d\n", nombre, tamano);
 
 }
 
@@ -60,7 +60,7 @@ void escribir_inicio_main(FILE* fpasm){
   }
 
   fprintf(fpasm,"main:\n");
-  fprintf(fpasm,"MOV DWORD __esp, ESP\n");
+  fprintf(fpasm,"MOV DWORD [__esp], ESP\n");
 }
 
 void escribir_fin(FILE* fpasm){
@@ -70,7 +70,7 @@ void escribir_fin(FILE* fpasm){
   }
 
   fprintf(fpasm,"fin:\n");
-  fprintf(fpasm,"\tMOV DWORD ESP, __esp\n");
+  fprintf(fpasm,"\tMOV DWORD ESP, [__esp]\n");
   fprintf(fpasm,"\tret\n");
 
   fprintf(fpasm,"div_0:\n");
@@ -303,3 +303,56 @@ void menor(FILE* fpasm, int es_variable1, int es_variable2, int etiqueta){
   fprintf(fpasm,"\tPUSH DWORD CF\n");
   fprintf(fpasm,"\tJL %d\n", etiqueta);
 }
+
+          
+/*ejercicio dowhile*/
+void dowhile_inicio(FILE * fpasm, int etiqueta){
+  if(fpasm == NULL){
+    printf("Error NULL file dowhile inicio");
+    exit(1);
+  }
+  fprintf(fpasm,"%d:\n", etiqueta);
+}
+
+/*
+Generación de código para el inicio de una estructura do-while
+Como es el inicio de uno bloque de control de flujo de programa en este ejercicio opcional no es necesario
+ tener encuenta control de 
+ s para do-while anidado.
+*/
+
+void dowhile_exp_pila (FILE * fpasm, int exp_es_variable, int etiqueta){
+  if(fpasm == NULL){
+    printf("Error NULL file dowhile inicio");
+    exit(1);
+  }
+  asignar(fpasm, "\tEAX", exp_es_variable);
+  //fprintf(fpasm,"jmp %d\n", etiqueta);
+}
+/*
+Generación de código para el momento en el que se ha generado el código de la expresión
+de control del bucle
+Sólo necesita usar la etiqueta adecuada, por lo que sólo se necesita que se recupere el valor
+de la etiqueta que corresponde al momento actual.
+exp_es_variable
+Es 1 si la expresión de la condición es algo asimilable a una variable (identificador,
+o elemento de vector)
+Es 0 en caso contrario (constante u otro tipo de expresión)
+*/
+
+
+void dowhile_fin(FILE * fpasm, int etiqueta){
+  if(fpasm == NULL){
+    printf("Error NULL file dowhile inicio");
+    exit(1);
+  }
+  //fprintf(fpasm,"jmp %d\n", etiqueta);
+}
+/*
+Generación de código para el final de una estructura dowhile
+Como es el fin de uno bloque de control de flujo de programa que hace uso de la etiqueta
+del mismo se requiere que antes de su invocación tome el valor de la etiqueta que le toca
+según se ha explicado
+Y tras ser invocada debe realizar el proceso para ajustar la información de las etiquetas
+puesto que se ha liberado la última de ellas.
+*/
