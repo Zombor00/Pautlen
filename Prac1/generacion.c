@@ -164,8 +164,8 @@ void sumar(FILE* fpasm, int es_variable_1, int es_variable_2){
     exit(1);
   }
 
-  asignar_reg(fpasm, "EAX", es_variable_1);
   asignar_reg(fpasm, "EBX", es_variable_2);
+  asignar_reg(fpasm, "EAX", es_variable_1);
 
   fprintf(fpasm,"\tADD EAX, EBX\n");
 
@@ -186,8 +186,8 @@ void restar(FILE* fpasm, int es_variable_1, int es_variable_2){
     exit(1);
   }
 
-  asignar_reg(fpasm, "EAX", es_variable_1);
   asignar_reg(fpasm, "EBX", es_variable_2);
+  asignar_reg(fpasm, "EAX", es_variable_1);
 
   fprintf(fpasm,"\tSUB EAX, EBX\n");
 
@@ -206,8 +206,8 @@ void multiplicar(FILE* fpasm, int es_variable_1, int es_variable_2){
     exit(1);
   }
 
-  asignar_reg(fpasm, "EAX", es_variable_1);
   asignar_reg(fpasm, "EBX", es_variable_2);
+  asignar_reg(fpasm, "EAX", es_variable_1);
 
   fprintf(fpasm,"\tIMUL EBX\n");
 
@@ -227,8 +227,8 @@ void dividir(FILE* fpasm, int es_variable_1, int es_variable_2){
   }
 
 
-  asignar_reg(fpasm, "EAX", es_variable_1);
   asignar_reg(fpasm, "EBX", es_variable_2);
+  asignar_reg(fpasm, "EAX", es_variable_1);
 
   //Comprobamos que no se divide entre cero
   fprintf(fpasm,"\tCMP EBX, 0\n");
@@ -254,8 +254,8 @@ void o(FILE* fpasm, int es_variable_1, int es_variable_2){
     exit(1);
   }
 
-  asignar_reg(fpasm, "EAX", es_variable_1);
   asignar_reg(fpasm, "EBX", es_variable_2);
+  asignar_reg(fpasm, "EAX", es_variable_1);
 
   fprintf(fpasm,"\tOR EAX, EBX\n");
 
@@ -274,8 +274,8 @@ void y(FILE* fpasm, int es_variable_1, int es_variable_2){
     exit(1);
   }
 
-  asignar_reg(fpasm, "EAX", es_variable_1);
   asignar_reg(fpasm, "EBX", es_variable_2);
+  asignar_reg(fpasm, "EAX", es_variable_1);
 
   fprintf(fpasm,"\tAND EAX, EBX\n");
 
