@@ -12,7 +12,7 @@ main:
 	MOV DWORD [__esp], ESP
 	PUSH DWORD 0
 	POP DWORD [x]
-	PUSH DWORD 2
+	PUSH DWORD 15
 	POP DWORD [y]
 dowhile_ini_1:
 	PUSH DWORD x

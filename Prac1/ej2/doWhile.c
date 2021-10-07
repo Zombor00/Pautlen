@@ -182,8 +182,8 @@ void escribir(FILE* fpasm, int es_variable, int tipo){
   fprintf(fpasm,"\tPUSH DWORD EAX\n");
   if(tipo == ENTERO){
     fprintf(fpasm,"\tCALL print_int\n");
-    #Estos print_endofline en el futuro tal vez se deberian quitar
-    #y aniadir una función a parte
+    //Estos print_endofline en el futuro tal vez se deberian quitar
+    //y aniadir una función a parte
     fprintf(fpasm,"\tCALL print_endofline\n");
 
   }else if(tipo == BOOLEANO){

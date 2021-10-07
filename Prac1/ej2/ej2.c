@@ -25,7 +25,7 @@ int main (int argc, char** argv){
 	asignar(salida,"x",VALOR_EXPLICITO);
 
 	/* y=2; */
-  escribir_operando(salida,"2",VALOR_EXPLICITO);
+  escribir_operando(salida,"15",VALOR_EXPLICITO);
 	asignar(salida,"y",VALOR_EXPLICITO);
 
 	etiqueta++;
