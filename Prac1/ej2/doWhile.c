@@ -113,8 +113,8 @@ void asignar(FILE* fpasm, char* nombre, int es_variable){
   }
 
   if(es_variable == VALOR_REFERENCIA){
-    fprintf(fpasm,"\tPOP DWORD EAX\n");
-    fprintf(fpasm,"\tMOV DWORD [%s], EAX\n", nombre);
+    fprintf(fpasm,"\tPOP DWORD ECX\n");
+    fprintf(fpasm,"\tMOV DWORD [%s], ECX\n", nombre);
   }else{
     fprintf(fpasm,"\tPOP DWORD [%s]\n", nombre);
   }
@@ -133,8 +133,8 @@ void asignar_reg(FILE* fpasm, char* nombre, int es_variable){
   }
 
   if(es_variable == VALOR_REFERENCIA){
-    fprintf(fpasm,"\tPOP DWORD EAX\n");
-    fprintf(fpasm,"\tMOV DWORD %s, EAX\n", nombre);
+    fprintf(fpasm,"\tPOP DWORD ECX\n");
+    fprintf(fpasm,"\tMOV DWORD %s, ECX\n", nombre);
   }else{
     fprintf(fpasm,"\tPOP DWORD %s\n", nombre);
   }
