@@ -43,7 +43,6 @@ void declarar_variable(FILE* fpasm, char *nombre, int tipo, int tamano){
   }
 
   // TODO: poner _%s ?
-  /*Tal vez hay que buscar la seccion .bss y luego escribir ahí*/
   fprintf(fpasm,"\t%s resd %d\n", nombre, tamano);
 
 }
@@ -108,7 +107,7 @@ void escribir_operando(FILE* fpasm, char* nombre, int es_variable){
     fprintf(fpasm,"\tPUSH DWORD %s\n", nombre);
   }else{
     fprintf(fpasm,"\tPUSH DWORD %s\n", nombre);
-  }
+  }// TODO: son iguales
 }
 
 void asignar(FILE* fpasm, char* nombre, int es_variable){
@@ -667,7 +666,7 @@ int tam_max, int exp_es_direccion){
   }
   asignar_reg(fpasm, "EAX", exp_es_direccion);
   fprintf(fpasm,"\tCMP EAX, 0\n");
-  fprintf(fpasm,"\tJL NEAR fin_indice_fuera_rango\n"); //TODO: colocar esta etiqueta en algun lado
+  fprintf(fpasm,"\tJL NEAR fin_indice_fuera_rango\n");
   fprintf(fpasm,"\tCMP EAX, %d\n", (tam_max-1));
   fprintf(fpasm,"\tJG NEAR fin_indice_fuera_rango\n");
   fprintf(fpasm,"\tMOV DWORD EDX, %s\n", nombre_vector);
@@ -687,21 +686,15 @@ tarea.
 
 void declararFuncion(FILE * fd_asm, char * nombre_funcion, int num_var_loc){
   if(fd_asm == NULL || nombre_funcion == NULL || num_var_loc < 0){
-    printf("Error NULL file al declararFuncion");
+    printf("Error al declararFuncion");
     exit(1);
   }
   fprintf(fd_asm,"%s:\n", nombre_funcion);
   fprintf(fd_asm,"\tPUSH DWORD EBP\n");
   fprintf(fd_asm,"\tMOV DWORD EBP, ESP\n");
-  fprintf(fd_asm,"\tSUB ESP, 4*%d\n", num_var_loc); //TODO: Igual falla!
+  fprintf(fd_asm,"\tSUB ESP, %d\n", 4 * num_var_loc);
 
 }
-/*
-Generación de código para iniciar la declaración de una función.
-Es necesario proporcionar
-Su nombre
-Su número de variables locales
-*/
 
 void retornarFuncion(FILE * fd_asm, int es_variable){
   if(fd_asm == NULL){
@@ -712,23 +705,24 @@ void retornarFuncion(FILE * fd_asm, int es_variable){
     exit(1);
   }
   asignar_reg(fd_asm, "EAX", es_variable);
-  fprintf(fd_asm, "\tmov esp,ebp\n"); /* restaurar el puntero de pila */
-  fprintf(fd_asm, "\tpop ebp\n"); /* sacar de la pila ebp */
+  fprintf(fd_asm, "\tMOV ESP, EBP\n"); /* restaurar el puntero de pila */
+  fprintf(fd_asm, "\tPOP EBP\n"); /* sacar de la pila ebp */
   fprintf(fd_asm, "\tret\n");
 }
-/*
-Generación de código para el retorno de una función.
-La expresión que se retorna está en la cima de la pila.
-Puede ser una variable (o algo equivalente) en cuyo caso exp_es_direccion vale 1
-Puede ser un valor concreto (en ese caso exp_es_direccion vale 0)
-*/
 
 void escribirParametro(FILE* fpasm, int pos_parametro, int num_total_parametros){
-  //TODO: control de errores
+  if(fpasm == NULL){
+    printf("Error NULL file al escribirParametro");
+    exit(1);
+  }else if(num_total_parametros < 0 || pos_parametro < 0){
+    printf("Error numero mal definido al escribirParametro");
+    exit(1);
+  }
   int d_ebp;
   d_ebp = 4*(1 + num_total_parametros-pos_parametro);
+
   fprintf(fpasm, "\tLEA EAX, [EBP + %d]\n", d_ebp);
-  fprintf(fpasm, "\tPUSH DWORD EAX");
+  fprintf(fpasm, "\tPUSH DWORD EAX\n");
 }
 /*
 Función para dejar en la cima de la pila la dirección efectiva del parámetro que ocupa la
@@ -737,17 +731,48 @@ de num_total_parametros
 */
 
 void escribirVariableLocal(FILE* fpasm, int posicion_variable_local){
+  if(fpasm == NULL){
+    printf("Error NULL file al escribirVariableLocal");
+    exit(1);
+  }else if(posicion_variable_local < 0){
+    printf("Error posicion_variable_local menor que 0 al escribirVariableLocal");
+    exit(1);
+  }
+
   int d_ebp;
   d_ebp = 4*posicion_variable_local;
+
   fprintf(fpasm, "\tLEA EAX, [EBP - %d]\n", d_ebp);
-  fprintf(fpasm, "\tPUSH DWORD EAX");
+  fprintf(fpasm, "\tPUSH DWORD EAX\n");
 }
 /*
 Función para dejar en la cima de la pila la dirección efectiva de la variable local que ocupa
 la posición posicion_variable_local (recuerda que ordenadas con origen 1)
 */
 
-void asignarDestinoEnPila(FILE* fpasm, int es_variable);
+void asignarDestinoEnPila(FILE* fpasm, int es_variable){
+  if(fd_asm == NULL){
+    printf("Error NULL file al operandoEnPilaAArgumento\n");
+    exit(1);
+  }else if(es_variable != VALOR_EXPLICITO && es_variable != VALOR_REFERENCIA){
+    printf("Error es_variable mal definido al operandoEnPilaAArgumento\n");
+    exit(1);
+  }
+  //TODO: ??
+  asignar_reg(fpasm, "EAX", VALOR_EXPLICITO); //creo que aqui es_variable
+  asignar_reg(fpasm, "EBX", es_variable); //y aqui VALOR_REFERENCIA
+  fprintf(fpasm, "MOV [EAX], EBX\n");
+
+  /*
+  fprintf(fpasm, "pop dword eax\n");
+  fprintf(fpasm, "pop dword ebx\n");
+  if(es_variable == 1){
+    fprintf(fpasm, "mov ebx, [ebx]\n");
+  }
+  fprintf(fpasm, "mov [eax], ebx\n");
+  */
+}
+
 /*
 Función para poder asignar a un destino que no es una variable “global” (tipo _x) por
 ejemplo parámetros o variables locales (ya que en ese caso su nombre real de alto nivel, no
@@ -763,11 +788,19 @@ Es 0 en caso contrario (constante u otro tipo de expresión)
 */
 
 void operandoEnPilaAArgumento(FILE * fd_asm, int es_variable) {
-  if(es_variable == 1){
+  if(fd_asm == NULL){
+    printf("Error NULL file al operandoEnPilaAArgumento\n");
+    exit(1);
+  }else if(es_variable != VALOR_EXPLICITO && es_variable != VALOR_REFERENCIA){
+    printf("Error es_variable mal definido al operandoEnPilaAArgumento\n");
+    exit(1);
+  }
+
+  if(es_variable == VALOR_REFERENCIA){
     fprintf(fd_asm, "\tPOP DWORD EAX\n");
     fprintf(fd_asm, "\tMOV EAX, [EAX]\n");
-    fprintf(fd_asm, "\tPUSH DWORD EAX");
-  }
+    fprintf(fd_asm, "\tPUSH DWORD EAX\n");
+  } // TODO:else if VALOR_EXPLICITO: push dword eax sin el mov?, como asignar_reg y luego hacer push dword eax
 }
 /*
 Como habrás visto en el material, nuestro convenio de llamadas a las funciones asume que
@@ -778,22 +811,27 @@ o no (es_variable) se deja en la pila el valor correspondiente
 */
 
 void llamarFuncion(FILE * fd_asm, char * nombre_funcion, int num_argumentos){
-      fprintf(fd_asm, "\tCALL %s\n", nombre_funcion);
-      fprintf(fd_asm, "\tADD ESP, %d\n", num_argumentos*4);
-      fprintf(fd_asm, "\tPUSH DWORD EAX");
-}
-/*
-Esta función genera código para llamar a la función nombre_funcion asumiendo que los
-argumentos están en la pila en el orden fijado en el material de la asignatura.
-Debe dejar en la cima de la pila el retorno de la función tras haberla limpiado de sus
-argumentos
-Para limpiar la pila puede utilizar la función de nombre limpiarPila
-*/
+  if(fd_asm == NULL || nombre_funcion == NULL){
+    printf("Error NULL file al llamarFuncion\n");
+    exit(1);
+  }else if(num_argumentos < 0){
+    printf("Error numero de argumentos menor que 0 al llamarFuncion\n");
+    exit(1);
+  }
 
-void limpiarPila(FILE * fd_asm, int num_argumentos);
-/*
-Genera código para limpiar la pila tras invocar una función
-Esta función es necesaria para completar la llamada a métodos, su gestión dificulta el
-conocimiento por parte de la función de llamada del número de argumentos que hay en la
-pila
-*/
+  fprintf(fd_asm, "\tCALL %s\n", nombre_funcion);
+  limpiarPila(fd_asm, num_argumentos);
+  fprintf(fd_asm, "\tPUSH DWORD EAX\n");
+}
+
+void limpiarPila(FILE * fd_asm, int num_argumentos){
+  if(fd_asm == NULL){
+    printf("Error NULL file al limpiarPila\n");
+    exit(1);
+  }else if(num_argumentos < 0){
+    printf("Error numero de argumentos menor que 0 al limpiarPila\n");
+    exit(1);
+  }
+
+  fprintf(fd_asm, "\tADD ESP, %d\n", num_argumentos*4);
+}
