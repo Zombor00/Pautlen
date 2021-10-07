@@ -302,7 +302,7 @@ void no(FILE* fpasm, int es_variable, int cuantos_no){
   if(fpasm == NULL){
     printf("Error NULL file al no");
     exit(1);
-  }else if(es_variable != VALOR_EXPLICITO){
+  }else if(es_variable != VALOR_EXPLICITO && es_variable != VALOR_REFERENCIA){
     printf("Error tipo mal definido al no");
     exit(1);
   }
