@@ -22,11 +22,11 @@ int main (int argc, char** argv){
 
 	/* x=0; */
   escribir_operando(salida,"0",VALOR_EXPLICITO);
-	asignar(salida,"x",VALOR_REFERENCIA);
+	asignar(salida,"x",VALOR_EXPLICITO);
 
 	/* y=2; */
-  escribir_operando(salida,"0",VALOR_EXPLICITO);
-	asignar(salida,"y",VALOR_REFERENCIA);
+  escribir_operando(salida,"2",VALOR_EXPLICITO);
+	asignar(salida,"y",VALOR_EXPLICITO);
 
 	etiqueta++;
 	dowhile_inicio(salida, etiqueta);
@@ -35,13 +35,14 @@ int main (int argc, char** argv){
 	escribir_operando(salida, "y", VALOR_REFERENCIA);
 
 	sumar(salida, VALOR_REFERENCIA, VALOR_REFERENCIA);
-	asignar(salida, "x", VALOR_REFERENCIA);
+	asignar(salida, "x", VALOR_EXPLICITO);
 
 	escribir_operando(salida, "x", VALOR_REFERENCIA);
-	escribir(salida, 1, ENTERO);
+	escribir(salida, VALOR_REFERENCIA, ENTERO);
 
+	escribir_operando(salida, "10",VALOR_EXPLICITO);
 	escribir_operando(salida,"x",VALOR_REFERENCIA);
-	menor(salida, 1, 0, etiqueta);
+	menor(salida, VALOR_REFERENCIA, VALOR_EXPLICITO, etiqueta);
 
 	dowhile_exp_pila(salida, 0, etiqueta);
 	dowhile_fin(salida, etiqueta);
