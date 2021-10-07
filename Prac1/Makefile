@@ -2,11 +2,11 @@ CC=gcc
 CFLAGS=-Wall -g
 EXE = ejemplo1
 
-main: generacion.c ejemplo1.c alfalib.o
+main: generacion.c ejemplo1.c ej2/alfalib.o
 	$(CC) $(CFLAGS) -o $(EXE)_asm generacion.c $(EXE).c
 	./$(EXE)_asm $(EXE).asm
 	nasm -g -o $(EXE).o -f elf32 $(EXE).asm
-	$(CC) $(CFLAGS) -m32 -o $(EXE) $(EXE).o alfalib.o
+	$(CC) $(CFLAGS) -m32 -o $(EXE) $(EXE).o ej2/alfalib.o
 
 .PHONY: clean
 clean:

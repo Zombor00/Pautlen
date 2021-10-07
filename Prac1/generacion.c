@@ -751,7 +751,7 @@ la posición posicion_variable_local (recuerda que ordenadas con origen 1)
 */
 
 void asignarDestinoEnPila(FILE* fpasm, int es_variable){
-  if(fd_asm == NULL){
+  if(fpasm == NULL){
     printf("Error NULL file al operandoEnPilaAArgumento\n");
     exit(1);
   }else if(es_variable != VALOR_EXPLICITO && es_variable != VALOR_REFERENCIA){
