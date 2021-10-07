@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "generacion.h"
 
 void escribir_cabecera_bss(FILE* fpasm){
@@ -8,7 +9,7 @@ void escribir_cabecera_bss(FILE* fpasm){
   }
 
   fprintf(fpasm,"segment .bss\n");
-  fprintf(fpasm,"__esp resd 1\n");
+  fprintf(fpasm,"\t__esp resd 1\n");
 }
 
 void escribir_subseccion_data(FILE* fpasm){
@@ -18,7 +19,7 @@ void escribir_subseccion_data(FILE* fpasm){
   }
 
   fprintf(fpasm,"segment .data\n");
-  fprintf(fpasm,"_err_div_0 db \"División por 0\",0\n");
+  fprintf(fpasm,"\t_err_div_0 db \"División por 0\",0\n");
 }
 
 void declarar_variable(FILE* fpasm, char *nombre, int tipo, int tamano){
@@ -28,7 +29,7 @@ void declarar_variable(FILE* fpasm, char *nombre, int tipo, int tamano){
   }else if(nombre == NULL){
     printf("Error NULL nombre al declarar variable");
     exit(1);
-  }else if(tipo != ENTERO || tipo != BOOLEANO){
+  }else if(tipo != ENTERO && tipo != BOOLEANO){
     printf("Error tipo no definido al declarar variable");
     exit(1);
   }else if(tamano <= 0){
@@ -36,9 +37,9 @@ void declarar_variable(FILE* fpasm, char *nombre, int tipo, int tamano){
     exit(1);
   }
 
+  // TODO: poner _%s ?
   /*Tal vez hay que buscar la seccion .bss y luego escribir ahí*/
-  fprintf(fpasm,"%s resd %d\n", nombre, tamano);
-
+  fprintf(fpasm,"\t%s resd %d\n", nombre, tamano);
 }
 
 void escribir_segmento_codigo(FILE* fpasm){
@@ -49,8 +50,8 @@ void escribir_segmento_codigo(FILE* fpasm){
 
   fprintf(fpasm,"segment .text\n");
   fprintf(fpasm,"\tglobal main\n");
-  fprintf(fpasm,"\textern print_int, print_boolean, print_string, print_blank,
-                  print_endofline, scan_int, scan_boolean\n");
+  fprintf(fpasm,"\textern print_int, print_boolean, print_string, print_blank, print_endofline\n");
+  fprintf(fpasm,"\textern scan_int, scan_boolean\n")
 }
 
 void escribir_inicio_main(FILE* fpasm){
@@ -60,7 +61,7 @@ void escribir_inicio_main(FILE* fpasm){
   }
 
   fprintf(fpasm,"main:\n");
-  fprintf(fpasm,"MOV DWORD [__esp], ESP\n");
+  fprintf(fpasm,"\tMOV DWORD [__esp], ESP\n");
 }
 
 void escribir_fin(FILE* fpasm){
@@ -77,7 +78,7 @@ void escribir_fin(FILE* fpasm){
   fprintf(fpasm,"\tPUSH DWORD _err_div_0\n");
   fprintf(fpasm,"\tCALL print_string\n");
   fprintf(fpasm,"\tADD ESP, 4\n");//TODO: SE PUEDE QUITAR?
-  fprintf(fpasm,"\tJMP fin:\n");
+  fprintf(fpasm,"\tJMP fin\n");
 }
 
 void escribir_operando(FILE* fpasm, char* nombre, int es_variable){
@@ -288,36 +289,45 @@ void menor(FILE* fpasm, int es_variable1, int es_variable2, int etiqueta){
   if(fpasm == NULL){
     printf("Error NULL file al menor");
     exit(1);
-  }else if(es_variable_1 != VALOR_EXPLICITO && es_variable_1 != VALOR_REFERENCIA){
+  }else if(es_variable1 != VALOR_EXPLICITO && es_variable1 != VALOR_REFERENCIA){
     printf("Error tipo mal definido al menor");
     exit(1);
-  }else if(es_variable_2 != VALOR_EXPLICITO && es_variable_2 != VALOR_REFERENCIA){
+  }else if(es_variable2 != VALOR_EXPLICITO && es_variable2 != VALOR_REFERENCIA){
     printf("Error tipo mal definido al menor");
     exit(1);
   }
-  asignar(fpasm, "EAX", es_variable_1);
-  asignar(fpasm, "EBX", es_variable_2);
+  asignar(fpasm, "EAX", es_variable1);
+  asignar(fpasm, "EBX", es_variable2);
 
   fprintf(fpasm,"\tCMP EAX, EBX\n");
   //TODO: comprobar flags del sistema después de un CMP
-  fprintf(fpasm,"\tPUSH DWORD CF\n");
-  fprintf(fpasm,"\tJL %d\n", etiqueta);
+  //fprintf(fpasm,"\tPUSH DWORD CF\n");
+  fprintf(fpasm,"\tJL es_menor_%d\n", etiqueta);
+
+  // False: no es menor
+  fprintf(fpasm,"\tPUSH DWORD 0\n");
+  fprintf(fpasm,"\tJMP menor_fin_%d\n", etiqueta);
+
+  fprintf(fpasm,"es_menor_%d:\n", etiqueta);
+  fprintf(fpasm,"\tPUSH DWORD 1\n");
+
+  fprintf(fpasm,"menor_fin_%d:\n", etiqueta);
 }
 
-          
+
 /*ejercicio dowhile*/
 void dowhile_inicio(FILE * fpasm, int etiqueta){
   if(fpasm == NULL){
     printf("Error NULL file dowhile inicio");
     exit(1);
   }
-  fprintf(fpasm,"%d:\n", etiqueta);
+  fprintf(fpasm,"dowhile_ini_%d:\n", etiqueta);
 }
 
 /*
 Generación de código para el inicio de una estructura do-while
 Como es el inicio de uno bloque de control de flujo de programa en este ejercicio opcional no es necesario
- tener encuenta control de 
+ tener encuenta control de
  s para do-while anidado.
 */
 
@@ -326,7 +336,13 @@ void dowhile_exp_pila (FILE * fpasm, int exp_es_variable, int etiqueta){
     printf("Error NULL file dowhile inicio");
     exit(1);
   }
-  asignar(fpasm, "\tEAX", exp_es_variable);
+
+  asignar(fpasm, "EAX", exp_es_variable);
+
+  // Si el cmp anterior era False dowhile_fin, si no dowhile_fin
+  fprintf(fpasm, "\tCMP EAX, 0\n");
+  fprintf(fpasm, "\tJE dowhile_fin_%d\n", etiqueta);
+  fprintf(fpasm, "\tJMP dowhile_ini_%d\n", etiqueta);
   //fprintf(fpasm,"jmp %d\n", etiqueta);
 }
 /*
@@ -346,7 +362,7 @@ void dowhile_fin(FILE * fpasm, int etiqueta){
     printf("Error NULL file dowhile inicio");
     exit(1);
   }
-  //fprintf(fpasm,"jmp %d\n", etiqueta);
+  fprintf(fpasm,"dowhile_fin_%d:\n", etiqueta);
 }
 /*
 Generación de código para el final de una estructura dowhile
