@@ -316,7 +316,7 @@ void no(FILE* fpasm, int es_variable, int cuantos_no){
   fprintf(fpasm,"\tPUSH DWORD 0\n");
   fprintf(fpasm,"\tJMP no_fin_%d\n", cuantos_no);
 
-  fprintf(fpasm,"no_%d:\n", etiqueta);
+  fprintf(fpasm,"no_%d:\n", cuantos_no);
   fprintf(fpasm,"\tPUSH DWORD 1\n");
 
   fprintf(fpasm,"no_fin_%d:\n", cuantos_no);
@@ -469,7 +469,7 @@ void leer(FILE* fpasm, char* nombre, int tipo){
     exit(1);
   }
 
-  fprintf(fpasm,"\tPUSH DWORD %d\n", nombre); //TODO corcheetes mirar si falla
+  fprintf(fpasm,"\tPUSH DWORD %s\n", nombre); //TODO corcheetes mirar si falla
   if(tipo == ENTERO){
     fprintf(fpasm,"\tCALL scan_int\n");
   } else if(tipo == BOOLEANO){
@@ -691,9 +691,9 @@ void declararFuncion(FILE * fd_asm, char * nombre_funcion, int num_var_loc){
     exit(1);
   }
   fprintf(fd_asm,"%s:\n", nombre_funcion);
-  fprintf(fpasm,"\tPUSH DWORD EBP\n");
-  fprintf(fpasm,"\tMOV DWORD EBP, ESP\n");
-  fprintf(fpasm,"\tSUB ESP, 4*%d\n", num_var_loc); //TODO: Igual falla!
+  fprintf(fd_asm,"\tPUSH DWORD EBP\n");
+  fprintf(fd_asm,"\tMOV DWORD EBP, ESP\n");
+  fprintf(fd_asm,"\tSUB ESP, 4*%d\n", num_var_loc); //TODO: Igual falla!
 
 }
 /*
@@ -764,9 +764,9 @@ Es 0 en caso contrario (constante u otro tipo de expresión)
 
 void operandoEnPilaAArgumento(FILE * fd_asm, int es_variable) {
   if(es_variable == 1){
-    fprintf(fpasm, "\tPOP DWORD EAX\n");
-    fprintf(fpasm, "\tMOV EAX, [EAX]\n");
-    fprintf(fpasm, "\tPUSH DWORD EAX");
+    fprintf(fd_asm, "\tPOP DWORD EAX\n");
+    fprintf(fd_asm, "\tMOV EAX, [EAX]\n");
+    fprintf(fd_asm, "\tPUSH DWORD EAX");
   }
 }
 /*
@@ -778,9 +778,9 @@ o no (es_variable) se deja en la pila el valor correspondiente
 */
 
 void llamarFuncion(FILE * fd_asm, char * nombre_funcion, int num_argumentos){
-      fprintf(fpasm, "\tCALL %s\n", nombre_funcion);
-      fprintf(fpasm, "\tADD ESP, %d\n", num_argumentos*4);
-      fprintf(fpasm, "\tPUSH DWORD EAX");
+      fprintf(fd_asm, "\tCALL %s\n", nombre_funcion);
+      fprintf(fd_asm, "\tADD ESP, %d\n", num_argumentos*4);
+      fprintf(fd_asm, "\tPUSH DWORD EAX");
 }
 /*
 Esta función genera código para llamar a la función nombre_funcion asumiendo que los
