@@ -54,8 +54,7 @@ void declarar_variable(FILE *fpasm, char *nombre, int tipo, int tamano)
     exit(1);
   }
 
-  // TODO: poner _%s ?
-  fprintf(fpasm, "\t%s resd %d\n", nombre, tamano);
+  fprintf(fpasm, "\t_%s resd %d\n", nombre, tamano);
 }
 
 void escribir_segmento_codigo(FILE *fpasm)
@@ -128,12 +127,12 @@ void escribir_operando(FILE *fpasm, char *nombre, int es_variable)
   }
   if (es_variable == VALOR_REFERENCIA)
   {
-    fprintf(fpasm, "\tPUSH DWORD %s\n", nombre);
+    fprintf(fpasm, "\tPUSH DWORD _%s\n", nombre);
   }
   else
   {
     fprintf(fpasm, "\tPUSH DWORD %s\n", nombre);
-  } // TODO: son iguales
+  } // TODO: ya no son iguales pero que alguien compruebe
 }
 
 void asignar(FILE *fpasm, char *nombre, int es_variable)
@@ -157,12 +156,13 @@ void asignar(FILE *fpasm, char *nombre, int es_variable)
   if (es_variable == VALOR_REFERENCIA)
   {
     fprintf(fpasm, "\tPOP DWORD ECX\n");
-    fprintf(fpasm, "\tMOV DWORD EDX, [ECX]\n");
-    fprintf(fpasm, "\tMOV DWORD [%s], EDX\n", nombre);
+    //TODO: Check if is better: MOV ECX, DWORD [ECX]
+    fprintf(fpasm, "\tMOV DWORD ECX, [ECX]\n");
+    fprintf(fpasm, "\tMOV DWORD [_%s], ECX\n", nombre);
   }
   else
   {
-    fprintf(fpasm, "\tPOP DWORD [%s]\n", nombre);
+    fprintf(fpasm, "\tPOP DWORD [_%s]\n", nombre);
   }
 }
 
@@ -187,8 +187,8 @@ void asignar_reg(FILE *fpasm, char *nombre, int es_variable)
   if (es_variable == VALOR_REFERENCIA)
   {
     fprintf(fpasm, "\tPOP DWORD ECX\n");
-    fprintf(fpasm, "\tMOV DWORD EDX, [ECX]\n");
-    fprintf(fpasm, "\tMOV DWORD %s, EDX\n", nombre);
+    fprintf(fpasm, "\tMOV DWORD ECX, [ECX]\n");
+    fprintf(fpasm, "\tMOV DWORD %s, ECX\n", nombre);
   }
   else
   {
@@ -274,7 +274,7 @@ void multiplicar(FILE *fpasm, int es_variable_1, int es_variable_2)
 
   if (es_variable_1 == VALOR_REFERENCIA)
   {
-    fprintf(fpasm, "\nMOV EAX, [EAX]\n");
+    fprintf(fpasm, "\nMOV EAX, DWORD [EAX]\n");
   }
   if (es_variable_2 == VALOR_REFERENCIA)
   {
@@ -306,7 +306,7 @@ void dividir(FILE *fpasm, int es_variable_1, int es_variable_2)
   }
 
   //TODO: Ver porque no funciona con asignar_reg
-  fprintf(fpasm, "\tPOP DWORD EBX\n");
+  /*fprintf(fpasm, "\tPOP DWORD EBX\n");
   fprintf(fpasm, "\tPOP DWORD EAX\n");
 
   if (es_variable_1 == VALOR_REFERENCIA)
@@ -316,7 +316,9 @@ void dividir(FILE *fpasm, int es_variable_1, int es_variable_2)
   if (es_variable_2 == VALOR_REFERENCIA)
   {
     fprintf(fpasm, "\nmov EBX, DWORD [EBX]\n");
-  }
+  }*/
+  asignar_reg(fpasm, "EBX", es_variable_2);
+  asignar_reg(fpasm, "EAX", es_variable_1);
 
   //Comprobamos que no se divide entre cero
   fprintf(fpasm, "\tCMP EBX, 0\n");
@@ -610,7 +612,7 @@ void leer(FILE *fpasm, char *nombre, int tipo)
     exit(1);
   }
 
-  fprintf(fpasm, "\tPUSH DWORD %s\n", nombre); //TODO corcheetes mirar si falla
+  fprintf(fpasm, "\tPUSH DWORD _%s\n", nombre); //TODO corcheetes mirar si falla
   if (tipo == ENTERO)
   {
     fprintf(fpasm, "\tCALL scan_int\n");
@@ -844,7 +846,7 @@ void escribir_elemento_vector(FILE *fpasm, char *nombre_vector,
   fprintf(fpasm, "\tJL NEAR fin_indice_fuera_rango\n");
   fprintf(fpasm, "\tCMP EAX, %d\n", (tam_max - 1));
   fprintf(fpasm, "\tJG NEAR fin_indice_fuera_rango\n");
-  fprintf(fpasm, "\tMOV DWORD EDX, %s\n", nombre_vector);
+  fprintf(fpasm, "\tMOV DWORD EDX, _%s\n", nombre_vector);
   fprintf(fpasm, "\tLEA EAX, [EDX + EAX*4]\n");
   fprintf(fpasm, "\tPUSH DWORD EAX\n");
 }
