@@ -5,7 +5,7 @@
 /* Declaraciones de tipos de datos del compilador */
 #define ENTERO 0
 #define BOOLEANO 1
-//TODO: SE PUEDEN AÑADIR COSAS AL .H?
+
 #define VALOR_EXPLICITO 0
 #define VALOR_REFERENCIA 1
 

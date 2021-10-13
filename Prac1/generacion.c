@@ -158,7 +158,6 @@ void asignar(FILE *fpasm, char *nombre, int es_variable)
   if (es_variable == VALOR_REFERENCIA)
   {
     fprintf(fpasm, "\tPOP DWORD ECX\n");
-    //TODO: Check if is better: MOV ECX, DWORD [ECX]
     fprintf(fpasm, "\tMOV DWORD ECX, [ECX]\n");
     fprintf(fpasm, "\tMOV DWORD [_%s], ECX\n", nombre);
   }
@@ -627,7 +626,7 @@ void leer(FILE *fpasm, char *nombre, int tipo)
     exit(1);
   }
 
-  fprintf(fpasm, "\tPUSH DWORD _%s\n", nombre); //TODO corcheetes mirar si falla
+  fprintf(fpasm, "\tPUSH DWORD _%s\n", nombre);
   if (tipo == ENTERO)
   {
     fprintf(fpasm, "\tCALL scan_int\n");
@@ -638,6 +637,7 @@ void leer(FILE *fpasm, char *nombre, int tipo)
   }
   fprintf(fpasm, "\tADD ESP, 4\n");
 }
+
 
 void escribir(FILE *fpasm, int es_variable, int tipo)
 {
@@ -662,8 +662,6 @@ void escribir(FILE *fpasm, int es_variable, int tipo)
   if (tipo == ENTERO)
   {
     fprintf(fpasm, "\tCALL print_int\n");
-    //Estos print_endofline en el futuro tal vez se deberian quitar
-    //y aniadir una función a parte
     fprintf(fpasm, "\tCALL print_endofline\n");
   }
   else if (tipo == BOOLEANO)
@@ -692,15 +690,6 @@ void ifthenelse_inicio(FILE *fpasm, int exp_es_variable, int etiqueta)
   fprintf(fpasm, "\tJE NEAR else_%d\n", etiqueta);
 }
 
-/*
-Generación de código para el inicio de una estructura if-then-else
-Como es el inicio de uno bloque de control de flujo de programa que requiere de una nueva
-etiqueta deben ejecutarse antes las tareas correspondientes a esta situación
-exp_es_variable
-Es 1 si la expresión de la condición es algo asimilable a una variable (identificador,
-elemento de vector)
-Es 0 en caso contrario (constante u otro tipo de expresión)
-*/
 
 void ifthen_inicio(FILE *fpasm, int exp_es_variable, int etiqueta)
 {
@@ -718,15 +707,7 @@ void ifthen_inicio(FILE *fpasm, int exp_es_variable, int etiqueta)
   fprintf(fpasm, "\tCMP EAX, 0\n");
   fprintf(fpasm, "\tJE NEAR fin_ifthen_%d\n", etiqueta);
 }
-/*
-Generación de código para el inicio de una estructura if-then
-Como es el inicio de uno bloque de control de flujo de programa que requiere de una nueva
-etiqueta deben ejecutarse antes las tareas correspondientes a esta situación
-exp_es_variable
-Es 1 si la expresión de la condición es algo asimilable a una variable (identificador,
-elemento de vector)
-Es 0 en caso contrario (constante u otro tipo de expresión)
-*/
+
 
 void ifthen_fin(FILE *fpasm, int etiqueta)
 {
@@ -737,14 +718,7 @@ void ifthen_fin(FILE *fpasm, int etiqueta)
   }
   fprintf(fpasm, "fin_ifthen_%d:\n", etiqueta);
 }
-/*
-Generación de código para el fin de una estructura if-then
-Como es el fin de uno bloque de control de flujo de programa que hace uso de la etiqueta
-del mismo se requiere que antes de su invocación tome el valor de la etiqueta que le toca
-según se ha explicado
-Y tras ser invocada debe realizar el proceso para ajustar la información de las etiquetas
-puesto que se ha liberado la última de ellas.
-*/
+
 
 void ifthenelse_fin_then(FILE *fpasm, int etiqueta)
 {
@@ -756,12 +730,7 @@ void ifthenelse_fin_then(FILE *fpasm, int etiqueta)
   fprintf(fpasm, "\tJMP NEAR ifthenelse_fin_%d\n", etiqueta);
   fprintf(fpasm, "else_%d:\n", etiqueta);
 }
-/*
-Generación de código para el fin de la rama then de una estructura if-then-else
-Sólo necesita usar la etiqueta adecuada, aunque es el final de una rama, luego debe venir
-otra (la rama else) antes de que se termine la estructura y se tenga que ajustar las etiquetas
-por lo que sólo se necesita que se utilice la etiqueta que corresponde al momento actual.
-*/
+
 
 void ifthenelse_fin(FILE *fpasm, int etiqueta)
 {
@@ -772,14 +741,7 @@ void ifthenelse_fin(FILE *fpasm, int etiqueta)
   }
   fprintf(fpasm, "ifthenelse_fin_%d:\n", etiqueta);
 }
-/*
-Generación de código para el fin de una estructura if-then-else
-Como es el fin de uno bloque de control de flujo de programa que hace uso de la etiqueta
-del mismo se requiere que antes de su invocación tome el valor de la etiqueta que le toca
-según se ha explicado
-Y tras ser invocada debe realizar el proceso para ajustar la información de las etiquetas
-puesto que se ha liberado la última de ellas.
-*/
+
 
 void while_inicio(FILE *fpasm, int etiqueta)
 {
@@ -790,15 +752,7 @@ void while_inicio(FILE *fpasm, int etiqueta)
   }
   fprintf(fpasm, "while_ini_%d:\n", etiqueta);
 }
-/*
-Generación de código para el inicio de una estructura while
-Como es el inicio de uno bloque de control de flujo de programa que requiere de una nueva
-etiqueta deben ejecutarse antes las tareas correspondientes a esta situación
-exp_es_variable
-Es 1 si la expresión de la condición es algo asimilable a una variable (identificador,
-elemento de vector)
-Es 0 en caso contrario (constante u otro tipo de expresión)
-*/
+
 
 void while_exp_pila(FILE *fpasm, int exp_es_variable, int etiqueta)
 {
@@ -810,21 +764,11 @@ void while_exp_pila(FILE *fpasm, int exp_es_variable, int etiqueta)
 
   asignar_reg(fpasm, "EAX", exp_es_variable);
 
-  // Si el cmp anterior era False while_fin, si no while_ini
+  // Si el cmp anterior era False while_fin
   fprintf(fpasm, "\tCMP EAX, 0\n");
   fprintf(fpasm, "\tJE while_fin_%d\n", etiqueta);
-  //fprintf(fpasm,"jmp %d\n", etiqueta);
 }
-/*
-Generación de código para el momento en el que se ha generado el código de la expresión
-de control del bucle
-Sólo necesita usar la etiqueta adecuada, por lo que sólo se necesita que se recupere el valor
-de la etiqueta que corresponde al momento actual.
-exp_es_variable
-Es 1 si la expresión de la condición es algo asimilable a una variable (identificador,
-o elemento de vector)
-Es 0 en caso contrario (constante u otro tipo de expresión)
-*/
+
 
 void while_fin(FILE *fpasm, int etiqueta)
 {
@@ -836,14 +780,7 @@ void while_fin(FILE *fpasm, int etiqueta)
   fprintf(fpasm, "\tJMP while_ini_%d\n", etiqueta);
   fprintf(fpasm, "while_fin_%d:\n", etiqueta);
 }
-/*
-Generación de código para el final de una estructura while
-Como es el fin de uno bloque de control de flujo de programa que hace uso de la etiqueta
-del mismo se requiere que antes de su invocación tome el valor de la etiqueta que le toca
-según se ha explicado
-Y tras ser invocada debe realizar el proceso para ajustar la información de las etiquetas
-puesto que se ha liberado la última de ellas.
-*/
+
 
 void escribir_elemento_vector(FILE *fpasm, char *nombre_vector,
                               int tam_max, int exp_es_direccion)
@@ -867,16 +804,7 @@ void escribir_elemento_vector(FILE *fpasm, char *nombre_vector,
   fprintf(fpasm, "\tLEA EAX, [EDX + EAX*4]\n");
   fprintf(fpasm, "\tPUSH DWORD EAX\n");
 }
-/*
-Generación de código para indexar un vector
-Cuyo nombre es nombre_vector
-Declarado con un tamaño tam_max
-La expresión que lo indexa está en la cima de la pila
-Puede ser una variable (o algo equivalente) en cuyo caso exp_es_direccion vale 1
-Puede ser un valor concreto (en ese caso exp_es_direccion vale 0)
-Según se especifica en el material, es suficiente con utilizar dos registros para realizar esta
-tarea.
-*/
+
 
 void declararFuncion(FILE *fd_asm, char *nombre_funcion, int num_var_loc)
 {
@@ -927,11 +855,7 @@ void escribirParametro(FILE *fpasm, int pos_parametro, int num_total_parametros)
   fprintf(fpasm, "\tLEA EAX, [EBP + %d]\n", d_ebp);
   fprintf(fpasm, "\tPUSH DWORD EAX\n");
 }
-/*
-Función para dejar en la cima de la pila la dirección efectiva del parámetro que ocupa la
-posición pos_parametro (recuerda que los parámetros se ordenan con origen 0) de un total
-de num_total_parametros
-*/
+
 
 void escribirVariableLocal(FILE *fpasm, int posicion_variable_local)
 {
@@ -952,10 +876,7 @@ void escribirVariableLocal(FILE *fpasm, int posicion_variable_local)
   fprintf(fpasm, "\tLEA EAX, [EBP - %d]\n", d_ebp);
   fprintf(fpasm, "\tPUSH DWORD EAX\n");
 }
-/*
-Función para dejar en la cima de la pila la dirección efectiva de la variable local que ocupa
-la posición posicion_variable_local (recuerda que ordenadas con origen 1)
-*/
+
 
 void asignarDestinoEnPila(FILE *fpasm, int es_variable)
 {
@@ -969,34 +890,11 @@ void asignarDestinoEnPila(FILE *fpasm, int es_variable)
     printf("Error es_variable mal definido al operandoEnPilaAArgumento\n");
     exit(1);
   }
-  //TODO: ??
-  asignar_reg(fpasm, "EAX", VALOR_EXPLICITO); //creo que aqui es_variable
-  asignar_reg(fpasm, "EBX", es_variable);     //y aqui VALOR_REFERENCIA
-  fprintf(fpasm, "MOV [EAX], EBX\n");
-
-  /*
-  fprintf(fpasm, "pop dword eax\n");
-  fprintf(fpasm, "pop dword ebx\n");
-  if(es_variable == 1){
-    fprintf(fpasm, "mov ebx, [ebx]\n");
-  }
-  fprintf(fpasm, "mov [eax], ebx\n");
-  */
+  asignar_reg(fpasm, "EAX", VALOR_EXPLICITO); //direccion donde guardamos la variable o valor
+  asignar_reg(fpasm, "EBX", es_variable);     //variable o valor a guardar
+  fprintf(fpasm, "\tMOV [EAX], EBX\n");
 }
 
-/*
-Función para poder asignar a un destino que no es una variable “global” (tipo _x) por
-ejemplo parámetros o variables locales (ya que en ese caso su nombre real de alto nivel, no
-se tiene en cuenta pues es realmente un desplazamiento a partir de ebp: ebp+4 o ebp-8 por
-ejemplo).
-Se debe asumir que en la pila estará
-Primero (en la cima) lo que hay que asignar
-Debajo (se ha introducido en la pila antes) la dirección donde hay que asignar
-es_variable
-Es 1 si la expresión que se va a asignar es algo asimilable a una variable
-(identificador, o elemento de vector)
-Es 0 en caso contrario (constante u otro tipo de expresión)
-*/
 
 void operandoEnPilaAArgumento(FILE *fd_asm, int es_variable)
 {
@@ -1016,15 +914,9 @@ void operandoEnPilaAArgumento(FILE *fd_asm, int es_variable)
     fprintf(fd_asm, "\tPOP DWORD EAX\n");
     fprintf(fd_asm, "\tMOV EAX, [EAX]\n");
     fprintf(fd_asm, "\tPUSH DWORD EAX\n");
-  } // TODO:else if VALOR_EXPLICITO: push dword eax sin el mov?, como asignar_reg y luego hacer push dword eax
+  } // si es VALOR_EXPLICITO, el valor de la variable ya está en la pila
 }
-/*
-Como habrás visto en el material, nuestro convenio de llamadas a las funciones asume que
-los argumentos se pasan por valor, esto significa que siempre se dejan en la pila “valores” y
-no “variables”
-Esta función realiza la tarea de dado un operando escrito en la pila y sabiendo si es variable
-o no (es_variable) se deja en la pila el valor correspondiente
-*/
+
 
 void llamarFuncion(FILE *fd_asm, char *nombre_funcion, int num_argumentos)
 {
