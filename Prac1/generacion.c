@@ -80,6 +80,7 @@ void escribir_inicio_main(FILE *fpasm)
   }
 
   fprintf(fpasm, "main:\n");
+  //Guardamos el puntero de pila en la variable __esp
   fprintf(fpasm, "\tMOV DWORD [__esp], ESP\n");
 }
 
@@ -95,6 +96,7 @@ void escribir_fin(FILE *fpasm)
   fprintf(fpasm, "\tMOV DWORD ESP, [__esp]\n");
   fprintf(fpasm, "\tret\n");
 
+  //Error que se produce al intentar dividir entre cero
   fprintf(fpasm, "div_0:\n");
   fprintf(fpasm, "\tPUSH DWORD _err_div_0\n");
   fprintf(fpasm, "\tCALL print_string\n");
@@ -102,6 +104,7 @@ void escribir_fin(FILE *fpasm)
   fprintf(fpasm, "\tCALL print_endofline\n");
   fprintf(fpasm, "\tJMP fin\n");
 
+  //Error que se produce al intentar extraer de un array un elemento fuera de rango
   fprintf(fpasm, "fin_indice_fuera_rango:\n");
   fprintf(fpasm, "\tPUSH DWORD _err_indice_fuera_rango\n");
   fprintf(fpasm, "\tCALL print_string\n");
@@ -303,8 +306,9 @@ void dividir(FILE *fpasm, int es_variable_1, int es_variable_2)
   fprintf(fpasm, "\tCMP EBX, 0\n");
   fprintf(fpasm, "\tJE div_0\n");
 
-  //Ponemos el registro para dividir a cero
+  //Ponemos a cero el registro que se usa para dividir
   fprintf(fpasm, "\tCDQ\n");
+
   fprintf(fpasm, "\tIDIV EBX\n");
   escribir_operando(fpasm, "EAX", VALOR_EXPLICITO);
 }
@@ -796,11 +800,20 @@ void escribir_elemento_vector(FILE *fpasm, char *nombre_vector,
     exit(1);
   }
   asignar_reg(fpasm, "EAX", exp_es_direccion);
+
+  //Error si el indice es menor que cero
   fprintf(fpasm, "\tCMP EAX, 0\n");
   fprintf(fpasm, "\tJL NEAR fin_indice_fuera_rango\n");
+
+  //Error si el indice supera el tamaño máximo
   fprintf(fpasm, "\tCMP EAX, %d\n", (tam_max - 1));
   fprintf(fpasm, "\tJG NEAR fin_indice_fuera_rango\n");
+
+  //Guardamos en EDX la direccion del vector
   fprintf(fpasm, "\tMOV DWORD EDX, _%s\n", nombre_vector);
+
+  //Guardamos en EAX el elemento del vector indicado por
+  //el elmento superior de la pila
   fprintf(fpasm, "\tLEA EAX, [EDX + EAX*4]\n");
   fprintf(fpasm, "\tPUSH DWORD EAX\n");
 }
