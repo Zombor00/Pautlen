@@ -106,6 +106,7 @@ void escribir_fin(FILE *fpasm)
   fprintf(fpasm, "\tCALL print_string\n");
   fprintf(fpasm, "\tADD ESP, 4\n");
   fprintf(fpasm, "\tJMP fin\n");
+  // TODO: salto de linea al imprimir errores
 }
 
 void escribir_operando(FILE *fpasm, char *nombre, int es_variable)
@@ -429,6 +430,41 @@ void no(FILE *fpasm, int es_variable, int cuantos_no)
   fprintf(fpasm, "no_fin_%d:\n", cuantos_no);
 }
 
+void igual(FILE* fpasm, int es_variable1, int es_variable2, int etiqueta)
+{
+  if (fpasm == NULL)
+  {
+    printf("Error NULL file al igual");
+    exit(1);
+  }
+  else if (es_variable1 != VALOR_EXPLICITO && es_variable1 != VALOR_REFERENCIA)
+  {
+    printf("Error tipo mal definido al igual");
+    exit(1);
+  }
+  else if (es_variable2 != VALOR_EXPLICITO && es_variable2 != VALOR_REFERENCIA)
+  {
+    printf("Error tipo mal definido al igual");
+    exit(1);
+  }
+  asignar_reg(fpasm, "EBX", es_variable2);
+  asignar_reg(fpasm, "EAX", es_variable1);
+
+  fprintf(fpasm, "\tCMP EAX, EBX\n");
+  fprintf(fpasm, "\tJE es_igual_%d\n", etiqueta);
+
+  // False: no es distinto
+  fprintf(fpasm, "\tPUSH DWORD 0\n");
+  fprintf(fpasm, "\tJMP igual_fin_%d\n", etiqueta);
+
+  fprintf(fpasm, "es_igual_%d:\n", etiqueta);
+  fprintf(fpasm, "\tPUSH DWORD 1\n");
+
+  fprintf(fpasm, "igual_fin_%d:\n", etiqueta);
+}
+
+
+
 void menor(FILE *fpasm, int es_variable1, int es_variable2, int etiqueta)
 {
   if (fpasm == NULL)
@@ -446,8 +482,8 @@ void menor(FILE *fpasm, int es_variable1, int es_variable2, int etiqueta)
     printf("Error tipo mal definido al menor");
     exit(1);
   }
-  asignar_reg(fpasm, "EAX", es_variable1);
   asignar_reg(fpasm, "EBX", es_variable2);
+  asignar_reg(fpasm, "EAX", es_variable1);
 
   fprintf(fpasm, "\tCMP EAX, EBX\n");
   fprintf(fpasm, "\tJL es_menor_%d\n", etiqueta);
@@ -479,8 +515,8 @@ void mayor(FILE *fpasm, int es_variable1, int es_variable2, int etiqueta)
     printf("Error tipo mal definido al mayor");
     exit(1);
   }
-  asignar_reg(fpasm, "EAX", es_variable1);
   asignar_reg(fpasm, "EBX", es_variable2);
+  asignar_reg(fpasm, "EAX", es_variable1);
 
   fprintf(fpasm, "\tCMP EAX, EBX\n");
   fprintf(fpasm, "\tJG es_mayor_%d\n", etiqueta);
@@ -512,8 +548,8 @@ void distinto(FILE *fpasm, int es_variable1, int es_variable2, int etiqueta)
     printf("Error tipo mal definido al distinto");
     exit(1);
   }
-  asignar_reg(fpasm, "EAX", es_variable1);
   asignar_reg(fpasm, "EBX", es_variable2);
+  asignar_reg(fpasm, "EAX", es_variable1);
 
   fprintf(fpasm, "\tCMP EAX, EBX\n");
   fprintf(fpasm, "\tJNE es_distinto_%d\n", etiqueta);
@@ -545,8 +581,8 @@ void menor_igual(FILE *fpasm, int es_variable1, int es_variable2, int etiqueta)
     printf("Error tipo mal definido al menor_igual");
     exit(1);
   }
-  asignar_reg(fpasm, "EAX", es_variable1);
   asignar_reg(fpasm, "EBX", es_variable2);
+  asignar_reg(fpasm, "EAX", es_variable1);
 
   fprintf(fpasm, "\tCMP EAX, EBX\n");
   fprintf(fpasm, "\tJLE es_menor_igual_%d\n", etiqueta);
@@ -578,8 +614,8 @@ void mayor_igual(FILE *fpasm, int es_variable1, int es_variable2, int etiqueta)
     printf("Error tipo mal definido al mayor_igual");
     exit(1);
   }
-  asignar_reg(fpasm, "EAX", es_variable1);
   asignar_reg(fpasm, "EBX", es_variable2);
+  asignar_reg(fpasm, "EAX", es_variable1);
 
   fprintf(fpasm, "\tCMP EAX, EBX\n");
   fprintf(fpasm, "\tJGE es_mayor_igual_%d\n", etiqueta);
@@ -659,6 +695,7 @@ void escribir(FILE *fpasm, int es_variable, int tipo)
   fprintf(fpasm, "\tADD ESP, 4\n");
 }
 
+
 void ifthenelse_inicio(FILE *fpasm, int exp_es_variable, int etiqueta)
 {
   if (fpasm == NULL)
@@ -673,7 +710,7 @@ void ifthenelse_inicio(FILE *fpasm, int exp_es_variable, int etiqueta)
   }
   asignar_reg(fpasm, "EAX", exp_es_variable);
   fprintf(fpasm, "\tCMP EAX, 0\n");
-  fprintf(fpasm, "\tJE NEAR fin_then_%d\n", etiqueta);
+  fprintf(fpasm, "\tJE NEAR else_%d\n", etiqueta);
 }
 
 /*
@@ -716,10 +753,10 @@ void ifthen_fin(FILE *fpasm, int etiqueta)
 {
   if (fpasm == NULL)
   {
-    printf("Error NULL file dowhile inicio");
+    printf("Error NULL file ifthen_fin");
     exit(1);
   }
-  fprintf(fpasm, "ifthen_fin_%d:\n", etiqueta);
+  fprintf(fpasm, "fin_ifthen_%d:\n", etiqueta);
 }
 /*
 Generación de código para el fin de una estructura if-then
@@ -734,10 +771,11 @@ void ifthenelse_fin_then(FILE *fpasm, int etiqueta)
 {
   if (fpasm == NULL)
   {
-    printf("Error NULL file dowhile inicio");
+    printf("Error NULL file ifthenelse_fin_then");
     exit(1);
   }
-  fprintf(fpasm, "ifthenelse_fin_then_%d:\n", etiqueta);
+  fprintf(fpasm, "\tJMP NEAR ifthenelse_fin_%d\n", etiqueta);
+  fprintf(fpasm, "else_%d:\n", etiqueta);
 }
 /*
 Generación de código para el fin de la rama then de una estructura if-then-else
@@ -750,7 +788,7 @@ void ifthenelse_fin(FILE *fpasm, int etiqueta)
 {
   if (fpasm == NULL)
   {
-    printf("Error NULL file dowhile inicio");
+    printf("Error NULL file ifthenelse_fin");
     exit(1);
   }
   fprintf(fpasm, "ifthenelse_fin_%d:\n", etiqueta);
@@ -796,7 +834,6 @@ void while_exp_pila(FILE *fpasm, int exp_es_variable, int etiqueta)
   // Si el cmp anterior era False while_fin, si no while_ini
   fprintf(fpasm, "\tCMP EAX, 0\n");
   fprintf(fpasm, "\tJE while_fin_%d\n", etiqueta);
-  fprintf(fpasm, "\tJMP while_ini%d\n", etiqueta);
   //fprintf(fpasm,"jmp %d\n", etiqueta);
 }
 /*
@@ -817,6 +854,7 @@ void while_fin(FILE *fpasm, int etiqueta)
     printf("Error NULL file while_fin");
     exit(1);
   }
+  fprintf(fpasm, "\tJMP while_ini_%d\n", etiqueta);
   fprintf(fpasm, "while_fin_%d:\n", etiqueta);
 }
 /*

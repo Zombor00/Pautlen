@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall -g
-EXE = ejemplo3
+EXE = ejemplo8
 
 main: generacion.c $(EXE).c ej2/alfalib.o
 	$(CC) $(CFLAGS) -o $(EXE)_asm generacion.c $(EXE).c
