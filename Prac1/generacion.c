@@ -99,14 +99,15 @@ void escribir_fin(FILE *fpasm)
   fprintf(fpasm, "\tPUSH DWORD _err_div_0\n");
   fprintf(fpasm, "\tCALL print_string\n");
   fprintf(fpasm, "\tADD ESP, 4\n");
+  fprintf(fpasm, "\tCALL print_endofline\n");
   fprintf(fpasm, "\tJMP fin\n");
 
   fprintf(fpasm, "fin_indice_fuera_rango:\n");
   fprintf(fpasm, "\tPUSH DWORD _err_indice_fuera_rango\n");
   fprintf(fpasm, "\tCALL print_string\n");
   fprintf(fpasm, "\tADD ESP, 4\n");
+  fprintf(fpasm, "\tCALL print_endofline\n");
   fprintf(fpasm, "\tJMP fin\n");
-  // TODO: salto de linea al imprimir errores
 }
 
 void escribir_operando(FILE *fpasm, char *nombre, int es_variable)
@@ -133,7 +134,7 @@ void escribir_operando(FILE *fpasm, char *nombre, int es_variable)
   else
   {
     fprintf(fpasm, "\tPUSH DWORD %s\n", nombre);
-  } // TODO: ya no son iguales pero que alguien compruebe
+  }
 }
 
 void asignar(FILE *fpasm, char *nombre, int es_variable)
@@ -269,18 +270,8 @@ void multiplicar(FILE *fpasm, int es_variable_1, int es_variable_2)
     exit(1);
   }
 
-  //TODO: Ver porque no funciona con asignar_reg
-  fprintf(fpasm, "\tPOP DWORD EBX\n");
-  fprintf(fpasm, "\tPOP DWORD EAX\n");
-
-  if (es_variable_1 == VALOR_REFERENCIA)
-  {
-    fprintf(fpasm, "\nMOV EAX, DWORD [EAX]\n");
-  }
-  if (es_variable_2 == VALOR_REFERENCIA)
-  {
-    fprintf(fpasm, "\nMOV EBX, DWORD [EBX]\n");
-  }
+  asignar_reg(fpasm, "EBX", es_variable_2);
+  asignar_reg(fpasm, "EAX", es_variable_1);
 
   /*[EAX] = [EAX]*[EBX]*/
   fprintf(fpasm, "\tIMUL DWORD EBX\n");
@@ -306,18 +297,6 @@ void dividir(FILE *fpasm, int es_variable_1, int es_variable_2)
     exit(1);
   }
 
-  //TODO: Ver porque no funciona con asignar_reg
-  /*fprintf(fpasm, "\tPOP DWORD EBX\n");
-  fprintf(fpasm, "\tPOP DWORD EAX\n");
-
-  if (es_variable_1 == VALOR_REFERENCIA)
-  {
-    fprintf(fpasm, "\nmov EAX, DWORD [EAX]\n");
-  }
-  if (es_variable_2 == VALOR_REFERENCIA)
-  {
-    fprintf(fpasm, "\nmov EBX, DWORD [EBX]\n");
-  }*/
   asignar_reg(fpasm, "EBX", es_variable_2);
   asignar_reg(fpasm, "EAX", es_variable_1);
 
