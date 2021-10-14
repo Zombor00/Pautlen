@@ -845,8 +845,8 @@ void retornarFuncion(FILE *fd_asm, int es_variable)
     exit(1);
   }
   asignar_reg(fd_asm, "EAX", es_variable);
-  fprintf(fd_asm, "\tMOV ESP, EBP\n"); /* restaurar el puntero de pila */
-  fprintf(fd_asm, "\tPOP EBP\n");      /* sacar de la pila ebp */
+  fprintf(fd_asm, "\tMOV DWORD ESP, EBP\n"); /* restaurar el puntero de pila */
+  fprintf(fd_asm, "\tPOP DWORD EBP\n");      /* sacar de la pila ebp */
   fprintf(fd_asm, "\tret\n");
 }
 
@@ -905,7 +905,7 @@ void asignarDestinoEnPila(FILE *fpasm, int es_variable)
   }
   asignar_reg(fpasm, "EAX", VALOR_EXPLICITO); //direccion donde guardamos la variable o valor
   asignar_reg(fpasm, "EBX", es_variable);     //variable o valor a guardar
-  fprintf(fpasm, "\tMOV [EAX], EBX\n");
+  fprintf(fpasm, "\tMOV DWORD [EAX], EBX\n");
 }
 
 
@@ -925,7 +925,7 @@ void operandoEnPilaAArgumento(FILE *fd_asm, int es_variable)
   if (es_variable == VALOR_REFERENCIA)
   {
     fprintf(fd_asm, "\tPOP DWORD EAX\n");
-    fprintf(fd_asm, "\tMOV EAX, [EAX]\n");
+    fprintf(fd_asm, "\tMOV DWORD EAX, [EAX]\n");
     fprintf(fd_asm, "\tPUSH DWORD EAX\n");
   } // si es VALOR_EXPLICITO, el valor de la variable ya está en la pila
 }
