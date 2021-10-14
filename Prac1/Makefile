@@ -1,8 +1,9 @@
 CC=gcc
 CFLAGS=-Wall -g
-EXE = ejemplo1 ejemplo2 ejemplo3 ejemplo4 ejemplo5 ejemplo6 ejemplo7 ejemplo8 ejemplo9
+EJ = ejemplos/
+EXE = $(EJ)ejemplo1 $(EJ)ejemplo2 $(EJ)ejemplo3 $(EJ)ejemplo4 $(EJ)ejemplo5 $(EJ)ejemplo6 $(EJ)ejemplo7 $(EJ)ejemplo8 $(EJ)ejemplo9
 
-main: generacion.c $(EXE) lib/alfalib.o
+all: generacion.c $(EXE) lib/alfalib.o
 $(EXE):
 	$(CC) $(CFLAGS) -o $@_asm generacion.c $@.c
 	./$@_asm $@.asm
@@ -11,4 +12,4 @@ $(EXE):
 
 .PHONY: clean
 clean:
-	rm -rf *.o *.asm $(EXE) $(EXE)_asm
+	rm -rf $(EJ)*.o $(EJ)*.asm $(EXE) $(EJ)*_asm
