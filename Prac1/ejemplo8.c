@@ -18,8 +18,8 @@ int main (int argc, char ** argv)
   escribir_segmento_codigo(fd_asm);
   escribir_inicio_main(fd_asm);
   //m=0;
-  escribir_operando(fd_asm,"8",0); // Entra en else
-  //escribir_operando(fd_asm,"7",0); // Entra en if
+  escribir_operando(fd_asm,"8",0); // Entra en if
+  //escribir_operando(fd_asm,"0",0); // No entra
   asignar(fd_asm,"m",0);
 
   //Gestion de etiquetas para abrir el ambito del if. Esta sera la etiqueta que tenga.
