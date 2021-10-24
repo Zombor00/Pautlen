@@ -10,15 +10,23 @@ int main(int argc, char ** argv) {
     extern FILE * yyin;
     extern char * yytext;
     extern int yyleng;
+    
+    if (argc != 3){
+        printf("Debe indicar file de entrada y de salida\n");
+        return 1;
+    }
+    
     yyin = fopen(argv[1], "r");
     if(yyin == NULL) {
         return 1;
     }
+    
     out = fopen(argv[2], "w");
     if(out == NULL) {
         fclose(yyin);
         return 1;
     }
+    
     while((ret = yylex()) != 0) {
         switch(ret) {
             case TOK_MAIN:
