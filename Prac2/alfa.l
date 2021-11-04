@@ -19,7 +19,7 @@ ERROR		.
 %%
 {ESPACIO} {yycol += yyleng;}
 {SALTOLINEA}	{yycol = 1; yylin += 1;}
-{COMENTARIOS}	{yycol += yyleng;}
+{COMENTARIOS}	{yycol = 1; yylin += 1;}
 
 main {yycol += yyleng; return TOK_MAIN;}
 int {yycol += yyleng; return TOK_INT;}
