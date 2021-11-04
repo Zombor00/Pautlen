@@ -4,11 +4,9 @@
 int yylex();
 int yyparse();
 
-FILE * yyin;
-
 int main(int argc, char ** argv) {
-    extern FILE * yyout = NULL;
-    extern FILE * yyin = NULL;
+    extern FILE * yyout;
+    extern FILE * yyin;
 
     if (argc != 3)
     {
@@ -21,7 +19,7 @@ int main(int argc, char ** argv) {
         return 1;
     }
     yyout = fopen(argv[2], "w");
-    if(out == NULL) {
+    if(yyout == NULL) {
         fclose(yyin);
         return 1;
     }
