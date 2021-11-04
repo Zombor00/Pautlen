@@ -1,6 +1,5 @@
 %{
 #include <stdio.h>
-#include "tokens.h"
 #include "y.tab.h"
 
 extern FILE * yyout;

@@ -2,7 +2,18 @@
 #include <stdio.h>
 
 extern int yy_morph_error;
+extern long yylin;
+extern long yycol;
+extern FILE * yyout;
+
+int yylex();
+void yyerror(const char * s);
 %}
+
+%union {
+   char* cadena;
+   int numero;
+}
 
 %token TOK_MAIN
 %token TOK_INT
@@ -236,6 +247,7 @@ identificador:            TOK_IDENTIFICADOR
 
 void yyerror(const char * s) {
     if(!yy_morph_error) {
-        printf("****Error sintactico en linea: %ld\n", yylin);
+        printf("****Error sintactico en [lin %ld, col %ld]\n", yylin, yycol);
+        return;
     }
 }
