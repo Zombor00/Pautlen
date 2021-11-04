@@ -148,11 +148,8 @@ int main(int argc, char **argv)
             fprintf(out, "%s\t%d\t%s\n", "TOK_IDENTIFICADOR", ret, yytext);
             break;
         case TOK_ERROR:
-            if (yyleng == 1)
-            {
-                fprintf(stderr, "****Error en [lin %ld, col %ld]: simbolo no permitido (%s)\n", yylin, yycol,
+            fprintf(stderr, "****Error en [lin %ld, col %ld]: simbolo no permitido (%s)\n", yylin, yycol,
                         yytext);
-            }
             fclose(yyin);
             fclose(out);
             return 1;
