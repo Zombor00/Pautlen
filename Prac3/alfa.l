@@ -4,7 +4,7 @@
 
 extern FILE * yyout;
 long yylin = 1;
-long yycol = 1;
+long yycol = 0;
 int yy_morph_error = 0;
 %}
 
@@ -19,8 +19,8 @@ ERROR		.
 
 %%
 {ESPACIO} {yycol += yyleng;}
-{SALTOLINEA}	{yycol = 1; yylin += 1;}
-{COMENTARIOS}	{yycol = 1; yylin += 1;}
+{SALTOLINEA}	{yycol = 0; yylin += 1;}
+{COMENTARIOS}	{yycol = 0; yylin += 1;}
 
 main {yycol += yyleng; fprintf(yyout,";D:\t%s\n", yytext); return TOK_MAIN;}
 int {yycol += yyleng; fprintf(yyout,";D:\t%s\n", yytext); return TOK_INT;}
@@ -65,8 +65,8 @@ false {yycol += yyleng; fprintf(yyout,";D:\t%s\n", yytext); return TOK_FALSE;}
 
 {ID}		{yycol += yyleng; fprintf(yyout,";D:\t%s\n", yytext); return TOK_IDENTIFICADOR;}
 
-{ERROR_LONG}		{fprintf(stderr,"****Error morfologico en [lin %ld, col %ld]\n", yylin, yycol); yy_morph_error = 1; return TOK_ERROR;}
-{ERROR}		{fprintf(stderr,"****Error morfologico en [lin %ld, col %ld]\n", yylin, yycol); yy_morph_error = 1; return TOK_ERROR;}
+{ERROR_LONG}		{yycol += yyleng; fprintf(stderr,"****Error en [lin %ld, col %ld]: longitud maxima alcanzada\n", yylin, yycol); yy_morph_error = 1; return TOK_ERROR;}
+{ERROR}		{yycol += yyleng; fprintf(stderr,"****Error en [lin %ld, col %ld]: simbolo no permitido (%s)\n", yylin, yycol, yytext); yy_morph_error = 1; return TOK_ERROR;}
 %%
 
 /*
