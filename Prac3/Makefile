@@ -3,7 +3,7 @@ IN_SUFIX = entrada_sin_
 OUT_SUFIX = salida_sin_
 OUT_TEST_SUFIX = mi_salida_sin_
 
-main: pruebaSintactico
+all: pruebaSintactico
 
 run: pruebaSintactico examples
 
