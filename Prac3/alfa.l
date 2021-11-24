@@ -65,8 +65,8 @@ false {yycol += yyleng; fprintf(yyout,";D:\t%s\n", yytext); return TOK_FALSE;}
 
 {ID}		{yycol += yyleng; fprintf(yyout,";D:\t%s\n", yytext); return TOK_IDENTIFICADOR;}
 
-{ERROR_LONG}		{yycol += yyleng; fprintf(stderr,"****Error en [lin %ld, col %ld]: longitud maxima alcanzada\n", yylin, yycol); yy_morph_error = 1; return TOK_ERROR;}
-{ERROR}		{yycol += yyleng; fprintf(stderr,"****Error en [lin %ld, col %ld]: simbolo no permitido (%s)\n", yylin, yycol, yytext); yy_morph_error = 1; return TOK_ERROR;}
+{ERROR_LONG}		{yycol += yyleng; fprintf(stderr,"****Error en [lin %ld, col %ld]: longitud maxima alcanzada\n", yylin, yycol); yy_morph_error = 1;}
+{ERROR}		{yycol += yyleng; fprintf(stderr,"****Error en [lin %ld, col %ld]: simbolo no permitido (%s)\n", yylin, yycol, yytext); yy_morph_error = 1;}
 %%
 
 /*

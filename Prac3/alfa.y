@@ -58,8 +58,6 @@ void yyerror(const char * s);
 
 %token <cadena> TOK_IDENTIFICADOR
 
-%token TOK_ERROR
-
 %left TOK_IGUAL TOK_MENORIGUAL TOK_MENOR TOK_MAYORIGUAL TOK_MAYOR TOK_DISTINTO
 %left TOK_AND TOK_OR
 %left TOK_MAS TOK_MENOS
@@ -103,7 +101,7 @@ identificadores:          identificador
                           ;
 funciones:                funcion funciones
                               {fprintf(yyout,";R20:\t<funciones> ::= <funcion> <funciones>\n");}
-                          |
+                          |   /* vacío */
                               {fprintf(yyout,";R21:\t<funciones> ::= \n");}
                           ;
 funcion:                  TOK_FUNCTION tipo identificador TOK_PARENTESISIZQUIERDO parametros_funcion TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA declaraciones_funcion sentencias TOK_LLAVEDERECHA
@@ -111,12 +109,12 @@ funcion:                  TOK_FUNCTION tipo identificador TOK_PARENTESISIZQUIERD
                           ;
 parametros_funcion:       parametro_funcion resto_parametros_funcion
                               {fprintf(yyout,";R23:\t<parametros_funcion> ::= <parametro_funcion> <resto_parametros_funcion>\n");}
-                          |
+                          |   /* vacío */
                               {fprintf(yyout,";R24:\t<parametros_funcion> ::= \n");}
                           ;
 resto_parametros_funcion: TOK_PUNTOYCOMA parametro_funcion resto_parametros_funcion
                               {fprintf(yyout,";R25:\t<resto_parametros_funcion> ::= ; <parametro_funcion> <resto_parametros_funcion>\n");}
-                          |
+                          |   /* vacío */
                               {fprintf(yyout,";R26:\t<resto_parametros_funcion> ::= \n");}
                           ;
 parametro_funcion:        tipo identificador
@@ -124,7 +122,7 @@ parametro_funcion:        tipo identificador
                           ;
 declaraciones_funcion:    declaraciones
                               {fprintf(yyout,";R28:\t<declaraciones_funcion> ::= <declaraciones>\n");}
-                          |
+                          |   /* vacío */
                               {fprintf(yyout,";R29:\t<declaraciones_funcion> ::= \n");}
                           ;
 sentencias:               sentencia
@@ -207,12 +205,12 @@ exp:                      exp TOK_MAS exp
                           ;
 lista_expresiones:        exp resto_lista_expresiones
                               {fprintf(yyout,";R89:\t<lista_expresiones> ::= <exp> <resto_lista_expresiones>\n");}
-                          |
+                          |   /* vacío */
                               {fprintf(yyout,";R90:\t<lista_expresiones> ::= \n");}
                           ;
 resto_lista_expresiones:  TOK_COMA exp resto_lista_expresiones
                               {fprintf(yyout,";R91:\t<resto_lista_expresiones> ::= , <exp> <resto_lista_expresiones>\n");}
-                          |
+                          |   /* vacío */
                               {fprintf(yyout,";R92:\t<resto_lista_expresiones> ::= \n");}
                           ;
 comparacion:              exp TOK_IGUAL exp
