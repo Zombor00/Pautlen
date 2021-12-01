@@ -1,6 +1,4 @@
 #include "tabla_hash.h"
-#define LOCAL 0
-#define GLOBAL 1
 
 int main(int argc, char *argv[])
 {
@@ -13,7 +11,6 @@ int main(int argc, char *argv[])
   value *result_local = NULL;
   int num;
   int res;
-  int ambito = GLOBAL;
   char buf[256];
   char *aux1 = NULL;
   char *aux2 = NULL;
@@ -54,22 +51,10 @@ int main(int argc, char *argv[])
   {
     aux1 = strchr(buf, ' ');
     aux2 = strchr(buf, '\t');
-    /*Extracción*/
+    /*Extracción en ámbito global*/
     if (aux1 == NULL && aux2 == NULL)
     {
       buf[strlen(buf) - 1] = 0;
-      /*Si estamos en ámbito local buscamos primero en el ámbito local*/
-      if(ambito == LOCAL)
-      {
-        result_local = get(buf, tabla_local);
-        /*Se encuentra el elemento solicitado en la tabla local*/
-        if(result_local != NULL){
-          fprintf(salida, "%s\t%d\n", buf, result_local->basic_type);
-          fflush(salida);
-          continue;
-        }
-      }
-      /*Buscamos en el ámbito global*/
       result = get(buf, tabla_global);
       if (result == NULL)
       {
@@ -84,7 +69,6 @@ int main(int argc, char *argv[])
         fflush(salida);
       }
     }
-    /*Caso de que no piden extracción*/
     else
     {
       /*Parseamos la linea dependiendo de si hay un espacio o un tabulador*/
@@ -106,11 +90,7 @@ int main(int argc, char *argv[])
       /*Si el segundo elemento es positivo, insertamos elemento*/
       if (num > 0)
       {
-        if(ambito == GLOBAL){
-          res = insert(buf, 0, num, 0, 0, 0, 0, 0, 0, tabla_global);
-        }else{
-          res = insert(buf, 0, num, 0, 0, 0, 0, 0, 0, tabla_local);
-        }
+        res = insert(buf, 0, num, 0, 0, 0, 0, 0, 0, tabla_global);
         if (res == FOUND)
         {
           /*TODO: res == ERROR con frees y demás*/
@@ -123,15 +103,7 @@ int main(int argc, char *argv[])
           fflush(salida);
         }
       }
-      /*Cierre de ámbito local*/
-      else if(strcmp(buf, "cierre") == 0 && num == -999){
-        wipe(tabla_local);
-        tabla_local = NULL;
-        fprintf(salida, "cierre\n");
-        fflush(salida);
-        ambito = GLOBAL;
-      }
-      /*Si el segundo elemento es negativo, y no es un cierre abrimos ámbito local*/
+      /*Si el segundo elemento es negativo, abrimos ámbito local*/
       else if (num < 0)
       {
         res = insert(buf, 0, num, 0, 0, 0, 0, 0, 0, tabla_global);
@@ -150,11 +122,76 @@ int main(int argc, char *argv[])
           if (tabla_local == NULL)
           {
             printf("Error creando la tabla local!\n");
-            /*TODO: salir con frees*/
           }
 
           insert(buf, 0, num, 0, 0, 0, 0, 0, 0, tabla_local);
-          ambito = LOCAL;
+
+          while (fgets(buf, sizeof(buf), entrada) != NULL)
+          {
+            aux1 = strchr(buf, ' ');
+            aux2 = strchr(buf, '\t');
+            if (aux1 == NULL && aux2 == NULL)
+            {
+              buf[strlen(buf) - 1] = 0;
+              result_local = get(buf, tabla_local);
+              result = get(buf, tabla_global);
+              if (result == NULL && result_local == NULL)
+              {
+                fprintf(salida, "%s\t-1\n", buf);
+                fflush(salida);
+              }
+              else if (result_local != NULL)
+              {
+                fprintf(salida, "%s\t%d\n", buf, result_local->basic_type);
+                fflush(salida);
+              }
+              else
+              {
+                fprintf(salida, "%s\t%d\n", buf, result->basic_type);
+                fflush(salida);
+              }
+            }
+            else
+            {
+              if (aux1 == NULL)
+              {
+                aux2[0] = 0;
+                aux2++;
+                aux2[strlen(aux2) - 1] = 0;
+                num = atoi(aux2);
+              }
+              else if (aux2 == NULL)
+              {
+                aux1[0] = 0;
+                aux1++;
+                aux1[strlen(aux1) - 1] = 0;
+                num = atoi(aux1);
+              }
+              if (num > 0)
+              {
+                res = insert(buf, 0, num, 0, 0, 0, 0, 0, 0, tabla_local);
+                if (res == FOUND)
+                {
+                  /*TODO: res == ERROR con frees y demás*/
+                  fprintf(salida, "-1\t%s\n", buf);
+                  fflush(salida);
+                }
+                else if (res == INSERTED)
+                {
+                  fprintf(salida, "%s\n", buf);
+                  fflush(salida);
+                }
+              }
+              else if (strcmp(buf, "cierre") == 0 && num == -999)
+              {
+                wipe(tabla_local);
+                tabla_local = NULL;
+                fprintf(salida, "cierre\n");
+                fflush(salida);
+                break;
+              }
+            }
+          }
         }
       }
     }
