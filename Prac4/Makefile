@@ -1,17 +1,28 @@
-all: tabla_hash.c prueba.c
-	gcc -Wall -c tabla_hash.c -lm
-	gcc -o prueba_tabla prueba_tabla.c tabla_hash.o -lm
+CC = gcc
+FLAGS = -g -Wall -pedantic
+FSALIDA_PRUEBA = salida_prueba.txt
+FSALIDA = salida.txt
+FENTRADA = entrada.txt
+EXE = prueba_tabla
+TABLA_HASH = tabla_hash
 
-prueba: tabla_hash.c prueba.c
-	gcc -Wall -c tabla_hash.c -lm
-	gcc -o prueba prueba.c tabla_hash.o -lm
+all: $(EXE)
+
+$(EXE): $(TABLA_HASH).c $(EXE).c
+	$(CC) $(FLAGS) -c $(TABLA_HASH).c -lm
+	$(CC) $(FLAGS) -o $(EXE) $(EXE).c $(TABLA_HASH).o -lm
+
+prueba: $(TABLA_HASH).c prueba.c
+	$(CC) $(FLAGS) -c $(TABLA_HASH).c -lm
+	$(CC) $(FLAGS) -o prueba prueba.c $(TABLA_HASH).o -lm
 
 clean:
-	-rm -f tabla_hash.o
-	-rm -f prueba
-	-rm -f prueba_tabla
-	-rm -f valgrind-out.txt
-	-rm -f salida_prueba.txt
+	-rm -f $(TABLA_HASH).o $(EXE) prueba
+	-rm -f $(FSALIDA_PRUEBA)
 
-valgrind: prueba
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out.txt ./prueba
+valgrind: $(EXE)
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose ./$(EXE) $(FENTRADA) $(FSALIDA_PRUEBA)
+
+run: $(EXE)
+	./$(EXE) $(FENTRADA) $(FSALIDA_PRUEBA)
+	diff $(FSALIDA) $(FSALIDA_PRUEBA)

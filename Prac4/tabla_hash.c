@@ -17,7 +17,7 @@ int hash(char *name)
   int hash_val = 5381;
   int c;
 
-  while (c = *name++)
+  while ((c = *name++))
   {
     hash_val = ((hash_val << 5) + hash_val) + c; /* hash * 33 + c */
   }
