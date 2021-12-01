@@ -26,11 +26,29 @@
 typedef struct Value value;
 typedef struct Tuple tuple;
 
-tuple** create_table();
-int hash(char* name);
+struct Value
+{
+  int element_category;
+  int basic_type;
+  int category;
+  int size;       /*size will be 0 if the element is not a vector*/
+  int num_params; /*These only apply if the element is a function*/
+  int pos_param;
+  int num_local_variables;
+  int pos_local_variable;
+};
+
+struct Tuple
+{
+  char *name;
+  value *val;
+};
+
+tuple **create_table();
+int hash(char *name);
 int insert(char *name, int element_category, int basic_type, int category, int size,
-  int num_params, int pos_param, int num_local_variables, int pos_local_variable, tuple **hash_table);
-value* get(char* name, tuple** hash_table);
+           int num_params, int pos_param, int num_local_variables, int pos_local_variable, tuple **hash_table);
+value *get(char *name, tuple **hash_table);
 int wipe(tuple **hash_table);
 
 #endif

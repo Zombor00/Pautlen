@@ -1,4 +1,4 @@
-uno	1
+uno 1
 dos	2
 uno	1
 dos	2
