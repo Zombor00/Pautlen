@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <math.h>
 
-#define MAX_SIZE 1024
+#define MAX_SIZE 1048576
 /*CATEGORY*/
 #define ESCALAR 1
 #define VECTOR 2

@@ -47,18 +47,21 @@ int main(int argc, char *argv[])
   if (tabla_global == NULL)
   {
     printf("Error creando la tabla global!\n");
+    fclose(entrada);
+    fclose(salida);
+    return 1;
   }
 
-  /*Leemos linea a linea*/
+  /*Leemos linea a linea el fichero de entrada*/
   while (fgets(buf, sizeof(buf), entrada) != NULL)
   {
     aux1 = strchr(buf, ' ');
     aux2 = strchr(buf, '\t');
-    /*Extracción*/
+    /*Busqueda pues solo hay identificador, no entero*/
     if (aux1 == NULL && aux2 == NULL)
     {
       buf[strlen(buf) - 1] = 0;
-      /*Si estamos en ámbito local buscamos primero en el ámbito local*/
+      /*Si estamos en ámbito local buscamos primero en la tabla local*/
       if(ambito == LOCAL)
       {
         result_local = get(buf, tabla_local);
@@ -71,20 +74,20 @@ int main(int argc, char *argv[])
       }
       /*Buscamos en el ámbito global*/
       result = get(buf, tabla_global);
-      if (result == NULL)
-      {
-        /*No se encuentra el elemento solicitado*/
-        fprintf(salida, "%s\t-1\n", buf);
-        fflush(salida);
-      }
-      else
+      if (result != NULL)
       {
         /*Se encuentra el elemento solicitado*/
         fprintf(salida, "%s\t%d\n", buf, result->basic_type);
         fflush(salida);
       }
+      else
+      {
+        /*No se encuentra el elemento solicitado*/
+        fprintf(salida, "%s\t-1\n", buf);
+        fflush(salida);
+      }
     }
-    /*Caso de que no piden extracción*/
+    /*Caso de que no es búsqueda*/
     else
     {
       /*Parseamos la linea dependiendo de si hay un espacio o un tabulador*/
@@ -108,49 +111,61 @@ int main(int argc, char *argv[])
       {
         if(ambito == GLOBAL){
           res = insert(buf, 0, num, 0, 0, 0, 0, 0, 0, tabla_global);
-        }else{
+        }
+        else
+        {
           res = insert(buf, 0, num, 0, 0, 0, 0, 0, 0, tabla_local);
         }
+        /*Elemento ya insertado*/
         if (res == FOUND)
         {
           /*TODO: res == ERROR con frees y demás*/
           fprintf(salida, "-1\t%s\n", buf);
           fflush(salida);
         }
+        /*Elemento insertado correctamente*/
         else if (res == INSERTED)
         {
           fprintf(salida, "%s\n", buf);
           fflush(salida);
+        }else if(res == ERROR){
+          printf("La tabla hash está llena.");
+          fflush(salida);
         }
       }
       /*Cierre de ámbito local*/
-      else if(strcmp(buf, "cierre") == 0 && num == -999){
+      else if(strcmp(buf, "cierre") == 0 && num == -999)
+      {
         wipe(tabla_local);
         tabla_local = NULL;
         fprintf(salida, "cierre\n");
         fflush(salida);
         ambito = GLOBAL;
       }
-      /*Si el segundo elemento es negativo, y no es un cierre abrimos ámbito local*/
+      /*Si el segundo elemento es negativo, y no es un cierre se procede a abrir ámbito local*/
       else if (num < 0)
       {
         res = insert(buf, 0, num, 0, 0, 0, 0, 0, 0, tabla_global);
+        /*Encontrado, por tanto, no abrimos ámbito local*/
         if (res == FOUND)
         {
           /*TODO: res == ERROR con frees y demás*/
           fprintf(salida, "-1\t%s\n", buf);
           fflush(salida);
         }
+        /*Abrimos el ámbito local*/
         else if (res == INSERTED)
         {
-
           fprintf(salida, "%s\n", buf);
           fflush(salida);
           tabla_local = create_table();
           if (tabla_local == NULL)
           {
             printf("Error creando la tabla local!\n");
-            /*TODO: salir con frees*/
+            fclose(entrada);
+            fclose(salida);
+            wipe(tabla_global);
+            return 1;
           }
 
           insert(buf, 0, num, 0, 0, 0, 0, 0, 0, tabla_local);
@@ -161,6 +176,10 @@ int main(int argc, char *argv[])
   }
   fclose(entrada);
   fclose(salida);
+  if(tabla_local != NULL)
+  {
+    wipe(tabla_local);
+  }
   wipe(tabla_global);
   return 0;
 }
