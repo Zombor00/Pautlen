@@ -7,11 +7,6 @@
 #include <math.h>
 
 #define MAX_SIZE 1048576
-
-#define NO_CHANGE -1
-/*CATEGORY*/
-#define ESCALAR 1
-#define VECTOR 2
 /*ELEMENT_CATEGORY*/
 #define VARIABLE 1
 #define PARAMETRO 2
@@ -19,6 +14,9 @@
 /*BASIC TYPE*/
 #define BOOLEAN 1
 #define INT 2
+/*CATEGORY*/
+#define ESCALAR 1
+#define VECTOR 2
 
 /*Returning*/
 #define ERROR -1
