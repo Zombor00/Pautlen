@@ -119,7 +119,6 @@ int main(int argc, char *argv[])
         /*Elemento ya insertado*/
         if (res == FOUND)
         {
-          /*TODO: res == ERROR con frees y demás*/
           fprintf(salida, "-1\t%s\n", buf);
           fflush(salida);
         }
@@ -129,7 +128,7 @@ int main(int argc, char *argv[])
           fprintf(salida, "%s\n", buf);
           fflush(salida);
         }else if(res == ERROR){
-          printf("La tabla hash está llena.");
+          printf("La tabla hash está llena! Modificar tamanio en el .h");
           fflush(salida);
         }
       }
@@ -149,7 +148,6 @@ int main(int argc, char *argv[])
         /*Encontrado, por tanto, no abrimos ámbito local*/
         if (res == FOUND)
         {
-          /*TODO: res == ERROR con frees y demás*/
           fprintf(salida, "-1\t%s\n", buf);
           fflush(salida);
         }
@@ -168,8 +166,13 @@ int main(int argc, char *argv[])
             return 1;
           }
 
-          insert(buf, 0, num, 0, 0, 0, 0, 0, 0, tabla_local);
+          res = insert(buf, 0, num, 0, 0, 0, 0, 0, 0, tabla_local);
           ambito = LOCAL;
+        }
+        else if(res == ERROR)
+        {
+          printf("La tabla hash está llena! Modificar tamanio en el .h");
+          fflush(salida);
         }
       }
     }
