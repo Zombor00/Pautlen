@@ -1,10 +1,22 @@
 %{
 #include <stdio.h>
+#include "tabla_hash.h"
+#define LOCAL 0
+#define GLOBAL 1
 
 extern int yy_morph_error;
 extern long yylin;
 extern long yycol;
 extern FILE * yyout;
+
+tuple **tabla_global = NULL;
+tuple **tabla_local = NULL;
+int ambito = GLOBAL;
+
+int num_variables_locales_actual;
+int pos_variable_local_actual;
+int num_parametros_actual;
+int pos_parametro_actual;
 
 int yylex();
 void yyerror(const char * s);
@@ -65,13 +77,23 @@ void yyerror(const char * s);
 %left TOK_AND TOK_OR
 %left TOK_MAS TOK_MENOS
 %left TOK_ASTERISCO TOK_DIVISION
-%right TOK_NOT
+%right NEG TOK_NOT
 
 %%
 
-programa:                 TOK_MAIN TOK_LLAVEIZQUIERDA declaraciones funciones sentencias TOK_LLAVEDERECHA
+programa:                 inicioTabla TOK_MAIN TOK_LLAVEIZQUIERDA declaraciones funciones sentencias TOK_LLAVEDERECHA
                           {fprintf(yyout, ";R1:\t<programa> ::= main { <declaraciones> <funciones> <sentencias> }\n");}
                           ;
+inicioTabla:              {
+                            /*Creamos la tabla global*/
+                            tabla_global = create_table();
+                            if (tabla_global == NULL)
+                            {
+                              printf("Error creando la tabla global!\n");
+                              //TODO: Comprobar valor del return
+                              return 1;
+                            }
+                          };
 
 declaraciones:            declaracion
                               {fprintf(yyout,";R2:\t<declaraciones> ::= <declaracion>\n");}
@@ -90,9 +112,15 @@ clase_escalar:            tipo
                               {fprintf(yyout,";R9:\t<clase_escalar> ::= <tipo>\n");}
                           ;
 tipo:                     TOK_INT
-                              {fprintf(yyout,";R10:\t<tipo> ::= int\n");}
+                              {
+                                fprintf(yyout,";R10:\t<tipo> ::= int\n");
+                                $$.valor = INT;
+                              }
                           |   TOK_BOOLEAN
-                              {fprintf(yyout,";R11:\t<tipo> ::= boolean\n");}
+                              {
+                                fprintf(yyout,";R11:\t<tipo> ::= boolean\n");
+                                $$.valor = BOOLEAN;
+                              }
                           ;
 clase_vector:             TOK_ARRAY tipo TOK_CORCHETEIZQUIERDO constante_entera TOK_CORCHETEDERECHO
                               {fprintf(yyout,";R15:\t<clase_vector> ::= array <tipo> [ <constante_entera> ]\n");}
@@ -107,9 +135,44 @@ funciones:                funcion funciones
                           |   /* vacío */
                               {fprintf(yyout,";R21:\t<funciones> ::= \n");}
                           ;
-funcion:                  TOK_FUNCTION tipo identificador TOK_PARENTESISIZQUIERDO parametros_funcion TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA declaraciones_funcion sentencias TOK_LLAVEDERECHA
+fn_name:                  TOK_FUNCTION tipo identificador
+                              {
+                                res = insert($3.id, FUNCION, $2.valor, 0, 0, 0, 0, 0, 0, tabla_global); //TODO: valores, $2.valor marcar en tipo
+                                if(res == FOUND)
+                                {
+                                  /*Se encuentra el elemento solicitado, error semantico.*/
+                                  yyerror(NULL);
+                                }
+                                else if(res == INSERTED)
+                                {
+                                  /*No se encuentra el elemento solicitado, se abre el ambito local.*/
+                                  tabla_local = create_table();
+                                  if (tabla_local == NULL)
+                                  {
+                                    printf("Error creando la tabla local!\n");
+                                    wipe(tabla_global);
+                                    return 1;
+                                  }
+                                  res = insert($3.valor, FUNCION, $2.valor, 0, 0, 0, 0, 0, 0, tabla_local); //TODO: valores
+                                  ambito = LOCAL;
+                                  num_variables_locales_actual = 0;
+                                  pos_variable_local_actual = 1;
+                                  num_parametros_actual = 0;
+                                  pos_parametro_actual = 0;
+                                  $$.id = $3.id;
+                                }
+                              }
+                          ;
+
+fn_declaration:           fn_name TOK_PARENTESISIZQUIERDO parametros_funcion TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA declaraciones_funcion
+                              {
+                                //TODO: seguir aqui diapo 24 primeras diapos
+                              }
+                              ;
+funcion:                  fn_declaration sentencias TOK_LLAVEDERECHA
                               {fprintf(yyout,";R22:\t<funcion> ::= function <tipo> <identificador> ( <parametros_funcion> ) { <declaraciones_funcion> <sentencias> }\n");}
                           ;
+
 parametros_funcion:       parametro_funcion resto_parametros_funcion
                               {fprintf(yyout,";R23:\t<parametros_funcion> ::= <parametro_funcion> <resto_parametros_funcion>\n");}
                           |   /* vacío */
@@ -202,7 +265,7 @@ exp:                      exp TOK_MAS exp
                                 fprintf(yyout,";R75:\t<exp> ::= <exp> * <exp>\n");
                                 $$.valor = $1.valor * $3.valor;
                               }
-                          |   TOK_MENOS exp
+                          |   TOK_MENOS exp %prec NEG
                               {
                                 fprintf(yyout,";R76:\t<exp> ::= - <exp>\n");
                                 $$.valor = - $1.valor;
