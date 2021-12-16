@@ -18,6 +18,10 @@ int pos_variable_local_actual;
 int num_parametros_actual;
 int pos_parametro_actual;
 
+int tipo_actual;
+int clase_actual;
+int tamanio_vector_actual;
+
 int yylex();
 void yyerror(const char * s);
 %}
@@ -101,12 +105,21 @@ declaraciones:            declaracion
                               {fprintf(yyout,";R3:\t<declaraciones> ::= <declaracion> <declaraciones>\n");}
                           ;
 declaracion:              clase identificadores TOK_PUNTOYCOMA
-                              {fprintf(yyout,";R4:\t<declaracion> ::= <clase> <identificadores> ;\n");}
+                            {
+                                fprintf(yyout,";R4:\t<declaracion> ::= <clase> <identificadores> ;\n");
+                                
+                            }
                           ;
 clase:                    clase_escalar
-                              {fprintf(yyout,";R5:\t<clase> ::= <clase_escalar>\n");}
+                            {
+                                fprintf(yyout,";R5:\t<clase> ::= <clase_escalar>\n");
+                                clase_actual = ESCALAR;
+                            }
                           |   clase_vector
-                              {fprintf(yyout,";R7:\t<clase> ::= <clase_vector>\n");}
+                              {
+                                fprintf(yyout,";R7:\t<clase> ::= <clase_vector>\n");
+                                clase_actual = VECTOR;
+                              }
                           ;
 clase_escalar:            tipo
                               {fprintf(yyout,";R9:\t<clase_escalar> ::= <tipo>\n");}
@@ -114,16 +127,25 @@ clase_escalar:            tipo
 tipo:                     TOK_INT
                               {
                                 fprintf(yyout,";R10:\t<tipo> ::= int\n");
-                                $$.valor = INT;
+                                //$$.valor = INT;
+                                tipo_actual = INT;
                               }
                           |   TOK_BOOLEAN
                               {
                                 fprintf(yyout,";R11:\t<tipo> ::= boolean\n");
-                                $$.valor = BOOLEAN;
+                                //$$.valor = BOOLEAN;
+                                tipo_actual = BOOLEAN;
                               }
                           ;
 clase_vector:             TOK_ARRAY tipo TOK_CORCHETEIZQUIERDO constante_entera TOK_CORCHETEDERECHO
-                              {fprintf(yyout,";R15:\t<clase_vector> ::= array <tipo> [ <constante_entera> ]\n");}
+                              {
+                                fprintf(yyout,";R15:\t<clase_vector> ::= array <tipo> [ <constante_entera> ]\n");
+                                tamanio_vector_actual = $4.valor;
+                                if ((tamanio_vector_actual < 1) || (tamanio_vector_actual > MAX_TAMANIO_VECTOR)){
+                                    yyerror(NULL); //TODO: pasamos null?
+                                    //TODO: TERMINAR CON ERROR
+                                }
+                              }
                           ;
 identificadores:          identificador
                               {fprintf(yyout,";R18:\t<identificadores> ::= <identificador>\n");}
@@ -141,7 +163,8 @@ fn_name:                  TOK_FUNCTION tipo identificador
                                 if(res == FOUND)
                                 {
                                   /*Se encuentra el elemento solicitado, error semantico.*/
-                                  yyerror(NULL);
+                                  printf("Identificador %s duplicado", $3.id);
+                                  yyerror(NULL); //TODO: Dar error? para uqe deje de correr el programa
                                 }
                                 else if(res == INSERTED)
                                 {
@@ -166,11 +189,18 @@ fn_name:                  TOK_FUNCTION tipo identificador
 
 fn_declaration:           fn_name TOK_PARENTESISIZQUIERDO parametros_funcion TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA declaraciones_funcion
                               {
-                                //TODO: seguir aqui diapo 24 primeras diapos
+                                $$.id = $1.id;
+                                set($$.id, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, NO_CHANGE, NO_CHANGE, tabla_local);
                               }
                               ;
 funcion:                  fn_declaration sentencias TOK_LLAVEDERECHA
-                              {fprintf(yyout,";R22:\t<funcion> ::= function <tipo> <identificador> ( <parametros_funcion> ) { <declaraciones_funcion> <sentencias> }\n");}
+                              {
+                                fprintf(yyout,";R22:\t<funcion> ::= function <tipo> <identificador> ( <parametros_funcion> ) { <declaraciones_funcion> <sentencias> }\n");
+                                wipe(tabla_local);
+                                ambito = GLOBAL;
+                                //TODO: este set???? pa que
+                                set($1.id, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, NO_CHANGE, NO_CHANGE, tabla_global);
+                              }
                           ;
 
 parametros_funcion:       parametro_funcion resto_parametros_funcion
@@ -183,9 +213,21 @@ resto_parametros_funcion: TOK_PUNTOYCOMA parametro_funcion resto_parametros_func
                           |   /* vacío */
                               {fprintf(yyout,";R26:\t<resto_parametros_funcion> ::= \n");}
                           ;
-parametro_funcion:        tipo identificador
+parametro_funcion:        tipo idpf
                               {fprintf(yyout,";R27:\t<parametro_funcion> ::= <tipo> <identificador>\n");}
                           ;
+idpf:                     TOK_IDENTIFICADOR
+                            {
+                                $$.id = $1.id;
+                                res = insert($1.id, PARAMETRO, tipo_actual, clase_actual, 0, 0, pos_parametro_actual, 0, 0, tabla_local); //o insert
+                                if(res == FOUND){
+                                    /*TODO: error*/
+                                } else {
+                                    pos_parametro_actual++;
+                                    num_parametros_actual++;
+                                }
+                            }
+
 declaraciones_funcion:    declaraciones
                               {fprintf(yyout,";R28:\t<declaraciones_funcion> ::= <declaraciones>\n");}
                           |   /* vacío */
@@ -215,7 +257,7 @@ bloque:                   condicional
                           |   bucle
                               {fprintf(yyout,";R41:\t<bloque> ::= <bucle>\n");}
                           ;
-asignacion:               identificador TOK_ASIGNACION exp
+asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp /*TODO: aqui*/
                               { fprintf(yyout,";R43:\t<asignacion> ::= <identificador> = <exp>\n");
                                 res = get($1.id, tabla_local);
                                 if(res == FOUND){
@@ -225,7 +267,7 @@ asignacion:               identificador TOK_ASIGNACION exp
                           |   elemento_vector TOK_ASIGNACION exp
                               {fprintf(yyout,";R44:\t<asignacion> ::= <elemento_vector> = <exp>\n");}
                           ;
-elemento_vector:          identificador TOK_CORCHETEIZQUIERDO exp TOK_CORCHETEDERECHO
+elemento_vector:          TOK_IDENTIFICADOR TOK_CORCHETEIZQUIERDO exp TOK_CORCHETEDERECHO /*TODO: aqui*/
                               {fprintf(yyout,";R48:\t<elemento_vector> ::= <identificador> [ <exp> ]\n");}
                           ;
 condicional:              TOK_IF TOK_PARENTESISIZQUIERDO exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA sentencias TOK_LLAVEDERECHA
@@ -236,7 +278,7 @@ condicional:              TOK_IF TOK_PARENTESISIZQUIERDO exp TOK_PARENTESISDEREC
 bucle:                    TOK_WHILE TOK_PARENTESISIZQUIERDO exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA sentencias TOK_LLAVEDERECHA
                               {fprintf(yyout,";R52:\t<bucle> ::= while ( <exp> ) { <sentencias> }\n");}
                           ;
-lectura:                  TOK_SCANF identificador
+lectura:                  TOK_SCANF TOK_IDENTIFICADOR /*TODO: aqui*/
                               {fprintf(yyout,";R54:\t<lectura> ::= scanf <identificador>\n");}
                           ;
 escritura:                TOK_PRINTF exp
@@ -285,7 +327,7 @@ exp:                      exp TOK_MAS exp
                                 fprintf(yyout,";R79:\t<exp> ::= ! <exp>\n");
                                 $$.valor = ! $1.valor;
                               }
-                          |   identificador
+                          |   TOK_IDENTIFICADOR /*TODO: aqui*/
                               {fprintf(yyout,";R80:\t<exp> ::= <identificador>\n");}
                           |   constante
                               {fprintf(yyout,";R81:\t<exp> ::= <constante>\n");}
@@ -295,7 +337,7 @@ exp:                      exp TOK_MAS exp
                               {fprintf(yyout,";R83:\t<exp> ::= ( <comparacion> )\n");}
                           |   elemento_vector
                               {fprintf(yyout,";R85:\t<exp> ::= <elemento_vector>\n");}
-                          |   identificador TOK_PARENTESISIZQUIERDO lista_expresiones TOK_PARENTESISDERECHO
+                          |   TOK_IDENTIFICADOR TOK_PARENTESISIZQUIERDO lista_expresiones TOK_PARENTESISDERECHO /*TODO: aqui*/
                               {fprintf(yyout,";R88:\t<exp> ::= <identificador> ( <lista_expresiones> )\n");}
                           ;
 lista_expresiones:        exp resto_lista_expresiones
@@ -341,7 +383,27 @@ identificador:            TOK_IDENTIFICADOR
                               {
                                 fprintf(yyout,";R108:\t<identificador> ::= TOK_IDENTIFICADOR\n");
                                 $$.id = $1.id;
+                                pos_variable_local_actual++;
+                                if(clase_actual == ESCALAR){
+                                    size = 0;
+                                } else{
+                                    size = tamanio_vector_actual;
+                                }
+                                if(ambito == LOCAL){
+                                    if(clase_actual != ESCALAR){
+                                        res = insert($1.id, VARIABLE, tipo_actual, clase_actual, 0, 0, 0, num_variables_locales_actual, pos_variable_local_actual, tabla_local);
+                                    } else{
+                                        /*TODO: mensaje de error semántico y se termina el proceso de compilación con error.*/
+                                        yyerror(NULL);
+                                    }
+                                } else {
+                                    res = insert($1.id, VARIABLE, tipo_actual, clase_actual, size, 0, 0, 0, 0, tabla_global);
+                                }
+                                if(res == FOUND){
+                                    /*TODO: wipear error irse*/
+                                }
                               }
+
 %%
 
 void yyerror(const char * s) {
