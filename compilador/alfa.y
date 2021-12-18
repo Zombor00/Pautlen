@@ -22,6 +22,10 @@ int tipo_actual;
 int clase_actual;
 int tamanio_vector_actual;
 
+value *value_local = NULL;
+value *value_global = NULL;
+int res;
+
 int yylex();
 void yyerror(const char * s);
 %}
@@ -107,7 +111,7 @@ declaraciones:            declaracion
 declaracion:              clase identificadores TOK_PUNTOYCOMA
                             {
                                 fprintf(yyout,";R4:\t<declaracion> ::= <clase> <identificadores> ;\n");
-                                
+
                             }
                           ;
 clase:                    clase_escalar
@@ -258,7 +262,8 @@ bloque:                   condicional
                               {fprintf(yyout,";R41:\t<bloque> ::= <bucle>\n");}
                           ;
 asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp /*TODO: aqui*/
-                              { fprintf(yyout,";R43:\t<asignacion> ::= <identificador> = <exp>\n");
+                              {
+                                fprintf(yyout,";R43:\t<asignacion> ::= <identificador> = <exp>\n");
                                 res = get($1.id, tabla_local);
                                 if(res == FOUND){
                                   /*id.valor = $3.valor en la tabla hash*/
@@ -278,8 +283,48 @@ condicional:              TOK_IF TOK_PARENTESISIZQUIERDO exp TOK_PARENTESISDEREC
 bucle:                    TOK_WHILE TOK_PARENTESISIZQUIERDO exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA sentencias TOK_LLAVEDERECHA
                               {fprintf(yyout,";R52:\t<bucle> ::= while ( <exp> ) { <sentencias> }\n");}
                           ;
-lectura:                  TOK_SCANF TOK_IDENTIFICADOR /*TODO: aqui*/
-                              {fprintf(yyout,";R54:\t<lectura> ::= scanf <identificador>\n");}
+lectura:                  TOK_SCANF TOK_IDENTIFICADOR
+                              { //TODO: todo lo que hace de pila alfalib.o...
+                                fprintf(yyout,";R54:\t<lectura> ::= scanf <identificador>\n");
+                                value_global = get($2.id, tabla_global);
+                                value_local = get($2.id, tabla_local);
+                                if(value_local == NULL && value_global == NULL){
+                                  yyerror(NULL);
+                                  return(1);
+                                  //TODO: handle error
+                                } else if(value_local) {
+                                  if(value_local->element_category == FUNCION
+                                    || value_local->element_category == VECTOR){
+                                    yyerror(NULL);
+                                    return(1);
+                                    //TODO: error
+                                  } else {
+                                    //direccion = en función de ebp y la posición del parámetro o variable local
+                                    if(value_local->basic_type == INT){
+                                      //llamar scan_int de alfalib.o
+                                    } else if(value_local->basic_type == BOOLEAN){
+                                      //llamar scan_boolean
+                                    }
+                                    //restaurar la pila
+                                  }
+                                } else {
+                                  if(value_global->element_category == FUNCION
+                                    || value_global->element_category == VECTOR){
+                                    yyerror(NULL);
+                                    return(1);
+                                    //TODO: error
+                                  } else {
+                                    //direccion = su lexema $2.id??
+                                    if(value_global->basic_type == INT){
+                                      //llamar scan_int de alfalib.o
+                                    } else if(value_global->basic_type == BOOLEAN){
+                                      //llamar scan_boolean
+                                    }
+                                    //restaurar la pila
+                                  }
+                                }
+
+                              }
                           ;
 escritura:                TOK_PRINTF exp
                               {fprintf(yyout,";R56:\t<escritura> ::= printf <exp>\n");}
