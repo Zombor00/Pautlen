@@ -31,10 +31,10 @@ typedef struct Tuple tuple;
 struct Value
 {
   int element_category;
-  int basic_type; /*tipo*/
-  int category; /*clase*/
-  int size;       /*size will be 0 if the element is not a vector*/
-  int num_params; /*These only apply if the element is a function*/
+  int basic_type;         /*tipo*/
+  int category;           /*clase*/
+  int size;               /*size will be 0 if the element is not a vector*/
+  int num_params;         /*These only apply if the element is a function*/
   int pos_param;
   int num_local_variables;
   int pos_local_variable;

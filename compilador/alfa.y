@@ -1,4 +1,5 @@
 %{
+  /*TODO: yyerror mirar todos ver que devolver etc... los insert y set revisar.*/
 #include <stdio.h>
 #include "tabla_hash.h"
 #define LOCAL 0
@@ -77,9 +78,17 @@ void yyerror(const char * s);
 
 %token <atributos> TOK_IDENTIFICADOR
 
+//TODO: alguien mas necessita?
 %type <atributos> exp
+%type <atributos> comparacion
 %type <atributos> constante
+%type <atributos> constante_entera
+%type <atributos> constante_logica
 %type <atributos> identificador
+
+%type <atributos> fn_name
+%type <atributos> fn_declaration
+%type <atributos> idpf
 
 %left TOK_IGUAL TOK_MENORIGUAL TOK_MENOR TOK_MAYORIGUAL TOK_MAYOR TOK_DISTINTO
 %left TOK_AND TOK_OR
@@ -131,23 +140,22 @@ clase_escalar:            tipo
 tipo:                     TOK_INT
                               {
                                 fprintf(yyout,";R10:\t<tipo> ::= int\n");
-                                //$$.valor = INT;
+                                //$$.tipo = INT;
                                 tipo_actual = INT;
                               }
                           |   TOK_BOOLEAN
                               {
                                 fprintf(yyout,";R11:\t<tipo> ::= boolean\n");
-                                //$$.valor = BOOLEAN;
+                                //$$.tipo = BOOLEAN;
                                 tipo_actual = BOOLEAN;
                               }
                           ;
 clase_vector:             TOK_ARRAY tipo TOK_CORCHETEIZQUIERDO constante_entera TOK_CORCHETEDERECHO
                               {
                                 fprintf(yyout,";R15:\t<clase_vector> ::= array <tipo> [ <constante_entera> ]\n");
-                                tamanio_vector_actual = $4.valor;
+                                tamanio_vector_actual = $4.valor_entero;
                                 if ((tamanio_vector_actual < 1) || (tamanio_vector_actual > MAX_TAMANIO_VECTOR)){
-                                    yyerror(NULL); //TODO: pasamos null?
-                                    //TODO: TERMINAR CON ERROR
+                                    yyerror(NULL);
                                 }
                               }
                           ;
@@ -163,12 +171,13 @@ funciones:                funcion funciones
                           ;
 fn_name:                  TOK_FUNCTION tipo identificador
                               {
-                                res = insert($3.id, FUNCION, $2.valor, 0, 0, 0, 0, 0, 0, tabla_global); //TODO: valores, $2.valor marcar en tipo
+                                //TODO: tipo_actual o guardar $$.tipo?
+                                res = insert($3.nombre, FUNCION, tipo_actual, 0, 0, 0, 0, 0, 0, tabla_global);
                                 if(res == FOUND)
                                 {
                                   /*Se encuentra el elemento solicitado, error semantico.*/
-                                  printf("Identificador %s duplicado", $3.id);
-                                  yyerror(NULL); //TODO: Dar error? para uqe deje de correr el programa
+                                  printf("Identificador %s duplicado", $3.nombre);
+                                  yyerror(NULL);
                                 }
                                 else if(res == INSERTED)
                                 {
@@ -180,21 +189,21 @@ fn_name:                  TOK_FUNCTION tipo identificador
                                     wipe(tabla_global);
                                     return 1;
                                   }
-                                  res = insert($3.valor, FUNCION, $2.valor, 0, 0, 0, 0, 0, 0, tabla_local); //TODO: valores
+                                  res = insert($3.nombre, FUNCION, tipo_actual, 0, 0, 0, 0, 0, 0, tabla_local);
                                   ambito = LOCAL;
                                   num_variables_locales_actual = 0;
                                   pos_variable_local_actual = 1;
                                   num_parametros_actual = 0;
                                   pos_parametro_actual = 0;
-                                  $$.id = $3.id;
+                                  $$.nombre = $3.nombre;
                                 }
                               }
                           ;
 
 fn_declaration:           fn_name TOK_PARENTESISIZQUIERDO parametros_funcion TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA declaraciones_funcion
                               {
-                                $$.id = $1.id;
-                                set($$.id, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, NO_CHANGE, NO_CHANGE, tabla_local);
+                                $$.nombre = $1.nombre;
+                                set($$.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, NO_CHANGE, NO_CHANGE, tabla_local);
                               }
                               ;
 funcion:                  fn_declaration sentencias TOK_LLAVEDERECHA
@@ -202,8 +211,7 @@ funcion:                  fn_declaration sentencias TOK_LLAVEDERECHA
                                 fprintf(yyout,";R22:\t<funcion> ::= function <tipo> <identificador> ( <parametros_funcion> ) { <declaraciones_funcion> <sentencias> }\n");
                                 wipe(tabla_local);
                                 ambito = GLOBAL;
-                                //TODO: este set???? pa que
-                                set($1.id, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, NO_CHANGE, NO_CHANGE, tabla_global);
+                                set($1.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, NO_CHANGE, NO_CHANGE, tabla_global);
                               }
                           ;
 
@@ -222,10 +230,10 @@ parametro_funcion:        tipo idpf
                           ;
 idpf:                     TOK_IDENTIFICADOR
                             {
-                                $$.id = $1.id;
-                                res = insert($1.id, PARAMETRO, tipo_actual, clase_actual, 0, 0, pos_parametro_actual, 0, 0, tabla_local); //o insert
+                                $$.nombre = $1.nombre;
+                                res = insert($1.nombre, PARAMETRO, tipo_actual, clase_actual, 0, 0, pos_parametro_actual, 0, 0, tabla_local); //o insert
                                 if(res == FOUND){
-                                    /*TODO: error*/
+                                    yyerror(NULL);
                                 } else {
                                     pos_parametro_actual++;
                                     num_parametros_actual++;
@@ -261,18 +269,18 @@ bloque:                   condicional
                           |   bucle
                               {fprintf(yyout,";R41:\t<bloque> ::= <bucle>\n");}
                           ;
-asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp /*TODO: aqui*/
+asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                               {
                                 fprintf(yyout,";R43:\t<asignacion> ::= <identificador> = <exp>\n");
-                                res = get($1.id, tabla_local);
+                                res = get($1.nombre, tabla_local);
                                 if(res == FOUND){
-                                  /*id.valor = $3.valor en la tabla hash*/
+                                  /*id.valor_entero = $3.valor_entero en la tabla hash*/
                                 }
                               }
                           |   elemento_vector TOK_ASIGNACION exp
                               {fprintf(yyout,";R44:\t<asignacion> ::= <elemento_vector> = <exp>\n");}
                           ;
-elemento_vector:          TOK_IDENTIFICADOR TOK_CORCHETEIZQUIERDO exp TOK_CORCHETEDERECHO /*TODO: aqui*/
+elemento_vector:          TOK_IDENTIFICADOR TOK_CORCHETEIZQUIERDO exp TOK_CORCHETEDERECHO
                               {fprintf(yyout,";R48:\t<elemento_vector> ::= <identificador> [ <exp> ]\n");}
                           ;
 condicional:              TOK_IF TOK_PARENTESISIZQUIERDO exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA sentencias TOK_LLAVEDERECHA
@@ -286,18 +294,14 @@ bucle:                    TOK_WHILE TOK_PARENTESISIZQUIERDO exp TOK_PARENTESISDE
 lectura:                  TOK_SCANF TOK_IDENTIFICADOR
                               { //TODO: todo lo que hace de pila alfalib.o...
                                 fprintf(yyout,";R54:\t<lectura> ::= scanf <identificador>\n");
-                                value_global = get($2.id, tabla_global);
-                                value_local = get($2.id, tabla_local);
+                                value_global = get($2.nombre, tabla_global);
+                                value_local = get($2.nombre, tabla_local);
                                 if(value_local == NULL && value_global == NULL){
                                   yyerror(NULL);
-                                  return(1);
-                                  //TODO: handle error
                                 } else if(value_local) {
                                   if(value_local->element_category == FUNCION
                                     || value_local->element_category == VECTOR){
                                     yyerror(NULL);
-                                    return(1);
-                                    //TODO: error
                                   } else {
                                     //direccion = en función de ebp y la posición del parámetro o variable local
                                     if(value_local->basic_type == INT){
@@ -311,10 +315,8 @@ lectura:                  TOK_SCANF TOK_IDENTIFICADOR
                                   if(value_global->element_category == FUNCION
                                     || value_global->element_category == VECTOR){
                                     yyerror(NULL);
-                                    return(1);
-                                    //TODO: error
                                   } else {
-                                    //direccion = su lexema $2.id??
+                                    //direccion = su lexema $2.nombre??
                                     if(value_global->basic_type == INT){
                                       //llamar scan_int de alfalib.o
                                     } else if(value_global->basic_type == BOOLEAN){
@@ -335,55 +337,154 @@ retorno_funcion:          TOK_RETURN exp
 exp:                      exp TOK_MAS exp
                               {
                                 fprintf(yyout,";R72:\t<exp> ::= <exp> + <exp>\n");
-                                $$.valor = $1.valor + $3.valor;
+                                if($1.tipo == INT && $3.tipo == INT){
+                                  $$.valor_entero = $1.valor_entero + $3.valor_entero;
+                                  $$.tipo = INT;
+                                } else {
+                                  yyerror(NULL);
+                                }
                               }
                           |   exp TOK_MENOS exp
                               {
                                 fprintf(yyout,";R73:\t<exp> ::= <exp> - <exp>\n");
-                                $$.valor = $1.valor - $3.valor;
+                                if($1.tipo == INT && $3.tipo == INT){
+                                  $$.valor_entero = $1.valor_entero - $3.valor_entero;
+                                  $$.tipo = INT;
+                                } else {
+                                  yyerror(NULL);
+                                }
                               }
                           |   exp TOK_DIVISION exp
                               {
                                 fprintf(yyout,";R74:\t<exp> ::= <exp> / <exp>\n");
-                                $$.valor = $1.valor / $3.valor;
+                                if($1.tipo == INT && $3.tipo == INT){
+                                  $$.valor_entero = $1.valor_entero / $3.valor_entero;
+                                  $$.tipo = INT;
+                                } else {
+                                  yyerror(NULL);
+                                }
                               }
                           |   exp TOK_ASTERISCO exp
                               {
                                 fprintf(yyout,";R75:\t<exp> ::= <exp> * <exp>\n");
-                                $$.valor = $1.valor * $3.valor;
+                                if($1.tipo == INT && $3.tipo == INT){
+                                  $$.valor_entero = $1.valor_entero * $3.valor_entero;
+                                  $$.tipo = INT;
+                                } else {
+                                  yyerror(NULL);
+                                }
                               }
                           |   TOK_MENOS exp %prec NEG
                               {
                                 fprintf(yyout,";R76:\t<exp> ::= - <exp>\n");
-                                $$.valor = - $1.valor;
+                                if($2.tipo == INT){
+                                  $$.valor_entero = - $2.valor_entero;
+                                  $$.tipo = INT;
+                                } else {
+                                  yyerror(NULL);
+                                }
                               }
                           |   exp TOK_AND exp
                               {
                                 fprintf(yyout,";R77:\t<exp> ::= exp> && <exp>\n");
-                                $$.valor = $1.valor && $3.valor;
+                                if($1.tipo == BOOLEAN && $3.tipo == BOOLEAN){
+                                  $$.tipo = BOOLEAN;
+                                  $$.valor_entero = $1.valor_entero && $3.valor_entero;
+                                  $$.es_direccion = VALOR_EXPLICITO;
+                                } else {
+                                  yyerror(NULL);
+                                }
                               }
                           |   exp TOK_OR exp
                               {
                                 fprintf(yyout,";R78:\t<exp> ::= <exp> || <exp>\n");
-                                $$.valor = $1.valor || $3.valor;
+                                if($1.tipo == BOOLEAN && $3.tipo == BOOLEAN){
+                                  $$.tipo = BOOLEAN;
+                                  $$.valor_entero = $1.valor_entero || $3.valor_entero;
+                                  $$.es_direccion = VALOR_EXPLICITO;
+                                } else {
+                                  yyerror(NULL);
+                                }
                               }
                           |   TOK_NOT exp
                               {
                                 fprintf(yyout,";R79:\t<exp> ::= ! <exp>\n");
-                                $$.valor = ! $1.valor;
+                                if($2.tipo == BOOLEAN){
+                                  $$.tipo = BOOLEAN;
+                                  $$.valor_entero = ! $2.valor_entero;
+                                  $$.es_direccion = VALOR_EXPLICITO;
+                                } else {
+                                  yyerror(NULL);
+                                }
                               }
-                          |   TOK_IDENTIFICADOR /*TODO: aqui*/
-                              {fprintf(yyout,";R80:\t<exp> ::= <identificador>\n");}
+                          |   TOK_IDENTIFICADOR
+                              {
+                                fprintf(yyout,";R80:\t<exp> ::= <identificador>\n");
+                                value_local = get($1.nombre, tabla_local);
+                                value_global = get($1.nombre, tabla_global);
+                                if(value_local == NULL && value_global == NULL){
+                                  yyerror(NULL);
+                                } else if(value_local) {
+                                  if(value_local->element_category == FUNCION || value_local->category == VECTOR){
+                                    yyerror(NULL);
+                                  } else {
+                                    $$.tipo = value_local->basic_type;
+                                    $$.es_direccion = VALOR_REFERENCIA;
+                                  }
+                                } else {
+                                  if(value_->element_category == FUNCION || value_global->category == VECTOR){
+                                    yyerror(NULL);
+                                  } else {
+                                    $$.tipo = value_global->basic_type;
+                                    $$.es_direccion = VALOR_REFERENCIA;
+                                  }
+                                }
+                              }
                           |   constante
-                              {fprintf(yyout,";R81:\t<exp> ::= <constante>\n");}
+                              {
+                                fprintf(yyout,";R81:\t<exp> ::= <constante>\n");
+                                $$.tipo = $1.tipo;
+                                $$.es_direccion = $1.es_direccion;
+                              }
                           |   TOK_PARENTESISIZQUIERDO exp TOK_PARENTESISDERECHO
-                              {fprintf(yyout,";R82:\t<exp> ::= ( <exp> )\n");}
+                              {
+                                fprintf(yyout,";R82:\t<exp> ::= ( <exp> )\n");
+                                $$.tipo = $2.tipo;
+                                $$.es_direccion = $2.es_direccion;
+                              }
                           |   TOK_PARENTESISIZQUIERDO comparacion TOK_PARENTESISDERECHO
-                              {fprintf(yyout,";R83:\t<exp> ::= ( <comparacion> )\n");}
+                              {
+                                fprintf(yyout,";R83:\t<exp> ::= ( <comparacion> )\n");
+                                $$.tipo = $2.tipo;
+                                $$.es_direccion = $2.es_direccion;
+                              }
                           |   elemento_vector
-                              {fprintf(yyout,";R85:\t<exp> ::= <elemento_vector>\n");}
-                          |   TOK_IDENTIFICADOR TOK_PARENTESISIZQUIERDO lista_expresiones TOK_PARENTESISDERECHO /*TODO: aqui*/
-                              {fprintf(yyout,";R88:\t<exp> ::= <identificador> ( <lista_expresiones> )\n");}
+                              {
+                                fprintf(yyout,";R85:\t<exp> ::= <elemento_vector>\n");
+                                $$.tipo = $1.tipo;
+                                $$.es_direccion = $1.es_direccion;
+                              }
+                          |   TOK_IDENTIFICADOR TOK_PARENTESISIZQUIERDO lista_expresiones TOK_PARENTESISDERECHO
+                              {
+                                fprintf(yyout,";R88:\t<exp> ::= <identificador> ( <lista_expresiones> )\n");
+                                value_local = get($1.nombre, tabla_local);
+                                value_global = get($1.nombre, tabla_global);
+                                if(value_local == NULL && value_global == NULL){
+                                  yyerror(NULL);
+                                } else if(value_local) {
+                                  if(value_local->element_category == FUNCION){
+                                    //TODO: correcto numero args p.5 diapo 3
+                                  } else {
+                                    yyerror(NULL);
+                                  }
+                                } else {
+                                  if(value_global->element_category == FUNCION){
+                                    //TODO: same, correcto numero args p.5 diapo 3
+                                  } else {
+                                    yyerror(NULL);
+                                  }
+                                }
+                              }
                           ;
 lista_expresiones:        exp resto_lista_expresiones
                               {fprintf(yyout,";R89:\t<lista_expresiones> ::= <exp> <resto_lista_expresiones>\n");}
@@ -396,38 +497,112 @@ resto_lista_expresiones:  TOK_COMA exp resto_lista_expresiones
                               {fprintf(yyout,";R92:\t<resto_lista_expresiones> ::= \n");}
                           ;
 comparacion:              exp TOK_IGUAL exp
-                              {fprintf(yyout,";R93:\t<comparacion> ::= <exp> == <exp>\n");}
+                              {
+                                fprintf(yyout,";R93:\t<comparacion> ::= <exp> == <exp>\n");
+                                if($1.tipo == INT && $2.tipo == INT){
+                                  $$.tipo = BOOLEAN;
+                                  $$.valor_entero = ($1.valor_entero == $3.valor_entero);
+                                  $$.es_direccion = VALOR_EXPLICITO;
+                                } else {
+                                  yyerror(NULL);
+                                }
+                              }
                           |   exp TOK_DISTINTO exp
-                              {fprintf(yyout,";R94:\t<comparacion> ::= <exp> != <exp>\n");}
+                              {
+                                fprintf(yyout,";R94:\t<comparacion> ::= <exp> != <exp>\n");
+                                if($1.tipo == INT && $2.tipo == INT){
+                                  $$.tipo = BOOLEAN;
+                                  $$.valor_entero = ($1.valor_entero != $3.valor_entero);
+                                  $$.es_direccion = VALOR_EXPLICITO;
+                                } else {
+                                  yyerror(NULL);
+                                }
+                              }
                           |   exp TOK_MENORIGUAL exp
-                              {fprintf(yyout,";R95:\t<comparacion> ::= <exp> <= <exp>\n");}
+                              {
+                                fprintf(yyout,";R95:\t<comparacion> ::= <exp> <= <exp>\n");
+                                if($1.tipo == INT && $2.tipo == INT){
+                                  $$.tipo = BOOLEAN;
+                                  $$.valor_entero = ($1.valor_entero <= $3.valor_entero);
+                                  $$.es_direccion = VALOR_EXPLICITO;
+                                } else {
+                                  yyerror(NULL);
+                                }
+                              }
                           |   exp TOK_MAYORIGUAL exp
-                              {fprintf(yyout,";R96:\t<comparacion> ::= <exp> >= <exp>\n");}
+                              {
+                                fprintf(yyout,";R96:\t<comparacion> ::= <exp> >= <exp>\n");
+                                if($1.tipo == INT && $2.tipo == INT){
+                                  $$.tipo = BOOLEAN;
+                                  $$.valor_entero = ($1.valor_entero >= $3.valor_entero);
+                                  $$.es_direccion = VALOR_EXPLICITO;
+                                } else {
+                                  yyerror(NULL);
+                                }
+                              }
                           |   exp TOK_MENOR exp
-                              {fprintf(yyout,";R97:\t<comparacion> ::= <exp> < <exp>\n");}
+                              {
+                                fprintf(yyout,";R97:\t<comparacion> ::= <exp> < <exp>\n");
+                                if($1.tipo == INT && $2.tipo == INT){
+                                  $$.tipo = BOOLEAN;
+                                  $$.valor_entero = ($1.valor_entero < $3.valor_entero);
+                                  $$.es_direccion = VALOR_EXPLICITO;
+                                } else {
+                                  yyerror(NULL);
+                                }
+                              }
                           |   exp TOK_MAYOR exp
-                              {fprintf(yyout,";R98:\t<comparacion> ::= <exp> > <exp>\n");}
+                              {
+                                fprintf(yyout,";R98:\t<comparacion> ::= <exp> > <exp>\n");
+                                if($1.tipo == INT && $2.tipo == INT){
+                                  $$.tipo = BOOLEAN;
+                                  $$.valor_entero = ($1.valor_entero > $3.valor_entero);
+                                  $$.es_direccion = VALOR_EXPLICITO;
+                                } else {
+                                  yyerror(NULL);
+                                }
+                              }
                           ;
 constante:                constante_logica
-                              {fprintf(yyout,";R99:\t<constante> ::= <constante_logica>\n");}
+                              {
+                                fprintf(yyout,";R99:\t<constante> ::= <constante_logica>\n");
+                                $$.tipo = $1.tipo;
+                                $$.es_direccion = $1.es_direccion;
+                              }
                           |   constante_entera
-                              {fprintf(yyout,";R100:\t<constante> ::= <constante_entera>\n");}
+                              {
+                                fprintf(yyout,";R100:\t<constante> ::= <constante_entera>\n");
+                                $$.tipo = $1.tipo;
+                                $$.es_direccion = $1.es_direccion;
+                              }
                           ;
 constante_logica:         TOK_TRUE
-                              {fprintf(yyout,";R102:\t<constante_logica> ::= true\n");}
+                              {
+                                fprintf(yyout,";R102:\t<constante_logica> ::= true\n");
+                                $$.valor_entero = TRUE;
+                                $$.tipo = BOOLEAN;
+                                $$.es_direccion = VALOR_EXPLICITO;
+                              }
                           |   TOK_FALSE
-                              {fprintf(yyout,";R103:\t<constante_logica> ::= false\n");}
+                              {
+                                fprintf(yyout,";R103:\t<constante_logica> ::= false\n");
+                                $$.valor_entero = FALSE;
+                                $$.tipo = BOOLEAN;
+                                $$.es_direccion = VALOR_EXPLICITO;
+                              }
                           ;
 constante_entera:         TOK_CONSTANTE_ENTERA
                               {
                                 fprintf(yyout,";R104:\t<constante_entera> ::= TOK_CONSTANTE_ENTERA\n");
-                                $$.valor = $1.valor;
+                                $$.valor_entero = $1.valor_entero;
+                                $$.tipo = INT;
+                                $$.es_direccion = VALOR_EXPLICITO;
                               }
                           ;
 identificador:            TOK_IDENTIFICADOR
                               {
                                 fprintf(yyout,";R108:\t<identificador> ::= TOK_IDENTIFICADOR\n");
-                                $$.id = $1.id;
+                                $$.nombre = $1.nombre;
                                 pos_variable_local_actual++;
                                 if(clase_actual == ESCALAR){
                                     size = 0;
@@ -436,13 +611,13 @@ identificador:            TOK_IDENTIFICADOR
                                 }
                                 if(ambito == LOCAL){
                                     if(clase_actual != ESCALAR){
-                                        res = insert($1.id, VARIABLE, tipo_actual, clase_actual, 0, 0, 0, num_variables_locales_actual, pos_variable_local_actual, tabla_local);
+                                        res = insert($1.nombre, VARIABLE, tipo_actual, clase_actual, 0, 0, 0, num_variables_locales_actual, pos_variable_local_actual, tabla_local);
                                     } else{
                                         /*TODO: mensaje de error semántico y se termina el proceso de compilación con error.*/
                                         yyerror(NULL);
                                     }
                                 } else {
-                                    res = insert($1.id, VARIABLE, tipo_actual, clase_actual, size, 0, 0, 0, 0, tabla_global);
+                                    res = insert($1.nombre, VARIABLE, tipo_actual, clase_actual, size, 0, 0, 0, 0, tabla_global);
                                 }
                                 if(res == FOUND){
                                     /*TODO: wipear error irse*/
