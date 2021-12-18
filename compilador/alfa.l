@@ -65,9 +65,9 @@ return {yycol += yyleng; _print_token(yyout); return TOK_RETURN;}
 
 true {yycol += yyleng; _print_token(yyout); return TOK_TRUE;}
 false {yycol += yyleng; _print_token(yyout); return TOK_FALSE;}
-{CTE_ENTERA}  {yycol += yyleng; yylval.atributos.valor = atoi(yytext); _print_token(yyout); return TOK_CONSTANTE_ENTERA;}
+{CTE_ENTERA}  {yycol += yyleng; yylval.atributos.valor_entero = atoi(yytext); _print_token(yyout); return TOK_CONSTANTE_ENTERA;}
 
-{ID}		{yycol += yyleng; yylval.atributos.id = yytext[0]; _print_token(yyout); return TOK_IDENTIFICADOR;}
+{ID}		{yycol += yyleng; yylval.atributos.nombre = yytext[0]; _print_token(yyout); return TOK_IDENTIFICADOR;}
 
 {ERROR_LONG}		{yycol += yyleng; fprintf(stderr,"****Error en [lin %ld, col %ld]: longitud maxima alcanzada\n", yylin, yycol); yy_morph_error = 1;}
 {ERROR}		{yycol += yyleng; fprintf(stderr,"****Error en [lin %ld, col %ld]: simbolo no permitido (%s)\n", yylin, yycol, yytext); yy_morph_error = 1;}

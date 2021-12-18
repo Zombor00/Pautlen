@@ -11,10 +11,12 @@
 #define VALOR_EXPLICITO 0
 #define VALOR_REFERENCIA 1
 
+/*TAMAÑOS*/
+#define MAX_LONG_ID 100
 #define MAX_TAMANIO_VECTOR 64
 
 struct _info_atributos {
-	char* nombre;
+	char nombre[MAX_LONG_ID + 1];
 	int valor_entero;
 	int tipo; 					/*INT o BOOLEAN*/
 	int es_direccion; 	/*atributo que indica si un símbolo representa una

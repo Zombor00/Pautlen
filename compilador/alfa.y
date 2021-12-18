@@ -1,5 +1,7 @@
 %{
-  /*TODO: yyerror mirar todos ver que devolver etc... los insert y set revisar.*/
+  /*TODO: yyerror mirar todos ver que devolver etc... los insert y set revisar.
+          ver cuando global local, se puede haber colado algun sin snetido.
+  */
 #include <stdio.h>
 #include "tabla_hash.h"
 #define LOCAL 0
@@ -23,8 +25,12 @@ int tipo_actual;
 int clase_actual;
 int tamanio_vector_actual;
 
+int num_parametros_llamada_actual;
+int en_explist = 0;
+
 value *value_local = NULL;
 value *value_global = NULL;
+value *value = NULL;
 int res;
 
 int yylex();
@@ -90,6 +96,8 @@ void yyerror(const char * s);
 %type <atributos> fn_declaration
 %type <atributos> idpf
 
+%type <atributos> idf_llamada_funcion
+
 %left TOK_IGUAL TOK_MENORIGUAL TOK_MENOR TOK_MAYORIGUAL TOK_MAYOR TOK_DISTINTO
 %left TOK_AND TOK_OR
 %left TOK_MAS TOK_MENOS
@@ -99,18 +107,19 @@ void yyerror(const char * s);
 %%
 
 programa:                 inicioTabla TOK_MAIN TOK_LLAVEIZQUIERDA declaraciones funciones sentencias TOK_LLAVEDERECHA
-                          {fprintf(yyout, ";R1:\t<programa> ::= main { <declaraciones> <funciones> <sentencias> }\n");}
+                              {fprintf(yyout, ";R1:\t<programa> ::= main { <declaraciones> <funciones> <sentencias> }\n");}
                           ;
-inicioTabla:              {
-                            /*Creamos la tabla global*/
-                            tabla_global = create_table();
-                            if (tabla_global == NULL)
-                            {
-                              printf("Error creando la tabla global!\n");
-                              //TODO: Comprobar valor del return
-                              return 1;
-                            }
-                          };
+inicioTabla:                  {
+                                /*Creamos la tabla global*/
+                                tabla_global = create_table();
+                                if (tabla_global == NULL)
+                                {
+                                  printf("Error creando la tabla global!\n");
+                                  //TODO: Comprobar valor del return
+                                  return 1;
+                                }
+                              }
+                          ;
 
 declaraciones:            declaracion
                               {fprintf(yyout,";R2:\t<declaraciones> ::= <declaracion>\n");}
@@ -118,16 +127,15 @@ declaraciones:            declaracion
                               {fprintf(yyout,";R3:\t<declaraciones> ::= <declaracion> <declaraciones>\n");}
                           ;
 declaracion:              clase identificadores TOK_PUNTOYCOMA
-                            {
-                                fprintf(yyout,";R4:\t<declaracion> ::= <clase> <identificadores> ;\n");
-
-                            }
+                              {
+                                  fprintf(yyout,";R4:\t<declaracion> ::= <clase> <identificadores> ;\n");
+                              }
                           ;
 clase:                    clase_escalar
-                            {
-                                fprintf(yyout,";R5:\t<clase> ::= <clase_escalar>\n");
-                                clase_actual = ESCALAR;
-                            }
+                              {
+                                  fprintf(yyout,";R5:\t<clase> ::= <clase_escalar>\n");
+                                  clase_actual = ESCALAR;
+                              }
                           |   clase_vector
                               {
                                 fprintf(yyout,";R7:\t<clase> ::= <clase_vector>\n");
@@ -205,7 +213,7 @@ fn_declaration:           fn_name TOK_PARENTESISIZQUIERDO parametros_funcion TOK
                                 $$.nombre = $1.nombre;
                                 set($$.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, NO_CHANGE, NO_CHANGE, tabla_local);
                               }
-                              ;
+                          ;
 funcion:                  fn_declaration sentencias TOK_LLAVEDERECHA
                               {
                                 fprintf(yyout,";R22:\t<funcion> ::= function <tipo> <identificador> ( <parametros_funcion> ) { <declaraciones_funcion> <sentencias> }\n");
@@ -239,7 +247,7 @@ idpf:                     TOK_IDENTIFICADOR
                                     num_parametros_actual++;
                                 }
                             }
-
+                          ;
 declaraciones_funcion:    declaraciones
                               {fprintf(yyout,";R28:\t<declaraciones_funcion> ::= <declaraciones>\n");}
                           |   /* vacío */
@@ -272,24 +280,73 @@ bloque:                   condicional
 asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                               {
                                 fprintf(yyout,";R43:\t<asignacion> ::= <identificador> = <exp>\n");
-                                res = get($1.nombre, tabla_local);
-                                if(res == FOUND){
-                                  /*id.valor_entero = $3.valor_entero en la tabla hash*/
+                                if(ambito == LOCAL){
+                                  value = get($1.nombre, tabla_local);
+                                } else {
+                                  value = get($1.nombre, tabla_global);
+                                }
+                                if(value){
+                                  if(value->element_category != FUNCION && value->category == ESCALAR
+                                    && value->basic_type == $3.tipo){
+                                      //TODO: asignar $3.valor_entero a identificador en asm?
+                                  } else {
+                                    yyerror(NULL);
+                                  }
                                 }
                               }
                           |   elemento_vector TOK_ASIGNACION exp
-                              {fprintf(yyout,";R44:\t<asignacion> ::= <elemento_vector> = <exp>\n");}
+                              {
+                                fprintf(yyout,";R44:\t<asignacion> ::= <elemento_vector> = <exp>\n");
+                                if($1.tipo == $3.tipo){
+                                  //TODO: asignar $3.valor_entero a identificador en asm?
+                                } else {
+                                  yyerror(NULL);
+                                }
+                              }
                           ;
 elemento_vector:          TOK_IDENTIFICADOR TOK_CORCHETEIZQUIERDO exp TOK_CORCHETEDERECHO
-                              {fprintf(yyout,";R48:\t<elemento_vector> ::= <identificador> [ <exp> ]\n");}
+                              {
+                                fprintf(yyout,";R48:\t<elemento_vector> ::= <identificador> [ <exp> ]\n");
+                                if(ambito == LOCAL){
+                                  value = get($1.nombre, tabla_local);
+                                } else {
+                                  value = get($1.nombre, tabla_global);
+                                }
+                                if(value && value->category == VECTOR && $3.tipo == INT){
+                                  /*TODO: creo que esto no se hace, p.13 diapos 3
+                                  if($3.valor_entero < 1 || $3.valor_entero > MAX_TAMANIO_VECTOR){
+                                    yyerror(NULL);
+                                  }
+                                  */
+                                  $$.tipo = value->basic_type;
+                                  $$.es_direccion = VALOR_REFERENCIA;
+                                } else {
+                                  yyerror(NULL);
+                                }
+
+                              }
                           ;
-condicional:              TOK_IF TOK_PARENTESISIZQUIERDO exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA sentencias TOK_LLAVEDERECHA
+condicional:              if_exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA sentencias TOK_LLAVEDERECHA
                               {fprintf(yyout,";R50:\t<condicional> ::= if ( <exp> ) { <sentencias> }\n");}
-                          |   TOK_IF TOK_PARENTESISIZQUIERDO exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA sentencias TOK_LLAVEDERECHA TOK_ELSE TOK_LLAVEIZQUIERDA sentencias TOK_LLAVEDERECHA
+                          |   if_exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA sentencias TOK_LLAVEDERECHA TOK_ELSE TOK_LLAVEIZQUIERDA sentencias TOK_LLAVEDERECHA
                               {fprintf(yyout,";R51:\t<condicional> ::= if ( <exp> ) { <sentencias> } else { <sentencias> }\n");}
                           ;
-bucle:                    TOK_WHILE TOK_PARENTESISIZQUIERDO exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA sentencias TOK_LLAVEDERECHA
+if_exp:                   TOK_IF TOK_PARENTESISDERECHO exp
+                              {
+                                if($3.tipo != BOOLEAN){
+                                  yyerror(NULL);
+                                }
+                              }
+                          ;
+bucle:                    bycle_exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA sentencias TOK_LLAVEDERECHA
                               {fprintf(yyout,";R52:\t<bucle> ::= while ( <exp> ) { <sentencias> }\n");}
+                          ;
+bucle_exp:                TOK_WHILE TOK_PARENTESISIZQUIERDO exp
+                              {
+                                if($3.tipo != BOOLEAN){
+                                  yyerror(NULL);
+                                }
+                              }
                           ;
 lectura:                  TOK_SCANF TOK_IDENTIFICADOR
                               { //TODO: todo lo que hace de pila alfalib.o...
@@ -300,7 +357,7 @@ lectura:                  TOK_SCANF TOK_IDENTIFICADOR
                                   yyerror(NULL);
                                 } else if(value_local) {
                                   if(value_local->element_category == FUNCION
-                                    || value_local->element_category == VECTOR){
+                                    || value_local->category == VECTOR){
                                     yyerror(NULL);
                                   } else {
                                     //direccion = en función de ebp y la posición del parámetro o variable local
@@ -464,35 +521,56 @@ exp:                      exp TOK_MAS exp
                                 $$.tipo = $1.tipo;
                                 $$.es_direccion = $1.es_direccion;
                               }
-                          |   TOK_IDENTIFICADOR TOK_PARENTESISIZQUIERDO lista_expresiones TOK_PARENTESISDERECHO
+                          |   idf_llamada_funcion TOK_PARENTESISIZQUIERDO lista_expresiones TOK_PARENTESISDERECHO
                               {
                                 fprintf(yyout,";R88:\t<exp> ::= <identificador> ( <lista_expresiones> )\n");
+                                value_global = get($1.nombre, tabla_global);
+                                if(value_global->num_params == num_parametros_llamada_actual){
+                                  en_explist = 0;
+                                  $$.tipo = value_global->basic_type;
+                                  $$.es_direccion = VALOR_EXPLICITO;
+                                } else {
+                                  yyerror(NULL);
+                                }
+                              }
+                          ;
+idf_llamada_funcion:      TOK_IDENTIFICADOR
+                              {
                                 value_local = get($1.nombre, tabla_local);
                                 value_global = get($1.nombre, tabla_global);
                                 if(value_local == NULL && value_global == NULL){
                                   yyerror(NULL);
                                 } else if(value_local) {
-                                  if(value_local->element_category == FUNCION){
-                                    //TODO: correcto numero args p.5 diapo 3
+                                  if(value_local->element_category == FUNCION && en_explist == 0){
+                                    num_parametros_llamada_actual = 0;
+                                    en_explist = 1;
+                                    $$.nombre = $1.nombre;
                                   } else {
                                     yyerror(NULL);
                                   }
                                 } else {
-                                  if(value_global->element_category == FUNCION){
-                                    //TODO: same, correcto numero args p.5 diapo 3
+                                  if(value_global->element_category == FUNCION && en_explist == 0){
+                                    num_parametros_llamada_actual = 0;
+                                    en_explist = 1;
+                                    $$.nombre = $1.nombre;
                                   } else {
                                     yyerror(NULL);
                                   }
                                 }
                               }
-                          ;
 lista_expresiones:        exp resto_lista_expresiones
-                              {fprintf(yyout,";R89:\t<lista_expresiones> ::= <exp> <resto_lista_expresiones>\n");}
+                              {
+                                fprintf(yyout,";R89:\t<lista_expresiones> ::= <exp> <resto_lista_expresiones>\n");
+                                num_parametros_llamada_actual++;
+                              }
                           |   /* vacío */
                               {fprintf(yyout,";R90:\t<lista_expresiones> ::= \n");}
                           ;
 resto_lista_expresiones:  TOK_COMA exp resto_lista_expresiones
-                              {fprintf(yyout,";R91:\t<resto_lista_expresiones> ::= , <exp> <resto_lista_expresiones>\n");}
+                              {
+                                fprintf(yyout,";R91:\t<resto_lista_expresiones> ::= , <exp> <resto_lista_expresiones>\n");
+                                num_parametros_llamada_actual++;
+                              }
                           |   /* vacío */
                               {fprintf(yyout,";R92:\t<resto_lista_expresiones> ::= \n");}
                           ;
