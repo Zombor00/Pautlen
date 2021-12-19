@@ -33,6 +33,10 @@ value *value_global = NULL;
 value *value = NULL;
 int res;
 
+/*VARIABLES PARA COMPROBAR RETORNOS*/
+int existe_retorno = 0; /*0: no existe retorno, 1: SI existe*/
+int tipo_retorno = -1; /*1: int, 2: boolean, -1 como placeholder? cambiar?*/
+
 int yylex();
 void yyerror(const char * s);
 %}
@@ -216,10 +220,22 @@ fn_declaration:           fn_name TOK_PARENTESISIZQUIERDO parametros_funcion TOK
                           ;
 funcion:                  fn_declaration sentencias TOK_LLAVEDERECHA
                               {
-                                fprintf(yyout,";R22:\t<funcion> ::= function <tipo> <identificador> ( <parametros_funcion> ) { <declaraciones_funcion> <sentencias> }\n");
+                                //Hay que comprobar que haya un return y que el tipo del retorno sea = tipo de la variable retornada por la funcion
+                                if(existe_retorno == 0){
+                                  fprintf(stderr, "La función NO tiene return");
+                                  return -1;
+                                }
+                                //TODO: como sacar el tipo de retorno que espera la funcion
+                                if(tipo_retorno == get($1.nombre, tabla_global).basic_type){
+                                  fprintf(stderr, "Error Semántico: El tipo de la sentencia de retorno no coincide con el tipo de retorno de la función")
+                                  return -1;
+                                }
+
                                 wipe(tabla_local);
                                 ambito = GLOBAL;
+                                //Este set no puede fallar? si ya hay un $1.nombre
                                 set($1.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, NO_CHANGE, NO_CHANGE, tabla_global);
+                                fprintf(yyout,";R22:\t<funcion> ::= function <tipo> <identificador> ( <parametros_funcion> ) { <declaraciones_funcion> <sentencias> }\n");
                               }
                           ;
 
@@ -389,7 +405,16 @@ escritura:                TOK_PRINTF exp
                               {fprintf(yyout,";R56:\t<escritura> ::= printf <exp>\n");}
                           ;
 retorno_funcion:          TOK_RETURN exp
-                              {fprintf(yyout,";R61:\t<retorno_funcion> ::= return <exp>\n");}
+                              {
+                                if (ambito != LOCAL){
+                                  fprintf(stderr, "Error Semántico: return fuera de una función");
+                                  return -1;
+                                }
+                                /*Actualizamos variable de retorno y tipo del elemento que retornamos*/
+                                existe_retorno = 1;
+                                tipo_retorno = $2.tipo;
+                                fprintf(yyout,";R61:\t<retorno_funcion> ::= return <exp>\n");
+                              }
                           ;
 exp:                      exp TOK_MAS exp
                               {
