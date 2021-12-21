@@ -27,4 +27,27 @@ struct _info_atributos {
 };
 typedef struct _info_atributos info_atributos;
 
+/*ERRORES SEMANTICOS*/
+enum _error_semantico
+{
+    DECLARACION_DUPLICADA,
+    VARIABLE_NO_DECLARADA,
+    OPERACION_ARITMETICA_BOOLEAN,
+		OPERACION_LOGICA_INT,
+		COMPARACION_BOOLEAN,
+		CONDICIONAL_INT,
+		BUCLE_INT,
+		NUMERO_PARAMS_FUNC,
+		ASIGN_INCOMPATIBLE,
+		MAX_TAM_VECTOR,
+		INDEX_NO_VECTOR,
+		INDEX_INT,
+		FUNC_NO_RETURN,
+		RETURN_OUT_FUNC,
+		PARAM_ES_FUNC,
+		VAR_LOCAL_NO_ESCALAR
+};
+typedef enum _error_semantico error_sem;
+
+
 #endif
