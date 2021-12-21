@@ -4,6 +4,7 @@
   */
 #include <stdio.h>
 #include "tabla_hash.h"
+#include "generacion.h"
 #define LOCAL 0
 #define GLOBAL 1
 
@@ -126,9 +127,24 @@ inicioTabla:                  {
                           ;
 
 declaraciones:            declaracion
-                              {fprintf(yyout,";R2:\t<declaraciones> ::= <declaracion>\n");}
+                              {
+                                fprintf(yyout,";R2:\t<declaraciones> ::= <declaracion>\n");
+                                escribir_cabecera_bss(yyout);
+                                escribir_subseccion_data(yyout);
+                                //Sacamos una lista de variables de la tabla global y las declaramos usando
+                                //declarar_variable(yyout, char *nombre, int tipo, int tamano)
+                                escribir_segmento_codigo(yyout);
+                              }
                           |   declaracion declaraciones
-                              {fprintf(yyout,";R3:\t<declaraciones> ::= <declaracion> <declaraciones>\n");}
+                              {
+                                fprintf(yyout,";R3:\t<declaraciones> ::= <declaracion> <declaraciones>\n");
+                              //Aqui tenemos que crear la cabecera del segmento BSS y el de datos
+                              escribir_cabecera_bss(yyout);
+                              escribir_subseccion_data(yyout);
+                              //Sacamos una lista de variables de la tabla global y las declaramos usando
+                              //declarar_variable(yyout, char *nombre, int tipo, int tamano)
+                              escribir_segmento_codigo(yyout);
+                              }
                           ;
 declaracion:              clase identificadores TOK_PUNTOYCOMA
                               {
@@ -139,7 +155,7 @@ clase:                    clase_escalar
                               {
                                   fprintf(yyout,";R5:\t<clase> ::= <clase_escalar>\n");
                                   clase_actual = ESCALAR;
-                              }
+                              } 
                           |   clase_vector
                               {
                                 fprintf(yyout,";R7:\t<clase> ::= <clase_vector>\n");
@@ -177,9 +193,15 @@ identificadores:          identificador
                               {fprintf(yyout,";R19:\t<identificadores> ::= <identificador> , <identificadores>\n");}
                           ;
 funciones:                funcion funciones
-                              {fprintf(yyout,";R20:\t<funciones> ::= <funcion> <funciones>\n");}
+                              {
+                                fprintf(yyout,";R20:\t<funciones> ::= <funcion> <funciones>\n");
+                                escribir_inicio_main(yyout);
+                              }
                           |   /* vacío */
-                              {fprintf(yyout,";R21:\t<funciones> ::= \n");}
+                              {
+                                fprintf(yyout,";R21:\t<funciones> ::= \n");
+                                escribir_inicio_main(yyout);  
+                              }
                           ;
 fn_name:                  TOK_FUNCTION tipo identificador
                               {
@@ -208,6 +230,7 @@ fn_name:                  TOK_FUNCTION tipo identificador
                                   num_parametros_actual = 0;
                                   pos_parametro_actual = 0;
                                   $$.nombre = $3.nombre;
+                                  
                                 }
                               }
                           ;
@@ -216,6 +239,7 @@ fn_declaration:           fn_name TOK_PARENTESISIZQUIERDO parametros_funcion TOK
                               {
                                 $$.nombre = $1.nombre;
                                 set($$.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, NO_CHANGE, NO_CHANGE, tabla_local);
+                                declararFuncion(yyout, $$.nombre, num_variables_locales_actual);
                               }
                           ;
 funcion:                  fn_declaration sentencias TOK_LLAVEDERECHA
@@ -305,6 +329,7 @@ asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                                   if(value->element_category != FUNCION && value->category == ESCALAR
                                     && value->basic_type == $3.tipo){
                                       //TODO: asignar $3.valor_entero a identificador en asm?
+                                      asignar(yyout, $1.nombre, $3.es_direccion);
                                   } else {
                                     yyerror(NULL);
                                   }
@@ -315,6 +340,7 @@ asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                                 fprintf(yyout,";R44:\t<asignacion> ::= <elemento_vector> = <exp>\n");
                                 if($1.tipo == $3.tipo){
                                   //TODO: asignar $3.valor_entero a identificador en asm?
+                                  //TODO: ver asignarDestinoEnPila(yyout, );
                                 } else {
                                   yyerror(NULL);
                                 }
