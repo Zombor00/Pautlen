@@ -193,9 +193,6 @@ clase_vector:             TOK_ARRAY tipo TOK_CORCHETEIZQUIERDO constante_entera 
                               {
                                 fprintf(yyout,";R15:\t<clase_vector> ::= array <tipo> [ <constante_entera> ]\n");
                                 tamanio_vector_actual = $4.valor_entero;
-                                if ((tamanio_vector_actual < 1) || (tamanio_vector_actual > MAX_TAMANIO_VECTOR)){
-                                    yyerror(NULL);
-                                }
                               }
                           ;
 identificadores:          identificador
@@ -220,7 +217,7 @@ fn_name:                  TOK_FUNCTION tipo identificador
                                 {
                                   /*Se encuentra el elemento solicitado, error semantico.*/
                                   printf("Identificador %s duplicado", $3.nombre);
-                                  yyerror(NULL);
+                                  error_semantico(DECLARACION_DUPLICADA, NULL);
                                 }
                                 else if(res == INSERTED)
                                 {
@@ -291,7 +288,7 @@ idpf:                     TOK_IDENTIFICADOR
                                 $$.nombre = $1.nombre;
                                 res = insert($1.nombre, PARAMETRO, tipo_actual, clase_actual, 0, 0, pos_parametro_actual, 0, 0, tabla_local); //o insert
                                 if(res == FOUND){
-                                    yyerror(NULL);
+                                    error_semantico(DECLARACION_DUPLICADA, NULL);
                                 } else {
                                     pos_parametro_actual++;
                                     num_parametros_actual++;
@@ -340,7 +337,7 @@ asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                                     && value->basic_type == $3.tipo){
                                       asignar(yyout, $1.nombre, $3.es_direccion);
                                   } else {
-                                    yyerror(NULL);
+                                    error_semantico(ASIGN_INCOMPATIBLE, NULL);
                                   }
                                 }
                                 $$.nombre = $1.nombre;
@@ -352,7 +349,7 @@ asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                                   asignarDestinoEnPila(yyout, $3.es_direccion);
                                   fprintf(yyout,";R44:\t<asignacion> ::= <elemento_vector> = <exp>\n");
                                 } else {
-                                  yyerror(NULL);
+                                  error_semantico(ASIGN_INCOMPATIBLE, NULL);
                                 }
                               }
                           ;
@@ -363,18 +360,22 @@ elemento_vector:          TOK_IDENTIFICADOR TOK_CORCHETEIZQUIERDO exp TOK_CORCHE
                                 } else {
                                   value = get($1.nombre, tabla_global);
                                 }
-                                if(value && value->category == VECTOR && $3.tipo == INT){
-                                  /*TODO: creo que esto no se hace, p.13 diapos 3
-                                  if($3.valor_entero < 1 || $3.valor_entero > MAX_TAMANIO_VECTOR){
-                                    yyerror(NULL);
+                                if(value){
+                                  if(value->category == VECTOR){
+                                    if($3.tipo == INT){
+                                      $$.tipo = value->basic_type;
+                                      $$.es_direccion = VALOR_REFERENCIA;
+                                      fprintf(yyout,";R48:\t<elemento_vector> ::= <identificador> [ <exp> ]\n");
+                                      escribir_elemento_vector(yyout, $1.nombre, value->size, $3.es_direccion);
+                                    }else{
+                                    error_semantico(INDEX_INT, NULL);
+                                    }
+                                  }else{
+                                    error_semantico(INDEX_NO_VECTOR, NULL);
                                   }
-                                  */
-                                  $$.tipo = value->basic_type;
-                                  $$.es_direccion = VALOR_REFERENCIA;
-                                  fprintf(yyout,";R48:\t<elemento_vector> ::= <identificador> [ <exp> ]\n");
-                                  escribir_elemento_vector(yyout, $1.nombre, value->size, $3.es_direccion);
-                                } else {
-                                  yyerror(NULL);
+                                }else {
+                                  //TODO: Maybe falta este error por otros lares.
+                                  error_semantico(VARIABLE_NO_DECLARADA, NULL);
                                 }
 
                               }
@@ -399,7 +400,7 @@ if_exp_sentencias:        if_exp sentencias
 if_exp:                   TOK_IF TOK_PARENTESISDERECHO exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA
                               {
                                 if($3.tipo != BOOLEAN){
-                                  yyerror(NULL);
+                                  error_semantico(CONDICIONAL_INT, NULL);
                                 }
                                 $$.etiqueta = etiqueta++;
                                 ifthen_inicio(yyout, $3.es_direccion, $$.etiqueta);
@@ -414,7 +415,7 @@ bucle:                    bucle_exp sentencias TOK_LLAVEDERECHA
 while_exp:                while exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA
                               {
                                 if($2.tipo != BOOLEAN){
-                                  yyerror(NULL);
+                                  error_semantico(CONDICIONAL_INT, NULL);
                                   return -1;
                                 }
                                 $$.etiqueta = $1.etiqueta;
@@ -433,7 +434,7 @@ lectura:                  TOK_SCANF TOK_IDENTIFICADOR
                                 value_global = get($2.nombre, tabla_global);
                                 value_local = get($2.nombre, tabla_local);
                                 if(value_local == NULL && value_global == NULL){
-                                  yyerror(NULL);
+                                  error_semantico(VARIABLE_NO_DECLARADA, NULL);
                                   return -1;
                                 } else if(value_local) { //Si la encontramos en la tabla local
                                   if(value_local->element_category == FUNCION
@@ -857,6 +858,9 @@ identificador:            TOK_IDENTIFICADOR
                                     size = 0;
                                 } else{
                                     size = tamanio_vector_actual;
+                                    if ((size < 1) || (size > MAX_TAMANIO_VECTOR)){
+                                      error_semantico(MAX_TAM_VECTOR, $1.nombre);
+                                    }
                                 }
                                 if(ambito == LOCAL){
                                     if(clase_actual != ESCALAR){
@@ -875,7 +879,7 @@ identificador:            TOK_IDENTIFICADOR
 
 %%
 
-/*TODO: terminar this funcion y cambiar los yyerror por esta poniendo error que es.*/
+/*TODO: cambiar los yyerror por esta poniendo error que es.*/
 int error_semantico(error_sem err, char* id) {
   if(err == DECLARACION_DUPLICADA){
     printf("****Error semantico en lin %ld: Declaracion duplicada.\n", yylin);
@@ -883,20 +887,34 @@ int error_semantico(error_sem err, char* id) {
     printf("****Error semantico en lin %ld: Acceso a variable no declarada (%s).\n", yylin, id);
   } else if(err == OPERACION_ARITMETICA_BOOLEAN){
     printf("****Error semantico en lin %ld: Operacion aritmetica con operandos boolean.\n", yylin);
+  }else if(err == OPERACION_LOGICA_INT){
+    printf("****Error semantico en lin %ld: Operacion logica con operandos int.\n", yylin);
+  }else if(err == COMPARACION_BOOLEAN){
+    printf("****Error semantico en lin %ld: Comparacion con operandos boolean.\n", yylin);
+  }else if(err == CONDICIONAL_INT){
+    printf("****Error semantico en lin %ld: Condicional con condicion de tipo int.\n", yylin);
+  }else if(err == BUCLE_INT){
+    printf("****Error semantico en lin %ld: Bucle con condicion de tipo int.\n", yylin);
+  }else if(err == NUMERO_PARAMS_FUNC){
+    printf("****Error semantico en lin %ld: Numero incorrecto de parametros en llamada a funcion.\n", yylin);
+  }else if(err == ASIGN_INCOMPATIBLE){
+    printf("****Error semantico en lin %ld: Asignacion incompatible.\n", yylin);
+  }else if(err == MAX_TAM_VECTOR){
+    printf("****Error semantico en lin %ld: El tamanyo del vector %s excede los limites permitidos (1,64).\n", yylin, id);
+  }else if(err == INDEX_NO_VECTOR){
+    printf("****Error semantico en lin %ld: Intento de indexacion de una variable que no es de tipo vector.\n", yylin);
+  }else if(err == INDEX_INT){
+    printf("****Error semantico en lin %ld: El indice en una operacion de indexacion tiene que ser de tipo entero.\n", yylin);
+  }else if(err == FUNC_NO_RETURN){
+    printf("****Error semantico en lin %ld: Funcion %s sin sentencia de retorno.\n", yylin, id);
+  }else if(err == RETURN_OUT_FUNC){
+    printf("****Error semantico en lin %ld: Sentencia de retorno fuera del cuerpo de una función.\n", yylin);
+  }else if(err == PARAM_ES_FUNC){
+    printf("****Error semantico en lin %ld: No esta permitido el uso de llamadas a funciones como parametros de otras funciones.\n", yylin);
+  }else if(err == VAR_LOCAL_NO_ESCALAR){
+    printf("****Error semantico en lin %ld: Variable local de tipo no escalar..\n", yylin);
   }
-  OPERACION_LOGICA_INT,
-  COMPARACION_BOOLEAN,
-  CONDICIONAL_INT,
-  BUCLE_INT,
-  NUMERO_PARAMS_FUNC,
-  ASIGN_INCOMPATIBLE,
-  MAX_TAM_VECTOR,
-  INDEX_NO_VECTOR,
-  INDEX_INT,
-  FUNC_NO_RETURN,
-  RETURN_OUT_FUNC,
-  PARAM_ES_FUNC,
-  VAR_LOCAL_NO_ESCALAR
+  wipe(tabla_global)
 }
 
 void yyerror(const char * s) {
