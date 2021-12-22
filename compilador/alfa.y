@@ -155,10 +155,10 @@ escritura_main:               {escribir_inicio_main(yyout);}
 declaraciones:            declaracion
 
                           |   declaracion declaraciones
-                            
+
                           ;
 declaracion:              clase identificadores TOK_PUNTOYCOMA
-                            
+
                           ;
 clase:                    clase_escalar
                               {clase_actual = ESCALAR;}
@@ -166,7 +166,7 @@ clase:                    clase_escalar
                               {clase_actual = VECTOR;}
                           ;
 clase_escalar:            tipo
-                              
+
                           ;
 tipo:                     TOK_INT
                               {tipo_actual = INT;}
@@ -177,14 +177,14 @@ clase_vector:             TOK_ARRAY tipo TOK_CORCHETEIZQUIERDO constante_entera 
                               {tamanio_vector_actual = $4.valor_entero;}
                           ;
 identificadores:          identificador
-                              
+
                           |   identificador TOK_COMA identificadores
-                              
+
                           ;
 funciones:                funcion funciones
-                            
+
                           |   /* vacío */
-                              
+
                           ;
 fn_name:                  TOK_FUNCTION tipo identificador
                               {
@@ -253,17 +253,17 @@ funcion:                  fn_declaration sentencias TOK_LLAVEDERECHA
                           ;
 
 parametros_funcion:       parametro_funcion resto_parametros_funcion
-                              
+
                           |   /* vacío */
-                              
+
                           ;
 resto_parametros_funcion: TOK_PUNTOYCOMA parametro_funcion resto_parametros_funcion
-                              
+
                           |   /* vacío */
-                              
+
                           ;
 parametro_funcion:        tipo idpf
-                              
+
                           ;
 idpf:                     TOK_IDENTIFICADOR
                             {
@@ -281,33 +281,33 @@ idpf:                     TOK_IDENTIFICADOR
                             }
                           ;
 declaraciones_funcion:    declaraciones
-                             
+
                           |   /* vacío */
-                              
+
                           ;
 sentencias:               sentencia
-                              
+
                           |   sentencia sentencias
-                              
+
                           ;
 sentencia:                sentencia_simple TOK_PUNTOYCOMA
-                             
+
                           |   bloque
-                             
+
                           ;
 sentencia_simple:         asignacion
-                              
+
                           |   lectura
-                              
+
                           |   escritura
-                              
+
                           |   retorno_funcion
-                              
+
                           ;
 bloque:                   condicional
-                              
+
                           |   bucle
-                              
+
                           ;
 
 
@@ -370,12 +370,12 @@ condicional:              if_exp sentencias TOK_LLAVEDERECHA
                               {
                                 ifthen_fin(yyout, $1.etiqueta);
                               }
-                          | if_exp_sentencias TOK_LLAVEDERECHA TOK_ELSE TOK_LLAVEIZQUIERDA sentencias TOK_LLAVEDERECHA
+                          | if_exp_sentencias TOK_ELSE TOK_LLAVEIZQUIERDA sentencias TOK_LLAVEDERECHA
                               {
                                 ifthenelse_fin(yyout, $1.etiqueta);
                               }
                           ;
-if_exp_sentencias:        if_exp sentencias
+if_exp_sentencias:        if_exp sentencias TOK_LLAVEDERECHA
                               {
                                 $$.etiqueta = $1.etiqueta;
                                 ifthenelse_fin_then(yyout, $1.etiqueta);
@@ -668,14 +668,14 @@ lista_expresiones:        exp resto_lista_expresiones
                                 num_parametros_llamada_actual++;
                               }
                           |   /* vacío */
-                              
+
                           ;
 resto_lista_expresiones:  TOK_COMA exp resto_lista_expresiones
                               {
                                 num_parametros_llamada_actual++;
                               }
                           |   /* vacío */
-                              
+
                           ;
 comparacion:              exp TOK_IGUAL exp
                               {
