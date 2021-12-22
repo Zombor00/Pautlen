@@ -413,7 +413,10 @@ while:                    TOK_WHILE TOK_PARENTESISIZQUIERDO
 lectura:                  TOK_SCANF TOK_IDENTIFICADOR
                               {
                                 val_global = get($2.nombre, tabla_global);
-                                val_local = get($2.nombre, tabla_local);
+                                val_local = NULL;
+                                if(ambito == LOCAL){
+                                 val_local = get($2.nombre, tabla_local);
+                                }
                                 if(val_local == NULL && val_global == NULL){
                                   error_semantico(VARIABLE_NO_DECLARADA, $2.nombre);
                                   return -1;
@@ -567,7 +570,10 @@ exp:                      exp TOK_MAS exp
                               }
                           |   TOK_IDENTIFICADOR
                               {
-                                val_local = get($1.nombre, tabla_local);
+                                val_local = NULL;
+                                if(ambito == LOCAL){
+                                  val_local = get($1.nombre, tabla_local);
+                                }
                                 val_global = get($1.nombre, tabla_global);
                                 if(val_local == NULL && val_global == NULL){
                                   error_semantico(VARIABLE_NO_DECLARADA, $1.nombre);
