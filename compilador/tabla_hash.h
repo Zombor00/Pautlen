@@ -49,19 +49,19 @@ struct Tuple
 
 struct Hash_table
 {
-  tuple *hash_table;
+  tuple **tuples;
   int n_elems;
 };
 
 hash_table *create_table();
 int hash(char *name);
-int insert(char *name, int element_category, int basic_type, int category, int size,
-           int num_params, int pos_param, int num_local_variables, int pos_local_variable, hash_table *hash_table);
 value *get(char *name, hash_table *hash_table);
+int insert(char *name, int element_category, int basic_type, int category, int size,
+           int num_params, int pos_param, int num_local_variables, int pos_local_variable, hash_table *ht);
 int wipe(hash_table *hash_table);
 int set(char *name, int element_category, int basic_type, int category,
         int size, int num_params, int pos_param, int num_local_variables,
-        int pos_local_variable, hash_table *hash_table);
+        int pos_local_variable, hash_table *ht);
 
-hash_table *extract_table_contents(hash_table *hash_table);
+tuple **extract_table_contents(hash_table *ht);
 #endif

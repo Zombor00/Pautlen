@@ -3,10 +3,16 @@
 hash_table *create_table()
 {
   hash_table *ht = NULL;
-  ht = (hash_table *)calloc(sizeof(hash_table), MAX_SIZE);
+  ht = (hash_table *)calloc(sizeof(hash_table), 1);
   if (ht == NULL)
   {
-    printf("Error creating hash_table!");
+    printf("Error creating the hash table!");
+  }
+  ht->tuples = NULL;
+  ht->tuples = (tuple **)calloc(sizeof(tuple*), MAX_SIZE);
+  if (ht->tuples == NULL)
+  {
+    printf("Error creating tuples for the hash table!");
   }
 
   return ht;
@@ -25,65 +31,15 @@ int hash(char *name)
   return (abs(hash_val) % MAX_SIZE);
 }
 
-int insert(char *name, int element_category, int basic_type, int category,
-           int size, int num_params, int pos_param, int num_local_variables,
-           int pos_local_variable, hash_table *hash_table)
-{
-
-  int hash_val = 0;
-  hash_table tuple_found;
-  hash_table tuple_new;
-  int i;
-  value *val = NULL;
-
-  hash_val = hash(name);
-  tuple_found = NULL;
-
-  for (i = 0; i < MAX_SIZE; i++)
-  {
-    tuple_found = hash_table[hash_val];
-    if (tuple_found == NULL)
-    {
-      /*Creamos el val*/
-      val = (value *)malloc(sizeof(value));
-      val->element_category = element_category;
-      val->basic_type = basic_type;
-      val->category = category;
-      val->size = size;
-      val->num_params = num_params;
-      val->pos_param = pos_param;
-      val->num_local_variables = num_local_variables;
-      val->pos_local_variable = pos_local_variable;
-
-      /*Creamos la tupla*/
-      tuple_new = (hash_table)malloc(sizeof(tuple));
-      tuple_new->name = name;
-      tuple_new->val = val;
-      hash_table[hash_val] = tuple_new;
-      return INSERTED;
-    }
-    else if (strcmp(tuple_found->name, name) == 0)
-    {
-      return FOUND;
-    }
-    else
-    {
-      /*Si encuentras algo y no es la tuple a insertar, colisión.*/
-      hash_val = (hash_val + 1) % MAX_SIZE;
-    }
-  }
-  return ERROR;
-}
-
-value *get(char *name, hash_table *hash_table)
+value *get(char *name, hash_table *ht)
 {
   int hash_val = 0;
-  hash_table tuple_found;
+  tuple *tuple_found;
   int i;
   hash_val = hash(name);
   for (i = 0; i < MAX_SIZE; i++)
   {
-    tuple_found = hash_table[hash_val];
+    tuple_found = ht->tuples[hash_val];
     if (tuple_found == NULL)
     {
       return NULL;
@@ -101,12 +57,61 @@ value *get(char *name, hash_table *hash_table)
   return NULL;
 }
 
+int insert(char *name, int element_category, int basic_type, int category,
+           int size, int num_params, int pos_param, int num_local_variables,
+           int pos_local_variable, hash_table *ht)
+{
+  int i;
+  int hash_val = 0;
+  tuple *tuple_found = NULL;
+  tuple *tuple_new = NULL;
+  value *val = NULL;
+
+  hash_val = hash(name);
+  tuple_found = NULL;
+
+  for (i = 0; i < MAX_SIZE; i++)
+  {
+    tuple_found = ht->tuples[hash_val];
+    if (tuple_found == NULL)
+    {
+      /*Creamos el val*/
+      val = (value *)malloc(sizeof(value));
+      val->element_category = element_category;
+      val->basic_type = basic_type;
+      val->category = category;
+      val->size = size;
+      val->num_params = num_params;
+      val->pos_param = pos_param;
+      val->num_local_variables = num_local_variables;
+      val->pos_local_variable = pos_local_variable;
+
+      /*Creamos la tupla*/
+      tuple_new = (tuple*)malloc(sizeof(tuple));
+      tuple_new->name = name;
+      tuple_new->val = val;
+      ht->tuples[hash_val] = tuple_new;
+      return INSERTED;
+    }
+    else if (strcmp(tuple_found->name, name) == 0)
+    {
+      return FOUND;
+    }
+    else
+    {
+      /*Si encuentras algo y no es la tuple a insertar, colisión.*/
+      hash_val = (hash_val + 1) % MAX_SIZE;
+    }
+  }
+  return ERROR;
+}
+
 int set(char *name, int element_category, int basic_type, int category,
         int size, int num_params, int pos_param, int num_local_variables,
-        int pos_local_variable, hash_table *hash_table)
+        int pos_local_variable, hash_table *ht)
 {
   value *val;
-  val = get(name, hash_table);
+  val = get(name, ht);
   if (val != NULL)
   {
     if (element_category != NO_CHANGE)
@@ -133,35 +138,39 @@ int set(char *name, int element_category, int basic_type, int category,
   }
 }
 
-int wipe(hash_table *hash_table)
+int wipe(hash_table *ht)
 {
   int i;
-  if (hash_table == NULL)
+  if (ht == NULL)
   {
     return -1;
   }
   for (i = 0; i < MAX_SIZE; i++)
   {
-    if (hash_table[i] != NULL)
+    if (ht->tuples[i] != NULL)
     {
-      free(hash_table[i]->val);
+      free(ht->tuples[i]->val);
       /*If the element at hash position i exists we free it*/
-      free(hash_table[i]);
+      free(ht->tuples[i]);
     }
   }
-  free(hash_table);
+  free(ht);
   return 0;
 }
 
-hash_table *extract_table_contents(hash_table *hash_table)
+tuple **extract_table_contents(hash_table *ht)
 {
   int i = 0;
+  int index = 0;
+  tuple **content = (tuple**)calloc(sizeof(tuple*), ht->n_elems);
 
   for (i = 0; i < MAX_SIZE; i++)
   {
-    if (hash_table[i] != NULL)
+    if (ht->tuples[i] != NULL)
     {
-      //Extraemos la tupla encontrada
+      content[index] = ht->tuples[i];
+      index++;
     }
   }
+  return content;
 }
