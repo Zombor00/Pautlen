@@ -94,7 +94,6 @@ void yyerror(const char * s);
 
 %type <atributos> fn_name
 %type <atributos> fn_declaration
-%type <atributos> asignacion
 %type <atributos> elemento_vector
 %type <atributos> if_exp_sentencias
 %type <atributos> if_exp
@@ -136,7 +135,7 @@ escritura_TS:                 {
                                 //Aqui tenemos que crear la cabecera del segmento BSS y el de datos
                                 escribir_cabecera_bss(yyout);
                                 //TODO: Sacamos una lista de variables de la tabla global y las declaramos usando
-                                
+
                                 //declarar_variable(yyout, char *nombre, int tipo, int tamano)
                                 escribir_subseccion_data(yyout);
                                 escribir_segmento_codigo(yyout);
@@ -159,7 +158,7 @@ clase:                    clase_escalar
                               {clase_actual = VECTOR;}
                           ;
 clase_escalar:            tipo
-                              {//TODO: tamanio_vector_actual = 1;
+                              {
                               }
                           ;
 tipo:                     TOK_INT
@@ -183,13 +182,15 @@ funciones:                funcion funciones
 fn_name:                  TOK_FUNCTION tipo identificador
                               {
                                 if(ambito == LOCAL){
-                                  //error funcion entro de funcion
+                                  error_semantico(VAR_LOCAL_NO_ESCALAR, NULL);
+                                  return -1;
                                 }
                                 res = insert($3.nombre, FUNCION, tipo_actual, clase_actual, 0, 0, 0, 0, 0, tabla_global);
                                 if(res == FOUND)
                                 {
                                   /*Se encuentra el elemento solicitado, error semantico.*/
                                   error_semantico(DECLARACION_DUPLICADA, NULL);
+                                  return -1;
                                 }
                                 else if(res == INSERTED)
                                 {
@@ -199,7 +200,7 @@ fn_name:                  TOK_FUNCTION tipo identificador
                                   {
                                     printf("Error creando la tabla local!\n");
                                     wipe(tabla_global);
-                                    return 1;
+                                    return -1;
                                   }
                                   res = insert($3.nombre, FUNCION, tipo_actual, 0, 0, 0, 0, 0, 0, tabla_local);
                                   ambito = LOCAL;
@@ -218,26 +219,27 @@ fn_declaration:           fn_name TOK_PARENTESISIZQUIERDO parametros_funcion TOK
                                 $$.nombre = $1.nombre;
                                 res = set($$.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, num_variables_locales_actual, NO_CHANGE, tabla_local);
                                 if(res == ERROR){
-                                  //error no declarada most likely
+                                  error_semantico(VARIABLE_NO_DECLARADA, NULL);
+                                  return -1;
                                 }
                                 declararFuncion(yyout, $$.nombre, num_variables_locales_actual);
                               }
                           ;
 funcion:                  fn_declaration sentencias TOK_LLAVEDERECHA
                               {
-                                //Hay que comprobar que haya un return y que el tipo del retorno sea = tipo de la variable retornada por la funcion
+                                /*Hay que comprobar que haya un return y que el tipo del retorno sea = tipo de la variable retornada por la funcion*/
                                 if(existe_retorno == FALSE){
-                                  error_sem(FUNC_NO_RETURN, NULL);
+                                  error_semantico(FUNC_NO_RETURN, NULL);
                                   return -1;
                                 }
                                 value = get($1.nombre, tabla_global);
                                 if(value == NULL){
-                                  //var no declarada
+                                  error_semantico(VARIABLE_NO_DECLARADA, NULL);
+                                  return -1;
                                 }
 
                                 wipe(tabla_local);
                                 ambito = GLOBAL;
-                                //Este set no puede fallar? si ya hay un $1.nombre
                                 set($1.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, num_variables_locales_actual, NO_CHANGE, tabla_global);
                                 existe_retorno = FALSE;
                               }
@@ -259,11 +261,13 @@ parametro_funcion:        tipo idpf
 idpf:                     TOK_IDENTIFICADOR
                             {
                               if(clase_actual == VECTOR){
-                                //err de parametro no escalar
+                                error_semantico(PARAM_ES_FUNC, NULL);
+                                return -1;
                               }
                               res = insert($1.nombre, PARAMETRO, tipo_actual, clase_actual, 0, 0, pos_parametro_actual, 0, 0, tabla_local);
                               if(res == FOUND){
                                   error_semantico(DECLARACION_DUPLICADA, NULL);
+                                  return -1;
                               }
                               pos_parametro_actual++;
                               num_parametros_actual++;
@@ -313,22 +317,21 @@ asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                                       asignar(yyout, $1.nombre, $3.es_direccion);
                                   } else {
                                     error_semantico(ASIGN_INCOMPATIBLE, NULL);
+                                    return -1;
                                   }
                                 }
-                                $$.nombre = $1.nombre;
-                                /*TODO: esto ultimo 0 sure*/
                               }
                           |   elemento_vector TOK_ASIGNACION exp
                               {
                                 if($1.tipo == $3.tipo){
-                                  /*Creo que el segundo argumento es siempre VALOR_EXPLICITO porque estamos haciendo vector[i] = algo*/
-                                  asignarDestinoEnPila(yyout, VALOR_EXPLICITO);
+                                  asignarDestinoEnPila(yyout, $3.es_direccion);
                                 } else {
                                   error_semantico(ASIGN_INCOMPATIBLE, NULL);
+                                  return -1;
                                 }
                               }
                           ;
-elemento_vector:          TOK_IDENTIFICADOR TOK_CORCHETEIZQUIERDO exp TOK_CORCHETEDERECHO
+elemento_vector:          TOK_IDENTIFICADOR TOK_CORCHETEIZQUIERDO exp TOK_CORCHETEDERECHO 
                               {
                                 if(ambito == LOCAL){
                                   value = get($1.nombre, tabla_local);
@@ -340,17 +343,18 @@ elemento_vector:          TOK_IDENTIFICADOR TOK_CORCHETEIZQUIERDO exp TOK_CORCHE
                                     if($3.tipo == INT){
                                       $$.tipo = value->basic_type;
                                       $$.es_direccion = VALOR_REFERENCIA;
-                                      /*Aquí no sería siempre VALOR_REFERENCIA PORQUE HAY [exp]?*/
                                       escribir_elemento_vector(yyout, $1.nombre, value->size, $3.es_direccion);
                                     }else{
-                                    error_semantico(INDEX_INT, NULL);
+                                      error_semantico(INDEX_INT, NULL);
+                                      return -1;
                                     }
                                   }else{
                                     error_semantico(INDEX_NO_VECTOR, NULL);
+                                    return -1;
                                   }
                                 }else {
-                                  //TODO: Maybe falta este error por otros lares.
                                   error_semantico(VARIABLE_NO_DECLARADA, NULL);
+                                  return -1;
                                 }
 
                               }
@@ -401,7 +405,7 @@ while:                    TOK_WHILE TOK_PARENTESISIZQUIERDO
                               }
                           ;
 lectura:                  TOK_SCANF TOK_IDENTIFICADOR
-                              { //TODO: todo lo que hace de pila alfalib.o...
+                              { 
                                 value_global = get($2.nombre, tabla_global);
                                 value_local = get($2.nombre, tabla_local);
                                 if(value_local == NULL && value_global == NULL){
@@ -412,31 +416,22 @@ lectura:                  TOK_SCANF TOK_IDENTIFICADOR
                                     error_semantico(LECTURA_ERROR, NULL);
                                     return -1;
                                   } else {
-                                    //direccion = en función de ebp y la posición del parámetro o variable local
                                     if(value_local->basic_type == INT){
-                                      //llamar scan_int de alfalib.o
                                       leer(yyout, $2.nombre, INT);
                                     } else if(value_local->basic_type == BOOLEAN){
-                                      //llamar scan_boolean
                                       leer(yyout, $2.nombre, BOOLEAN);
                                     }
-                                    //restaurar la pila
                                   }
                                 } else { //si la encontramos en la tabla global
-                                  if(value_global->element_category == FUNCION
-                                    || value_global->element_category == VECTOR){
+                                  if(value_global->element_category == FUNCION || value_global->element_category == VECTOR){
                                     error_semantico(LECTURA_ERROR, NULL);
                                     return -1;
                                   } else {
-                                    //direccion = su lexema $2.nombre??
                                     if(value_global->basic_type == INT){
-                                      //llamar scan_int de alfalib.o
                                       leer(yyout, $2.nombre, INT);
                                     } else if(value_global->basic_type == BOOLEAN){
-                                      //llamar scan_boolean
                                       leer(yyout, $2.nombre, BOOLEAN);
                                     }
-                                    //restaurar la pila
                                   }
                                 }
                               }
@@ -449,28 +444,26 @@ escritura:                TOK_PRINTF exp
 retorno_funcion:          TOK_RETURN exp
                               {
                                 if (ambito != LOCAL){
-                                  fprintf(stderr, "Error Semántico: return fuera de una función");
+                                  error_semantico(RETURN_OUT_FUNC, NULL);
                                   return -1;
                                 }
-                                value = get(nombreFuncionActual, tabla_local); //TODO: en la global tal vez o both
+                                value = get(nombreFuncionActual, tabla_local);
                                 if(!value){
-                                  //error var no declarada
                                   error_semantico(VARIABLE_NO_DECLARADA, NULL);
                                   return -1;
                                 }
                                 if($2.valor_entero != 0 && $2.valor_entero != 1){
-                                  /*Las direcciones de
+                                  /*TODO: Las direcciones de
                                     exp siempre tienen
                                     que ser 0 ó 1.,??*/
                                   fprintf(stderr, "Error valor ilegal! en valor_entero");
                                   return -1;
                                 }
                                 if(value->basic_type != $2.tipo){
-                                  //error retorno distinto tipo
                                   error_semantico(RETORNO_DIFERENTE_TIPO);
                                   return -1;
                                 }
-                                /*Actualizamos variable de retorno y tipo del elemento que retornamos*/
+                                /*Actualizamos variable de retorno*/
                                 existe_retorno = TRUE;
                                 retornarFuncion(yyout, $2.es_direccion);
                               }
@@ -581,28 +574,25 @@ exp:                      exp TOK_MAS exp
                                     $$.tipo = value_local->basic_type;
                                     $$.es_direccion = VALOR_REFERENCIA;
                                     if(en_explist == TRUE){
-                                      /*TODO: guardar valor en la pila*/
-                                      escribir_operando(yyout, $1.nombre, QUE VALOR VA AQUI)
+                                      escribirParametro(yyout, value_local->pos_params, value_local->num_params);
                                     } else {
                                       escribir_operando(yyout, $1.nombre, VALOR_REFERENCIA);
                                     }
                                   }
                                 } else {
-                                  if(value_->element_category == FUNCION || value_global->category == VECTOR){
+                                  if(value_global->element_category == FUNCION || value_global->category == VECTOR){
                                     error_semantico(ASIGN_INCOMPATIBLE);                                    
                                     return -1;
                                   } else {
                                     $$.tipo = value_global->basic_type;
                                     $$.es_direccion = VALOR_REFERENCIA;
                                     if(en_explist == TRUE){
-                                      /*TODO: guardar valor en la pila*/
+                                      escribirParametro(yyout, value_global->pos_params, value_global->num_params);
                                     } else {
                                       escribir_operando(yyout, $1.nombre, VALOR_REFERENCIA);
                                     }                                  }
                                 }
                                 $$.nombre = $1.nombre;
-                                /*TODO: esto ultimo 0 sure*/
-                                /*TODO: BRITO, lo dejo aqui!*/
                               }
                           |   constante
                               {
@@ -798,7 +788,7 @@ identificador:            TOK_IDENTIFICADOR
                                 pos_variable_local_actual++;
                                 if(clase_actual == ESCALAR){
                                     size = 0;
-                                } else{
+                                } else{ //clase_actual == VECTOR
                                     size = tamanio_vector_actual;
                                     if ((size < 1) || (size > MAX_TAMANIO_VECTOR)){
                                       error_semantico(MAX_TAM_VECTOR, $1.nombre);
@@ -864,7 +854,10 @@ int error_semantico(error_sem err, char* id) {
     printf("****Error semantico en lin %ld: Llamada de tipo función a un elemento que no lo es\n", yylin);
   }else if(err == DIF_TIPOS){
     printf("****Error semantico en lin %ld: Intento de operación entre 2 variables de distinto tipo\n", yylin);
+  }else if(err == PARAM_ES_VECTOR){
+    printf("****Error semantico en lin %ld: No esta permitido el uso de vectores en los parametros de una función.\n", yylin);
   }
+  
   wipe(tabla_global);
   if (ambito == LOCAL){
     wipe(tabla_local);
