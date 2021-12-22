@@ -25,6 +25,9 @@ int clase_actual;
 int tamanio_vector_actual;
 int num_parametros_llamada_actual;
 
+tuple **contents;
+int i; 
+
 char nombreFuncionActual[MAX_LONG_ID];
 
 int etiqueta = 1;
@@ -134,9 +137,12 @@ inicioTabla:                  {
 escritura_TS:                 {
                                 //Aqui tenemos que crear la cabecera del segmento BSS y el de datos
                                 escribir_cabecera_bss(yyout);
-                                //TODO: Sacamos una lista de variables de la tabla global y las declaramos usando
+                                
+                                contents = extract_table_contents(tabla_global);
+                                for(i = 0; i < tabla_global->n_elems; i++){
+                                  declarar_variable(yyout, contents[i]->name, contents[i]->val->basic_type, contents[i]->val->size);
+                                }
 
-                                //declarar_variable(yyout, char *nombre, int tipo, int tamano)
                                 escribir_subseccion_data(yyout);
                                 escribir_segmento_codigo(yyout);
                               }
@@ -158,8 +164,7 @@ clase:                    clase_escalar
                               {clase_actual = VECTOR;}
                           ;
 clase_escalar:            tipo
-                              {
-                              }
+                              {}
                           ;
 tipo:                     TOK_INT
                               {tipo_actual = INT;}
