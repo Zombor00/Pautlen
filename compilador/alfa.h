@@ -1,5 +1,8 @@
 #ifndef _ALFA_H
 
+/*Definimos como función global el fichero de salida*/
+extern FILE *yyout;
+
 /*ES DIRECCION*/
 #define VALOR_EXPLICITO 0
 #define VALOR_REFERENCIA 1
@@ -16,12 +19,12 @@ typedef struct _info_atributos info_atributos;
 struct _info_atributos {
 	char nombre[MAX_LONG_ID + 1];
 	int valor_entero;
-	int tipo; 					/*INT o BOOLEAN*/
-	int es_direccion; 	/*atributo que indica si un símbolo representa una
-											 dirección de memoria o es un valor constante.*/
+	int tipo; 			/*INT o BOOLEAN*/
+	int es_direccion; 		/*atributo que indica si un símbolo representa una
+						dirección de memoria o es un valor constante.*/
 	int etiqueta; 			/*atributo necesario para gestión de sentencias
-											 condicionales e iterativas. Es un atributo
-											 definido exclusivamente para la generación de código.*/
+						condicionales e iterativas. Es un atributo
+						definido exclusivamente para la generación de código.*/
 };
 
 /*ERRORES SEMANTICOS*/

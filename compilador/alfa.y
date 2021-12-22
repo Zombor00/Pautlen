@@ -9,7 +9,6 @@
 extern int yy_morph_error;
 extern long yylin;
 extern long yycol;
-extern FILE * yyout;
 
 hash_table *tabla_global = NULL;
 hash_table *tabla_local = NULL;
@@ -271,7 +270,7 @@ idpf:                     TOK_IDENTIFICADOR
                                 error_semantico(PARAM_ES_FUNC, NULL);
                                 return -1;
                               }
-                              res = insert($1.nombre, PARAMETRO, tipo_actual, clase_actual, 0, 0, pos_parametro_actual, 0, 0, tabla_local);
+                              res = insert($1.nombre, PARAMETRO, tipo_actual, clase_actual, 1, 0, pos_parametro_actual, 0, 0, tabla_local);
                               if(res == FOUND){
                                   error_semantico(DECLARACION_DUPLICADA, NULL);
                                   return -1;
@@ -794,7 +793,7 @@ identificador:            TOK_IDENTIFICADOR
                                 strcpy($$.nombre, $1.nombre);
                                 pos_variable_local_actual++;
                                 if(clase_actual == ESCALAR){
-                                    size = 0;
+                                    size = 1;
                                 } else{ //clase_actual == VECTOR
                                     size = tamanio_vector_actual;
                                     if ((size < 1) || (size > MAX_TAMANIO_VECTOR)){
@@ -804,7 +803,7 @@ identificador:            TOK_IDENTIFICADOR
                                 }
                                 if(ambito == LOCAL){
                                     if(clase_actual == ESCALAR){
-                                        res = insert($1.nombre, VARIABLE, tipo_actual, clase_actual, 0, 0, 0, num_variables_locales_actual, pos_variable_local_actual, tabla_local);
+                                        res = insert($1.nombre, VARIABLE, tipo_actual, clase_actual, 1, 0, 0, num_variables_locales_actual, pos_variable_local_actual, tabla_local);
                                     } else{ //if clase_actual == VECTOR
                                         error_semantico(VAR_LOCAL_NO_ESCALAR, NULL);
                                         return -1;

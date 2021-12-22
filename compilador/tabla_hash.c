@@ -8,6 +8,7 @@ hash_table *create_table()
   {
     printf("Error creating the hash table!");
   }
+  ht->n_elems = 0;
   ht->tuples = NULL;
   ht->tuples = (tuple **)calloc(sizeof(tuple*), MAX_SIZE);
   if (ht->tuples == NULL)
@@ -91,6 +92,7 @@ int insert(char *name, int element_category, int basic_type, int category,
       tuple_new->name = name;
       tuple_new->val = val;
       ht->tuples[hash_val] = tuple_new;
+      ht->n_elems += 1;
       return INSERTED;
     }
     else if (strcmp(tuple_found->name, name) == 0)

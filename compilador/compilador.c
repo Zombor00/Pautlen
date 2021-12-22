@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <string.h>
+#include "alfa.h"
 
 int yylex();
 int yyparse();
-FILE * out = NULL;
 
 int main(int argc, char ** argv) {
     extern FILE * yyin;
@@ -16,8 +16,8 @@ int main(int argc, char ** argv) {
     if(yyin == NULL) {
         return 1;
     }
-    out = fopen(argv[2], "w");
-    if(out == NULL) {
+    yyout = fopen(argv[2], "w");
+    if(yyout == NULL) {
         fclose(yyin);
         return 1;
     }
@@ -25,6 +25,6 @@ int main(int argc, char ** argv) {
     yyparse();
 
     fclose(yyin);
-    fclose(out);
+    fclose(yyout);
     return 0;
 }

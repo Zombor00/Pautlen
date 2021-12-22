@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 /* Declaraciones de tipos de datos del compilador */
-#define ENTERO 0
+#define ENTERO 2
 #define BOOLEANO 1
 
 #define VALOR_EXPLICITO 0
