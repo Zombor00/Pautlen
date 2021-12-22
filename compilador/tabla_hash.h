@@ -27,14 +27,15 @@
 
 typedef struct Value value;
 typedef struct Tuple tuple;
+typedef struct Hash_table hash_table;
 
 struct Value
 {
   int element_category;
-  int basic_type;         /*tipo*/
-  int category;           /*clase*/
-  int size;               /*size will be 0 if the element is not a vector*/
-  int num_params;         /*These only apply if the element is a function*/
+  int basic_type; /*tipo*/
+  int category;   /*clase*/
+  int size;       /*size will be 0 if the element is not a vector*/
+  int num_params; /*These only apply if the element is a function*/
   int pos_param;
   int num_local_variables;
   int pos_local_variable;
@@ -46,14 +47,21 @@ struct Tuple
   value *val;
 };
 
-tuple **create_table();
+struct Hash_table
+{
+  tuple *hash_table;
+  int n_elems;
+};
+
+hash_table *create_table();
 int hash(char *name);
 int insert(char *name, int element_category, int basic_type, int category, int size,
-           int num_params, int pos_param, int num_local_variables, int pos_local_variable, tuple **hash_table);
-value *get(char *name, tuple **hash_table);
-int wipe(tuple **hash_table);
+           int num_params, int pos_param, int num_local_variables, int pos_local_variable, hash_table *hash_table);
+value *get(char *name, hash_table *hash_table);
+int wipe(hash_table *hash_table);
 int set(char *name, int element_category, int basic_type, int category,
-           int size, int num_params, int pos_param, int num_local_variables,
-           int pos_local_variable, tuple **hash_table);
+        int size, int num_params, int pos_param, int num_local_variables,
+        int pos_local_variable, hash_table *hash_table);
 
+hash_table *extract_table_contents(hash_table *hash_table);
 #endif
