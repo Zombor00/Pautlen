@@ -28,6 +28,8 @@ int clase_actual;
 int tamanio_vector_actual;
 int num_parametros_llamada_actual;
 
+char nombreFuncionActual[MAX_LONG_ID];
+
 int etiqueta = 1;
 
 value *value_local = NULL;
@@ -40,7 +42,6 @@ char str_aux[MAX_LONG_ID];
 int en_explist = FALSE;
 /*VARIABLES PARA COMPROBAR RETORNOS*/
 int existe_retorno = FALSE; /*FALSE: no existe retorno, TRUE: SI existe*/
-int tipo_retorno = -1; /*1: int, 2: boolean, -1 como placeholder? cambiar?*/
 
 int yylex();
 int error_semantico(error_semantico error_semantico, char* id);
@@ -104,7 +105,6 @@ void yyerror(const char * s);
 
 %type <atributos> fn_name
 %type <atributos> fn_declaration
-%type <atributos> idpf
 
 %type <atributos> idf_llamada_funcion
 
@@ -118,8 +118,8 @@ void yyerror(const char * s);
 
 programa:                 inicioTabla TOK_MAIN TOK_LLAVEIZQUIERDA declaraciones escritura_TS funciones escritura_main sentencias TOK_LLAVEDERECHA
                               {
-                                fprintf(yyout, ";R1:\t<programa> ::= main { <declaraciones> <funciones> <sentencias> }\n");
                                 escribir_fin(yyout);
+                                wipe(tabla_global);
                               }
                           ;
 inicioTabla:                  {
@@ -143,80 +143,53 @@ escritura_TS:                 {
                                 escribir_segmento_codigo(yyout);
                               }
                           ;
-escritura_main:               {
-                                escribir_inicio_main(yyout);
-                              }
+escritura_main:               {escribir_inicio_main(yyout);}
                           ;
 
 declaraciones:            declaracion
-                              {
-                                fprintf(yyout,";R2:\t<declaraciones> ::= <declaracion>\n");
-                              }
+                              {}
                           |   declaracion declaraciones
-                              {
-                                fprintf(yyout,";R3:\t<declaraciones> ::= <declaracion> <declaraciones>\n");
-                              }
+                              {}
                           ;
 declaracion:              clase identificadores TOK_PUNTOYCOMA
-                              {
-                                  fprintf(yyout,";R4:\t<declaracion> ::= <clase> <identificadores> ;\n");
-                              }
+                              {}
                           ;
 clase:                    clase_escalar
-                              {
-                                  fprintf(yyout,";R5:\t<clase> ::= <clase_escalar>\n");
-                                  clase_actual = ESCALAR;
-                              }
+                              {clase_actual = ESCALAR;}
                           |   clase_vector
-                              {
-                                fprintf(yyout,";R7:\t<clase> ::= <clase_vector>\n");
-                                clase_actual = VECTOR;
-                              }
+                              {clase_actual = VECTOR;}
                           ;
 clase_escalar:            tipo
-                              {fprintf(yyout,";R9:\t<clase_escalar> ::= <tipo>\n");}
+                              {//TODO: tamanio_vector_actual = 1;
+                              }
                           ;
 tipo:                     TOK_INT
-                              {
-                                fprintf(yyout,";R10:\t<tipo> ::= int\n");
-                                //$$.tipo = INT;
-                                tipo_actual = INT;
-                              }
+                              {tipo_actual = INT;}
                           |   TOK_BOOLEAN
-                              {
-                                fprintf(yyout,";R11:\t<tipo> ::= boolean\n");
-                                //$$.tipo = BOOLEAN;
-                                tipo_actual = BOOLEAN;
-                              }
+                              {tipo_actual = BOOLEAN;}
                           ;
 clase_vector:             TOK_ARRAY tipo TOK_CORCHETEIZQUIERDO constante_entera TOK_CORCHETEDERECHO
-                              {
-                                fprintf(yyout,";R15:\t<clase_vector> ::= array <tipo> [ <constante_entera> ]\n");
-                                tamanio_vector_actual = $4.valor_entero;
-                              }
+                              {tamanio_vector_actual = $4.valor_entero;}
                           ;
 identificadores:          identificador
-                              {fprintf(yyout,";R18:\t<identificadores> ::= <identificador>\n");}
+                              {}
                           |   identificador TOK_COMA identificadores
-                              {fprintf(yyout,";R19:\t<identificadores> ::= <identificador> , <identificadores>\n");}
+                              {}
                           ;
 funciones:                funcion funciones
-                              {
-                                fprintf(yyout,";R20:\t<funciones> ::= <funcion> <funciones>\n");
-                              }
+                              {}
                           |   /* vacío */
-                              {
-                                fprintf(yyout,";R21:\t<funciones> ::= \n");
-                              }
+                              {}
                           ;
 fn_name:                  TOK_FUNCTION tipo identificador
                               {
-                                //TODO: tipo_actual o guardar $$.tipo?
-                                res = insert($3.nombre, FUNCION, tipo_actual, 0, 0, 0, 0, 0, 0, tabla_global);
+                                if(ambito == LOCAL){
+                                  //error funcion entro de funcion
+                                }
+                                res = insert($3.nombre, FUNCION, tipo_actual, clase_actual, 0, 0, 0, 0, 0, tabla_global);
                                 if(res == FOUND)
                                 {
                                   /*Se encuentra el elemento solicitado, error semantico.*/
-                                  printf("Identificador %s duplicado", $3.nombre);
                                   error_semantico(DECLARACION_DUPLICADA, NULL);
                                 }
                                 else if(res == INSERTED)
@@ -236,7 +209,7 @@ fn_name:                  TOK_FUNCTION tipo identificador
                                   num_parametros_actual = 0;
                                   pos_parametro_actual = 0;
                                   $$.nombre = $3.nombre;
-
+                                  strcpy(nombre_funcion_actual, $$.nombre);
                                 }
                               }
                           ;
@@ -244,7 +217,10 @@ fn_name:                  TOK_FUNCTION tipo identificador
 fn_declaration:           fn_name TOK_PARENTESISIZQUIERDO parametros_funcion TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA declaraciones_funcion
                               {
                                 $$.nombre = $1.nombre;
-                                set($$.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, NO_CHANGE, NO_CHANGE, tabla_local);
+                                res = set($$.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, num_variables_locales_actual, NO_CHANGE, tabla_local);
+                                if(res == ERROR){
+                                  //error no declarada most likely
+                                }
                                 declararFuncion(yyout, $$.nombre, num_variables_locales_actual);
                               }
                           ;
@@ -252,78 +228,79 @@ funcion:                  fn_declaration sentencias TOK_LLAVEDERECHA
                               {
                                 //Hay que comprobar que haya un return y que el tipo del retorno sea = tipo de la variable retornada por la funcion
                                 if(existe_retorno == FALSE){
-                                  fprintf(stderr, "La función NO tiene return");
+                                  error_sem(FUNC_NO_RETURN, NULL);
                                   return -1;
                                 }
-                                //TODO: como sacar el tipo de retorno que espera la funcion
-                                if(tipo_retorno == get($1.nombre, tabla_global).basic_type){
-                                  fprintf(stderr, "Error Semántico: El tipo de la sentencia de retorno no coincide con el tipo de retorno de la función")
-                                  return -1;
+                                value = get($1.nombre, tabla_global);
+                                if(value == NULL){
+                                  //var no declarada
                                 }
 
                                 wipe(tabla_local);
                                 ambito = GLOBAL;
                                 //Este set no puede fallar? si ya hay un $1.nombre
-                                set($1.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, NO_CHANGE, NO_CHANGE, tabla_global);
-                                fprintf(yyout,";R22:\t<funcion> ::= function <tipo> <identificador> ( <parametros_funcion> ) { <declaraciones_funcion> <sentencias> }\n");
+                                set($1.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, num_variables_locales_actual, NO_CHANGE, tabla_global);
                                 existe_retorno = FALSE;
                               }
                           ;
 
 parametros_funcion:       parametro_funcion resto_parametros_funcion
-                              {fprintf(yyout,";R23:\t<parametros_funcion> ::= <parametro_funcion> <resto_parametros_funcion>\n");}
+                              {}
                           |   /* vacío */
-                              {fprintf(yyout,";R24:\t<parametros_funcion> ::= \n");}
+                              {}
                           ;
 resto_parametros_funcion: TOK_PUNTOYCOMA parametro_funcion resto_parametros_funcion
-                              {fprintf(yyout,";R25:\t<resto_parametros_funcion> ::= ; <parametro_funcion> <resto_parametros_funcion>\n");}
+                              {}
                           |   /* vacío */
-                              {fprintf(yyout,";R26:\t<resto_parametros_funcion> ::= \n");}
+                              {}
                           ;
 parametro_funcion:        tipo idpf
-                              {fprintf(yyout,";R27:\t<parametro_funcion> ::= <tipo> <identificador>\n");}
+                              {}
                           ;
 idpf:                     TOK_IDENTIFICADOR
                             {
-                                $$.nombre = $1.nombre;
-                                res = insert($1.nombre, PARAMETRO, tipo_actual, clase_actual, 0, 0, pos_parametro_actual, 0, 0, tabla_local); //o insert
-                                if(res == FOUND){
-                                    error_semantico(DECLARACION_DUPLICADA, NULL);
-                                } else {
-                                    pos_parametro_actual++;
-                                    num_parametros_actual++;
-                                }
+                              if(clase_actual == VECTOR){
+                                //err de parametro no escalar
+                              }
+                              res = insert($1.nombre, PARAMETRO, tipo_actual, clase_actual, 0, 0, pos_parametro_actual, 0, 0, tabla_local);
+                              if(res == FOUND){
+                                  error_semantico(DECLARACION_DUPLICADA, NULL);
+                              }
+                              pos_parametro_actual++;
+                              num_parametros_actual++;
                             }
                           ;
 declaraciones_funcion:    declaraciones
-                              {fprintf(yyout,";R28:\t<declaraciones_funcion> ::= <declaraciones>\n");}
+                              {}
                           |   /* vacío */
-                              {fprintf(yyout,";R29:\t<declaraciones_funcion> ::= \n");}
+                              {}
                           ;
 sentencias:               sentencia
-                              {fprintf(yyout,";R30:\t<sentencias> ::= <sentencia>\n");}
+                              {}
                           |   sentencia sentencias
-                              {fprintf(yyout,";R31:\t<sentencias> ::= <sentencia> <sentencias>\n");}
+                              {}
                           ;
 sentencia:                sentencia_simple TOK_PUNTOYCOMA
-                              {fprintf(yyout,";R32:\t<sentencia> ::= <sentencia_simple> ;\n");}
+                              {}
                           |   bloque
-                              {fprintf(yyout,";R33:\t<sentencia> ::= <bloque>\n");}
+                              {}
                           ;
 sentencia_simple:         asignacion
-                              {fprintf(yyout,";R34:\t<sentencia_simple> ::= <asignacion>\n");}
+                              {}
                           |   lectura
-                              {fprintf(yyout,";R35:\t<sentencia_simple> ::= <lectura>\n");}
+                              {}
                           |   escritura
-                              {fprintf(yyout,";R36:\t<sentencia_simple> ::= <escritura>\n");}
+                              {}
                           |   retorno_funcion
-                              {fprintf(yyout,";R38:\t<sentencia_simple> ::= <retorno_funcion>\n");}
+                              {}
                           ;
 bloque:                   condicional
-                              {fprintf(yyout,";R40:\t<bloque> ::= <condicional>\n");}
+                              {}
                           |   bucle
-                              {fprintf(yyout,";R41:\t<bloque> ::= <bucle>\n");}
+                              {}
                           ;
+
+/*TODO: seguir por aqui*/
 asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                               {
                                 fprintf(yyout,";R43:\t<asignacion> ::= <identificador> = <exp>\n");
@@ -485,19 +462,20 @@ retorno_funcion:          TOK_RETURN exp
                                   fprintf(stderr, "Error Semántico: return fuera de una función");
                                   return -1;
                                 }
-                                /*TODO: Las direcciones de
-exp siempre tienen
-que ser 0 ó 1.,
-
-Se accede a la información de la
-función en la tabla de símbolos
-para comprobar que “exp” tiene
-el mismo tipo que el retorno de la
-función.*/
+                                value = get(nombreFuncionActual, tabla_local); //TODO: en la global tal vez o both
+                                if(!value){
+                                  //error var no declarada
+                                }
+                                if($2.valor_entero != 0 && $2.valor_entero != 1){
+                                  /*Las direcciones de
+                                    exp siempre tienen
+                                    que ser 0 ó 1.,??*/
+                                }
+                                if(value->basic_type != $2.tipo){
+                                  //error retorno distinto tipo
+                                }
                                 /*Actualizamos variable de retorno y tipo del elemento que retornamos*/
                                 existe_retorno = TRUE;
-                                tipo_retorno = $2.tipo;
-                                fprintf(yyout,";R61:\t<retorno_funcion> ::= return <exp>\n");
                                 retornarFuncion(yyout, $2.es_direccion);
                               }
                           ;
@@ -863,7 +841,7 @@ identificador:            TOK_IDENTIFICADOR
                                     }
                                 }
                                 if(ambito == LOCAL){
-                                    if(clase_actual != ESCALAR){
+                                    if(clase_actual == ESCALAR){
                                         res = insert($1.nombre, VARIABLE, tipo_actual, clase_actual, 0, 0, 0, num_variables_locales_actual, pos_variable_local_actual, tabla_local);
                                     } else{
                                         /*TODO: mensaje de error semántico y se termina el proceso de compilación con error.*/
