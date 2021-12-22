@@ -303,13 +303,12 @@ bloque:                   condicional
 /*TODO: seguir por aqui*/
 asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                               {
-                                fprintf(yyout,";R43:\t<asignacion> ::= <identificador> = <exp>\n");
                                 if(ambito == LOCAL){
                                   value = get($1.nombre, tabla_local);
                                 } else {
                                   value = get($1.nombre, tabla_global);
                                 }
-                                if(value){
+                                if(value){ /*Si encontramos el simbolo en el ambito local / global */
                                   if(value->element_category != FUNCION && value->category == ESCALAR
                                     && value->basic_type == $3.tipo){
                                       asignar(yyout, $1.nombre, $3.es_direccion);
@@ -323,8 +322,8 @@ asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                           |   elemento_vector TOK_ASIGNACION exp
                               {
                                 if($1.tipo == $3.tipo){
-                                  asignarDestinoEnPila(yyout, $3.es_direccion);
-                                  fprintf(yyout,";R44:\t<asignacion> ::= <elemento_vector> = <exp>\n");
+                                  /*Creo que el segundo argumento es siempre VALOR_EXPLICITO porque estamos haciendo vector[i] = algo*/
+                                  asignarDestinoEnPila(yyout, VALOR_EXPLICITO);
                                 } else {
                                   error_semantico(ASIGN_INCOMPATIBLE, NULL);
                                 }
@@ -342,7 +341,7 @@ elemento_vector:          TOK_IDENTIFICADOR TOK_CORCHETEIZQUIERDO exp TOK_CORCHE
                                     if($3.tipo == INT){
                                       $$.tipo = value->basic_type;
                                       $$.es_direccion = VALOR_REFERENCIA;
-                                      fprintf(yyout,";R48:\t<elemento_vector> ::= <identificador> [ <exp> ]\n");
+                                      /*Aquí no sería siempre VALOR_REFERENCIA PORQUE HAY [exp]?*/
                                       escribir_elemento_vector(yyout, $1.nombre, value->size, $3.es_direccion);
                                     }else{
                                     error_semantico(INDEX_INT, NULL);
@@ -360,12 +359,10 @@ elemento_vector:          TOK_IDENTIFICADOR TOK_CORCHETEIZQUIERDO exp TOK_CORCHE
 condicional:              if_exp sentencias TOK_LLAVEDERECHA
                               {
                                 ifthen_fin(yyout, $1.etiqueta);
-                                fprintf(yyout,";R50:\t<condicional> ::= if ( <exp> ) { <sentencias> }\n");
                               }
                           | if_exp_sentencias TOK_LLAVEDERECHA TOK_ELSE TOK_LLAVEIZQUIERDA sentencias TOK_LLAVEDERECHA
                               {
                                 ifthenelse_fin(yyout, $1.etiqueta);
-                                fprintf(yyout,";R51:\t<condicional> ::= if ( <exp> ) { <sentencias> } else { <sentencias> }\n");
                               }
                           ;
 if_exp_sentencias:        if_exp sentencias
@@ -383,9 +380,8 @@ if_exp:                   TOK_IF TOK_PARENTESISDERECHO exp TOK_PARENTESISDERECHO
                                 ifthen_inicio(yyout, $3.es_direccion, $$.etiqueta);
                               }
                           ;
-bucle:                    bucle_exp sentencias TOK_LLAVEDERECHA
+bucle:                    while_exp sentencias TOK_LLAVEDERECHA
                               {
-                                fprintf(yyout,";R52:\t<bucle> ::= while ( <exp> ) { <sentencias> }\n");
                                 while_fin(yyout, $1.etiqueta);
                               }
                           ;
@@ -407,16 +403,14 @@ while:                    TOK_WHILE TOK_PARENTESISIZQUIERDO
                           ;
 lectura:                  TOK_SCANF TOK_IDENTIFICADOR
                               { //TODO: todo lo que hace de pila alfalib.o...
-                                fprintf(yyout,";R54:\t<lectura> ::= scanf <identificador>\n");
                                 value_global = get($2.nombre, tabla_global);
                                 value_local = get($2.nombre, tabla_local);
                                 if(value_local == NULL && value_global == NULL){
                                   error_semantico(VARIABLE_NO_DECLARADA, NULL);
                                   return -1;
                                 } else if(value_local) { //Si la encontramos en la tabla local
-                                  if(value_local->element_category == FUNCION
-                                    || value_local->category == VECTOR){
-                                    yyerror(NULL);
+                                  if(value_local->element_category == FUNCION || value_local->category == VECTOR){
+                                    error_semantico(LECTURA_ERROR, NULL);
                                     return -1;
                                   } else {
                                     //direccion = en función de ebp y la posición del parámetro o variable local
@@ -432,7 +426,7 @@ lectura:                  TOK_SCANF TOK_IDENTIFICADOR
                                 } else { //si la encontramos en la tabla global
                                   if(value_global->element_category == FUNCION
                                     || value_global->element_category == VECTOR){
-                                    yyerror(NULL);
+                                    error_semantico(LECTURA_ERROR, NULL);
                                     return -1;
                                   } else {
                                     //direccion = su lexema $2.nombre??
@@ -446,13 +440,12 @@ lectura:                  TOK_SCANF TOK_IDENTIFICADOR
                                     //restaurar la pila
                                   }
                                 }
-                                $$.nombre = $2.nombre; /*TODO:?*/
+                                $$.nombre = $2.nombre; /*TODO:ESTO PORQUE LO HACEMOS? Si lectura no lo usamos más adelante para nada*/
 
                               }
                           ;
 escritura:                TOK_PRINTF exp
                               {
-                                fprintf(yyout,";R56:\t<escritura> ::= printf <exp>\n");
                                 escribir(yyout, $2.es_direccion, $2.tipo);
                               }
                           ;
@@ -465,14 +458,20 @@ retorno_funcion:          TOK_RETURN exp
                                 value = get(nombreFuncionActual, tabla_local); //TODO: en la global tal vez o both
                                 if(!value){
                                   //error var no declarada
+                                  error_semantico(VARIABLE_NO_DECLARADA, NULL);
+                                  return -1;
                                 }
                                 if($2.valor_entero != 0 && $2.valor_entero != 1){
                                   /*Las direcciones de
                                     exp siempre tienen
                                     que ser 0 ó 1.,??*/
+                                  fprintf(stderr, "Error valor ilegal! en valor_entero");
+                                  return -1;
                                 }
                                 if(value->basic_type != $2.tipo){
                                   //error retorno distinto tipo
+                                  error_semantico(RETORNO_DIFERENTE_TIPO);
+                                  return -1;
                                 }
                                 /*Actualizamos variable de retorno y tipo del elemento que retornamos*/
                                 existe_retorno = TRUE;
@@ -484,10 +483,9 @@ exp:                      exp TOK_MAS exp
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.valor_entero = $1.valor_entero + $3.valor_entero;
                                   $$.tipo = INT;
-                                  fprintf(yyout,";R72:\t<exp> ::= <exp> + <exp>\n");
                                   sumar(yyout, $1.es_direccion, $3.es_direccion);
                                 } else {
-                                  yyerror(NULL);
+                                  error_semantico(OPERACION_ARITMETICA_BOOLEAN, NULL);
                                   return -1;
                                 }
                               }
@@ -496,10 +494,9 @@ exp:                      exp TOK_MAS exp
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.valor_entero = $1.valor_entero - $3.valor_entero;
                                   $$.tipo = INT;
-                                  fprintf(yyout,";R73:\t<exp> ::= <exp> - <exp>\n");
                                   restar(yyout, $1.es_direccion, $3.es_direccion);
                                 } else {
-                                  yyerror(NULL);
+                                  error_semantico(OPERACION_ARITMETICA_BOOLEAN, NULL);
                                   return -1;
                                 }
                               }
@@ -508,10 +505,9 @@ exp:                      exp TOK_MAS exp
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.valor_entero = $1.valor_entero / $3.valor_entero;
                                   $$.tipo = INT;
-                                  fprintf(yyout,";R74:\t<exp> ::= <exp> / <exp>\n");
                                   dividir(yyout, $1.es_direccion, $3.es_direccion);
                                 } else {
-                                  yyerror(NULL);
+                                  error_semantico(OPERACION_ARITMETICA_BOOLEAN, NULL);
                                   return -1;
                                 }
                               }
@@ -520,10 +516,9 @@ exp:                      exp TOK_MAS exp
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.valor_entero = $1.valor_entero * $3.valor_entero;
                                   $$.tipo = INT;
-                                  fprintf(yyout,";R75:\t<exp> ::= <exp> * <exp>\n");
                                   multiplicar(yyout, $1.es_direccion, $3.es_direccion);
                                 } else {
-                                  yyerror(NULL);
+                                  error_semantico(OPERACION_ARITMETICA_BOOLEAN, NULL);
                                   return -1;
                                 }
                               }
@@ -532,10 +527,9 @@ exp:                      exp TOK_MAS exp
                                 if($2.tipo == INT){
                                   $$.valor_entero = - $2.valor_entero;
                                   $$.tipo = INT;
-                                  fprintf(yyout,";R76:\t<exp> ::= - <exp>\n");
                                   cambiar_signo(yyout, $2.es_direccion);
                                 } else {
-                                  yyerror(NULL);
+                                  error_semantico(OPERACION_ARITMETICA_BOOLEAN, NULL);
                                   return -1;
                                 }
                               }
@@ -545,10 +539,9 @@ exp:                      exp TOK_MAS exp
                                   $$.tipo = BOOLEAN;
                                   $$.valor_entero = $1.valor_entero && $3.valor_entero;
                                   $$.es_direccion = VALOR_EXPLICITO;
-                                  fprintf(yyout,";R77:\t<exp> ::= exp> && <exp>\n");
                                   y(yyout, $1.es_direccion, $3.es_direccion);
                                 } else {
-                                  yyerror(NULL);
+                                  error_semantico(OPERACION_LOGICA_INT, NULL);
                                   return -1;
                                 }
                               }
@@ -558,10 +551,9 @@ exp:                      exp TOK_MAS exp
                                   $$.tipo = BOOLEAN;
                                   $$.valor_entero = $1.valor_entero || $3.valor_entero;
                                   $$.es_direccion = VALOR_EXPLICITO;
-                                  fprintf(yyout,";R78:\t<exp> ::= <exp> || <exp>\n");
                                   o(yyout, $1.es_direccion, $3.es_direccion);
                                 } else {
-                                  yyerror(NULL);
+                                  error_semantico(OPERACION_LOGICA_INT, NULL);
                                   return -1;
                                 }
                               }
@@ -571,10 +563,9 @@ exp:                      exp TOK_MAS exp
                                   $$.tipo = BOOLEAN;
                                   $$.valor_entero = ! $2.valor_entero;
                                   $$.es_direccion = VALOR_EXPLICITO;
-                                  fprintf(yyout,";R79:\t<exp> ::= ! <exp>\n");
                                   no(yyout, $2.es_direccion, 1);
                                 } else {
-                                  yyerror(NULL);
+                                  error_semantico(OPERACION_LOGICA_INT, NULL);
                                   return -1;
                                 }
                               }
@@ -583,17 +574,18 @@ exp:                      exp TOK_MAS exp
                                 value_local = get($1.nombre, tabla_local);
                                 value_global = get($1.nombre, tabla_global);
                                 if(value_local == NULL && value_global == NULL){
-                                  yyerror(NULL);
+                                  error_semantico(VARIABLE_NO_DECLARADA, NULL);
                                   return -1;
                                 } else if(value_local) {
                                   if(value_local->element_category == FUNCION || value_local->category == VECTOR){
-                                    yyerror(NULL);
+                                    error_semantico(ASIGN_INCOMPATIBLE);
+                                    return -1;
                                   } else {
-                                    fprintf(yyout,";R80:\t<exp> ::= <identificador>\n");
                                     $$.tipo = value_local->basic_type;
                                     $$.es_direccion = VALOR_REFERENCIA;
                                     if(en_explist == TRUE){
                                       /*TODO: guardar valor en la pila*/
+                                      escribir_operando(yyout, $1.nombre, QUE VALOR VA AQUI)
                                     } else {
                                       escribir_operando(yyout, $1.nombre, VALOR_REFERENCIA);
                                     }
@@ -614,6 +606,7 @@ exp:                      exp TOK_MAS exp
                                 }
                                 $$.nombre = $1.nombre;
                                 /*TODO: esto ultimo 0 sure*/
+                                /*TODO: BRITO, lo dejo aqui!*/
                               }
                           |   constante
                               {
@@ -891,6 +884,10 @@ int error_semantico(error_sem err, char* id) {
     printf("****Error semantico en lin %ld: No esta permitido el uso de llamadas a funciones como parametros de otras funciones.\n", yylin);
   }else if(err == VAR_LOCAL_NO_ESCALAR){
     printf("****Error semantico en lin %ld: Variable local de tipo no escalar..\n", yylin);
+  }else if(err == LECTURA_ERROR){
+    printf("****Error semantico en lin %ld: Lectura no posible para Funcion o Vector\n", yylin);
+  }else if(err == RETORNO_DIFERENTE_TIPO){
+    printf("****Error semantico en lin %ld: El tipo del retorno la función no coincide con el tipo retornado\n", yylin);
   }
   wipe(tabla_global)
 }

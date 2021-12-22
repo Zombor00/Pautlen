@@ -5,7 +5,7 @@ segment .bss
 	x resd 1
 	y resd 1
 segment .text
-	global main
+	global main 
 	extern print_int, print_boolean, print_string, print_blank, print_endofline
 	extern scan_int, scan_boolean
 main:
