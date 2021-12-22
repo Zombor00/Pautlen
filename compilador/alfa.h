@@ -1,12 +1,5 @@
 #ifndef _ALFA_H
 
-/*CATEGORY / CLASE*/
-#define ESCALAR 1
-#define VECTOR 2
-/*BASIC TYPE / TIPO*/
-#define INT 1
-#define BOOLEAN 2
-
 /*ES DIRECCION*/
 #define VALOR_EXPLICITO 0
 #define VALOR_REFERENCIA 1
@@ -14,6 +7,11 @@
 /*TAMAÑOS*/
 #define MAX_LONG_ID 100
 #define MAX_TAMANIO_VECTOR 64
+
+#define TRUE 1
+#define FALSE 0
+
+typedef struct _info_atributos info_atributos;
 
 struct _info_atributos {
 	char nombre[MAX_LONG_ID + 1];
@@ -25,7 +23,6 @@ struct _info_atributos {
 											 condicionales e iterativas. Es un atributo
 											 definido exclusivamente para la generación de código.*/
 };
-typedef struct _info_atributos info_atributos;
 
 /*ERRORES SEMANTICOS*/
 enum _error_semantico
@@ -45,7 +42,13 @@ enum _error_semantico
 		FUNC_NO_RETURN,
 		RETURN_OUT_FUNC,
 		PARAM_ES_FUNC,
-		VAR_LOCAL_NO_ESCALAR
+		VAR_LOCAL_NO_ESCALAR,
+
+		LECTURA_ERROR,
+		RETORNO_DIFERENTE_TIPO,
+		LLAMADA_NO_FUNCION,
+		DIF_TIPOS,
+		PARAM_ES_VECTOR
 };
 typedef enum _error_semantico error_sem;
 

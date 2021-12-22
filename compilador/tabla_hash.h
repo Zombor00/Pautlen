@@ -58,7 +58,7 @@ int hash(char *name);
 value *get(char *name, hash_table *hash_table);
 int insert(char *name, int element_category, int basic_type, int category, int size,
            int num_params, int pos_param, int num_local_variables, int pos_local_variable, hash_table *ht);
-int wipe(hash_table *hash_table);
+int wipe(hash_table *ht);
 int set(char *name, int element_category, int basic_type, int category,
         int size, int num_params, int pos_param, int num_local_variables,
         int pos_local_variable, hash_table *ht);
