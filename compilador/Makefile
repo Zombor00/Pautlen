@@ -10,7 +10,7 @@ CYYFLAGS =
 
 FLEXFLAGS =
 
-BISONFLAGS = -dyv -Wcounterexamples
+BISONFLAGS = -dyv -W
 
 NASMFLAGS = -f -elf32
 
