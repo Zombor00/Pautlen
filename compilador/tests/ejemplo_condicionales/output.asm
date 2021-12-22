@@ -23,3 +23,15 @@ segment .text
 main:
 	MOV DWORD [__esp], ESP
 ;D:	x
+	PUSH DWORD _x
+	CALL scan_int
+	ADD ESP, 4
+;D:	;
+;D:	scanf
+;D:	y
+	PUSH DWORD _y
+	CALL scan_int
+	ADD ESP, 4
+;D:	;
+;D:	scanf
+;D:	z

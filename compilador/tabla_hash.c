@@ -7,6 +7,7 @@ hash_table *create_table()
   if (ht == NULL)
   {
     printf("Error creating the hash table!");
+    exit(1);
   }
   ht->n_elems = 0;
   ht->tuples = NULL;
@@ -14,6 +15,7 @@ hash_table *create_table()
   if (ht->tuples == NULL)
   {
     printf("Error creating tuples for the hash table!");
+    exit(1);
   }
 
   return ht;
@@ -43,6 +45,7 @@ value *get(char *name, hash_table *ht)
     tuple_found = ht->tuples[hash_val];
     if (tuple_found == NULL)
     {
+      printf("%s", name);
       return NULL;
     }
     else if (strcmp(tuple_found->name, name) == 0)

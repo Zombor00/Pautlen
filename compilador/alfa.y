@@ -120,6 +120,8 @@ void yyerror(const char * s);
 
 programa:                 inicioTabla TOK_MAIN TOK_LLAVEIZQUIERDA declaraciones escritura_TS funciones escritura_main sentencias TOK_LLAVEDERECHA
                               {
+                                fprintf(yyout, ";R1:\t<programa> ::= main { <declaraciones> <funciones> <sentencias> }\n");
+
                                 escribir_fin(yyout);
                                 wipe(tabla_global);
                               }
@@ -152,38 +154,53 @@ escritura_main:               {escribir_inicio_main(yyout);}
                           ;
 
 declaraciones:            declaracion
-
+                              {fprintf(yyout,";R2:\t<declaraciones> ::= <declaracion>\n");}
                           |   declaracion declaraciones
-
+                              {fprintf(yyout,";R3:\t<declaraciones> ::= <declaracion> <declaraciones>\n");}
                           ;
 declaracion:              clase identificadores TOK_PUNTOYCOMA
-
+                              {fprintf(yyout,";R4:\t<declaracion> ::= <clase> <identificadores> ;\n");}
                           ;
 clase:                    clase_escalar
-                              {clase_actual = ESCALAR;}
+                              {
+                                fprintf(yyout,";R5:\t<clase> ::= <clase_escalar>\n");
+                                clase_actual = ESCALAR;
+                              }
                           |   clase_vector
-                              {clase_actual = VECTOR;}
+                              {
+                                fprintf(yyout,";R7:\t<clase> ::= <clase_vector>\n");
+                                clase_actual = VECTOR;
+                              }
                           ;
 clase_escalar:            tipo
-
+                              {fprintf(yyout,";R9:\t<clase_escalar> ::= <tipo>\n");}
                           ;
 tipo:                     TOK_INT
-                              {tipo_actual = INT;}
+                              {
+                                fprintf(yyout,";R10:\t<tipo> ::= int\n");
+                                tipo_actual = INT;
+                              }
                           |   TOK_BOOLEAN
-                              {tipo_actual = BOOLEAN;}
+                              {
+                                {fprintf(yyout,";R11:\t<tipo> ::= boolean\n");}
+                                tipo_actual = BOOLEAN;
+                              }
                           ;
 clase_vector:             TOK_ARRAY tipo TOK_CORCHETEIZQUIERDO constante_entera TOK_CORCHETEDERECHO
-                              {tamanio_vector_actual = $4.valor_entero;}
+                              {
+                                fprintf(yyout,";R15:\t<clase_vector> ::= array <tipo> [ <constante_entera> ]\n");
+                                tamanio_vector_actual = $4.valor_entero;
+                              }
                           ;
 identificadores:          identificador
-
+                              {fprintf(yyout,";R18:\t<identificadores> ::= <identificador>\n");}
                           |   identificador TOK_COMA identificadores
-
+                              {fprintf(yyout,";R19:\t<identificadores> ::= <identificador> , <identificadores>\n");}
                           ;
 funciones:                funcion funciones
-
+                              {fprintf(yyout,";R20:\t<funciones> ::= <funcion> <funciones>\n");}
                           |   /* vacío */
-
+                              {fprintf(yyout,";R21:\t<funciones> ::= \n");}
                           ;
 fn_name:                  TOK_FUNCTION tipo identificador
                               {
@@ -233,6 +250,7 @@ fn_declaration:           fn_name TOK_PARENTESISIZQUIERDO parametros_funcion TOK
                           ;
 funcion:                  fn_declaration sentencias TOK_LLAVEDERECHA
                               {
+                                fprintf(yyout,";R22:\t<funcion> ::= function <tipo> <identificador> ( <parametros_funcion> ) { <declaraciones_funcion> <sentencias> }\n");
                                 /*Hay que comprobar que haya un return y que el tipo del retorno sea = tipo de la variable retornada por la funcion*/
                                 if(existe_retorno == FALSE){
                                   error_semantico(FUNC_NO_RETURN, NULL);
@@ -252,17 +270,17 @@ funcion:                  fn_declaration sentencias TOK_LLAVEDERECHA
                           ;
 
 parametros_funcion:       parametro_funcion resto_parametros_funcion
-
+                              {fprintf(yyout,";R23:\t<parametros_funcion> ::= <parametro_funcion> <resto_parametros_funcion>\n");}
                           |   /* vacío */
-
+                              {fprintf(yyout,";R24:\t<parametros_funcion> ::= \n");}
                           ;
 resto_parametros_funcion: TOK_PUNTOYCOMA parametro_funcion resto_parametros_funcion
-
+                              {fprintf(yyout,";R25:\t<resto_parametros_funcion> ::= ; <parametro_funcion> <resto_parametros_funcion>\n");}
                           |   /* vacío */
-
+                              {fprintf(yyout,";R26:\t<resto_parametros_funcion> ::= \n");}
                           ;
 parametro_funcion:        tipo idpf
-
+                              {fprintf(yyout,";R27:\t<parametro_funcion> ::= <tipo> <idpf>\n");}
                           ;
 idpf:                     TOK_IDENTIFICADOR
                             {
@@ -280,38 +298,37 @@ idpf:                     TOK_IDENTIFICADOR
                             }
                           ;
 declaraciones_funcion:    declaraciones
-
+                              {fprintf(yyout,";R28:\t<declaraciones_funcion> ::= <declaraciones>\n");}
                           |   /* vacío */
-
+                              {fprintf(yyout,";R29:\t<declaraciones_funcion> ::= \n");}
                           ;
 sentencias:               sentencia
-
+                              {fprintf(yyout,";R30:\t<sentencias> ::= <sentencia>\n");}
                           |   sentencia sentencias
-
+                              {fprintf(yyout,";R31:\t<sentencias> ::= <sentencia> <sentencias>\n");}
                           ;
 sentencia:                sentencia_simple TOK_PUNTOYCOMA
-
+                              {fprintf(yyout,";R32:\t<sentencia> ::= <sentencia_simple> ;\n");}
                           |   bloque
-
+                              {fprintf(yyout,";R33:\t<sentencia> ::= <bloque>\n");}
                           ;
 sentencia_simple:         asignacion
-
+                              {fprintf(yyout,";R34:\t<sentencia_simple> ::= <asignacion>\n");}
                           |   lectura
-
+                              {fprintf(yyout,";R35:\t<sentencia_simple> ::= <lectura>\n");}
                           |   escritura
-
+                              {fprintf(yyout,";R36:\t<sentencia_simple> ::= <escritura>\n");}
                           |   retorno_funcion
-
+                              {fprintf(yyout,";R38:\t<sentencia_simple> ::= <retorno_funcion>\n");}
                           ;
 bloque:                   condicional
-
+                              {fprintf(yyout,";R40:\t<bloque> ::= <condicional>\n");}
                           |   bucle
-
+                              {fprintf(yyout,";R41:\t<bloque> ::= <bucle>\n");}
                           ;
-
-
 asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                               {
+                                fprintf(yyout,";R43:\t<asignacion> ::= <identificador> = <exp>\n");
                                 if(ambito == LOCAL){
                                   val = get($1.nombre, tabla_local);
                                 } else {
@@ -329,6 +346,7 @@ asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                               }
                           |   elemento_vector TOK_ASIGNACION exp
                               {
+                                fprintf(yyout,";R44:\t<asignacion> ::= <elemento_vector> = <exp>\n");
                                 if($1.tipo == $3.tipo){
                                   asignarDestinoEnPila(yyout, $3.es_direccion);
                                 } else {
@@ -339,6 +357,7 @@ asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                           ;
 elemento_vector:          TOK_IDENTIFICADOR TOK_CORCHETEIZQUIERDO exp TOK_CORCHETEDERECHO
                               {
+                                fprintf(yyout,";R48:\t<elemento_vector> ::= <identificador> [ <exp> ]\n");
                                 if(ambito == LOCAL){
                                   val = get($1.nombre, tabla_local);
                                 } else {
@@ -367,10 +386,12 @@ elemento_vector:          TOK_IDENTIFICADOR TOK_CORCHETEIZQUIERDO exp TOK_CORCHE
                           ;
 condicional:              if_exp sentencias TOK_LLAVEDERECHA
                               {
+                                fprintf(yyout,";R50:\t<condicional> ::= if ( <exp> ) { <sentencias> }\n");
                                 ifthen_fin(yyout, $1.etiqueta);
                               }
                           | if_exp_sentencias TOK_ELSE TOK_LLAVEIZQUIERDA sentencias TOK_LLAVEDERECHA
                               {
+                                fprintf(yyout,";R51:\t<condicional> ::= if ( <exp> ) { <sentencias> } else { <sentencias> }\n");
                                 ifthenelse_fin(yyout, $1.etiqueta);
                               }
                           ;
@@ -391,6 +412,7 @@ if_exp:                   TOK_IF TOK_PARENTESISDERECHO exp TOK_PARENTESISDERECHO
                           ;
 bucle:                    while_exp sentencias TOK_LLAVEDERECHA
                               {
+                                fprintf(yyout,";R52:\t<bucle> ::= while ( <exp> ) { <sentencias> }\n");
                                 while_fin(yyout, $1.etiqueta);
                               }
                           ;
@@ -412,6 +434,7 @@ while:                    TOK_WHILE TOK_PARENTESISIZQUIERDO
                           ;
 lectura:                  TOK_SCANF TOK_IDENTIFICADOR
                               {
+                                fprintf(yyout,";R54:\t<lectura> ::= scanf <identificador>\n");
                                 val_global = get($2.nombre, tabla_global);
                                 val_local = NULL;
                                 if(ambito == LOCAL){
@@ -447,11 +470,13 @@ lectura:                  TOK_SCANF TOK_IDENTIFICADOR
                           ;
 escritura:                TOK_PRINTF exp
                               {
+                                fprintf(yyout,";R56:\t<escritura> ::= printf <exp>\n");
                                 escribir(yyout, $2.es_direccion, $2.tipo);
                               }
                           ;
 retorno_funcion:          TOK_RETURN exp
                               {
+                                fprintf(yyout,";R61:\t<retorno_funcion> ::= return <exp>\n");
                                 if (ambito != LOCAL){
                                   error_semantico(RETURN_OUT_FUNC, NULL);
                                   return -1;
@@ -479,6 +504,7 @@ retorno_funcion:          TOK_RETURN exp
                           ;
 exp:                      exp TOK_MAS exp
                               {
+                                fprintf(yyout,";R72:\t<exp> ::= <exp> + <exp>\n");
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.valor_entero = $1.valor_entero + $3.valor_entero;
                                   $$.tipo = INT;
@@ -490,6 +516,7 @@ exp:                      exp TOK_MAS exp
                               }
                           |   exp TOK_MENOS exp
                               {
+                                fprintf(yyout,";R73:\t<exp> ::= <exp> - <exp>\n");
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.valor_entero = $1.valor_entero - $3.valor_entero;
                                   $$.tipo = INT;
@@ -501,6 +528,7 @@ exp:                      exp TOK_MAS exp
                               }
                           |   exp TOK_DIVISION exp
                               {
+                                fprintf(yyout,";R74:\t<exp> ::= <exp> / <exp>\n");
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.valor_entero = $1.valor_entero / $3.valor_entero;
                                   $$.tipo = INT;
@@ -512,6 +540,7 @@ exp:                      exp TOK_MAS exp
                               }
                           |   exp TOK_ASTERISCO exp
                               {
+                                fprintf(yyout,";R75:\t<exp> ::= <exp> * <exp>\n");
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.valor_entero = $1.valor_entero * $3.valor_entero;
                                   $$.tipo = INT;
@@ -523,6 +552,7 @@ exp:                      exp TOK_MAS exp
                               }
                           |   TOK_MENOS exp %prec NEG
                               {
+                                fprintf(yyout,";R76:\t<exp> ::= - <exp>\n");
                                 if($2.tipo == INT){
                                   $$.valor_entero = - $2.valor_entero;
                                   $$.tipo = INT;
@@ -534,6 +564,7 @@ exp:                      exp TOK_MAS exp
                               }
                           |   exp TOK_AND exp
                               {
+                                fprintf(yyout,";R77:\t<exp> ::= exp> && <exp>\n");
                                 if($1.tipo == BOOLEAN && $3.tipo == BOOLEAN){
                                   $$.tipo = BOOLEAN;
                                   $$.valor_entero = $1.valor_entero && $3.valor_entero;
@@ -546,6 +577,7 @@ exp:                      exp TOK_MAS exp
                               }
                           |   exp TOK_OR exp
                               {
+                                fprintf(yyout,";R78:\t<exp> ::= <exp> || <exp>\n");
                                 if($1.tipo == BOOLEAN && $3.tipo == BOOLEAN){
                                   $$.tipo = BOOLEAN;
                                   $$.valor_entero = $1.valor_entero || $3.valor_entero;
@@ -558,6 +590,7 @@ exp:                      exp TOK_MAS exp
                               }
                           |   TOK_NOT exp
                               {
+                                fprintf(yyout,";R79:\t<exp> ::= ! <exp>\n");
                                 if($2.tipo == BOOLEAN){
                                   $$.tipo = BOOLEAN;
                                   $$.valor_entero = ! $2.valor_entero;
@@ -570,10 +603,12 @@ exp:                      exp TOK_MAS exp
                               }
                           |   TOK_IDENTIFICADOR
                               {
+                                fprintf(yyout,";R80:\t<exp> ::= <identificador>\n");
                                 val_local = NULL;
                                 if(ambito == LOCAL){
                                   val_local = get($1.nombre, tabla_local);
                                 }
+                                
                                 val_global = get($1.nombre, tabla_global);
                                 if(val_local == NULL && val_global == NULL){
                                   error_semantico(VARIABLE_NO_DECLARADA, $1.nombre);
@@ -608,6 +643,7 @@ exp:                      exp TOK_MAS exp
                               }
                           |   constante
                               {
+                                fprintf(yyout,";R81:\t<exp> ::= <constante>\n");
                                 $$.tipo = $1.tipo;
                                 $$.es_direccion = $1.es_direccion;
                                 $$.valor_entero = $1.valor_entero;
@@ -616,6 +652,7 @@ exp:                      exp TOK_MAS exp
                               }
                           |   TOK_PARENTESISIZQUIERDO exp TOK_PARENTESISDERECHO
                               {
+                                fprintf(yyout,";R82:\t<exp> ::= ( <exp> )\n");
                                 $$.tipo = $2.tipo;
                                 $$.es_direccion = $2.es_direccion;
                                 sprintf(str_aux, "%d", $2.valor_entero);
@@ -623,6 +660,7 @@ exp:                      exp TOK_MAS exp
                               }
                           |   TOK_PARENTESISIZQUIERDO comparacion TOK_PARENTESISDERECHO
                               {
+                                fprintf(yyout,";R83:\t<exp> ::= ( <comparacion> )\n");
                                 $$.tipo = $2.tipo;
                                 $$.es_direccion = $2.es_direccion;
                                 sprintf(str_aux, "%d", $2.valor_entero);
@@ -630,6 +668,7 @@ exp:                      exp TOK_MAS exp
                               }
                           |   elemento_vector
                               {
+                                fprintf(yyout,";R85:\t<exp> ::= <elemento_vector>\n");
                                 $$.tipo = $1.tipo;
                                 $$.es_direccion = $1.es_direccion;
                                 if(en_explist == TRUE){
@@ -640,6 +679,7 @@ exp:                      exp TOK_MAS exp
                               }
                           |   idf_llamada_funcion TOK_PARENTESISIZQUIERDO lista_expresiones TOK_PARENTESISDERECHO
                               {
+                                fprintf(yyout,";R88:\t<exp> ::= <identificador> ( <lista_expresiones> )\n");
                                 val = get($1.nombre, tabla_global);
                                 if(val->num_params == num_parametros_llamada_actual){
                                   llamarFuncion(yyout, $1.nombre, num_parametros_llamada_actual);
@@ -670,20 +710,25 @@ idf_llamada_funcion:      TOK_IDENTIFICADOR
                               }
 lista_expresiones:        exp resto_lista_expresiones
                               {
+                                fprintf(yyout,";R89:\t<lista_expresiones> ::= <exp> <resto_lista_expresiones>\n");
                                 num_parametros_llamada_actual++;
                               }
                           |   /* vacío */
+                              {fprintf(yyout,";R90:\t<lista_expresiones> ::= \n");}
 
                           ;
 resto_lista_expresiones:  TOK_COMA exp resto_lista_expresiones
                               {
+                                fprintf(yyout,";R91:\t<resto_lista_expresiones> ::= , <exp> <resto_lista_expresiones>\n");
                                 num_parametros_llamada_actual++;
                               }
                           |   /* vacío */
+                              {fprintf(yyout,";R92:\t<resto_lista_expresiones> ::= \n");}
 
                           ;
 comparacion:              exp TOK_IGUAL exp
                               {
+                                fprintf(yyout,";R93:\t<comparacion> ::= <exp> == <exp>\n");
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.tipo = BOOLEAN;
                                   $$.valor_entero = ($1.valor_entero == $3.valor_entero);
@@ -697,6 +742,7 @@ comparacion:              exp TOK_IGUAL exp
                               }
                           |   exp TOK_DISTINTO exp
                               {
+                                fprintf(yyout,";R94:\t<comparacion> ::= <exp> != <exp>\n");
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.tipo = BOOLEAN;
                                   $$.valor_entero = ($1.valor_entero != $3.valor_entero);
@@ -710,6 +756,7 @@ comparacion:              exp TOK_IGUAL exp
                               }
                           |   exp TOK_MENORIGUAL exp
                               {
+                                fprintf(yyout,";R95:\t<comparacion> ::= <exp> <= <exp>\n");
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.tipo = BOOLEAN;
                                   $$.valor_entero = ($1.valor_entero <= $3.valor_entero);
@@ -723,6 +770,7 @@ comparacion:              exp TOK_IGUAL exp
                               }
                           |   exp TOK_MAYORIGUAL exp
                               {
+                                fprintf(yyout,";R96:\t<comparacion> ::= <exp> >= <exp>\n");
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.tipo = BOOLEAN;
                                   $$.valor_entero = ($1.valor_entero >= $3.valor_entero);
@@ -736,6 +784,7 @@ comparacion:              exp TOK_IGUAL exp
                               }
                           |   exp TOK_MENOR exp
                               {
+                                fprintf(yyout,";R97:\t<comparacion> ::= <exp> < <exp>\n");
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.tipo = BOOLEAN;
                                   $$.valor_entero = ($1.valor_entero < $3.valor_entero);
@@ -749,6 +798,7 @@ comparacion:              exp TOK_IGUAL exp
                               }
                           |   exp TOK_MAYOR exp
                               {
+                                fprintf(yyout,";R98:\t<comparacion> ::= <exp> > <exp>\n");
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.tipo = BOOLEAN;
                                   $$.valor_entero = ($1.valor_entero > $3.valor_entero);
@@ -763,23 +813,27 @@ comparacion:              exp TOK_IGUAL exp
                           ;
 constante:                constante_logica
                               {
+                                fprintf(yyout,";R99:\t<constante> ::= <constante_logica>\n");
                                 $$.tipo = $1.tipo;
                                 $$.es_direccion = $1.es_direccion;
                               }
                           |   constante_entera
                               {
+                                fprintf(yyout,";R100:\t<constante> ::= <constante_entera>\n");
                                 $$.tipo = $1.tipo;
                                 $$.es_direccion = $1.es_direccion;
                               }
                           ;
 constante_logica:         TOK_TRUE
                               {
+                                fprintf(yyout,";R102:\t<constante_logica> ::= true\n");
                                 $$.tipo = BOOLEAN;
                                 $$.es_direccion = VALOR_EXPLICITO;
                                 escribir_operando(yyout, "1", VALOR_EXPLICITO);
                               }
                           |   TOK_FALSE
                               {
+                                fprintf(yyout,";R103:\t<constante_logica> ::= false\n");
                                 $$.tipo = BOOLEAN;
                                 $$.es_direccion = VALOR_EXPLICITO;
                                 escribir_operando(yyout, "0", VALOR_EXPLICITO);
@@ -787,6 +841,7 @@ constante_logica:         TOK_TRUE
                           ;
 constante_entera:         TOK_CONSTANTE_ENTERA
                               {
+                                fprintf(yyout,";R104:\t<constante_entera> ::= TOK_CONSTANTE_ENTERA\n");
                                 $$.valor_entero = $1.valor_entero;
                                 $$.tipo = INT;
                                 $$.es_direccion = VALOR_EXPLICITO;
@@ -796,6 +851,7 @@ constante_entera:         TOK_CONSTANTE_ENTERA
                           ;
 identificador:            TOK_IDENTIFICADOR
                               {
+                                fprintf(yyout,";R108:\t<identificador> ::= TOK_IDENTIFICADOR\n");
                                 strcpy($$.nombre, $1.nombre);
                                 pos_variable_local_actual++;
                                 if(clase_actual == ESCALAR){
