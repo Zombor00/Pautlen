@@ -166,7 +166,8 @@ void asignar(FILE *fpasm, char *nombre, int es_variable)
   }
   else
   {
-    fprintf(fpasm, "\tPOP DWORD [_%s]\n", nombre);
+    fprintf(fpasm, "\tPOP DWORD ECX\n");
+    fprintf(fpasm, "\tMOV DWORD [_%s], ECX\n", nombre);
   }
 }
 

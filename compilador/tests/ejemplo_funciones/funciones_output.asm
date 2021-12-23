@@ -64,12 +64,12 @@ suma:
 ;D:	num1
 ;D:	+
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
-	LEA EAX, [EBP + 4]
+	LEA EAX, [EBP + 12]
 	PUSH DWORD EAX
 ;D:	num2
 ;D:	;
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
-	LEA EAX, [EBP + 0]
+	LEA EAX, [EBP + 8]
 	PUSH DWORD EAX
 ;R72:	<exp> ::= <exp> + <exp>
 	POP DWORD ECX
@@ -104,7 +104,8 @@ main:
 	PUSH DWORD 1
 ;D:	;
 ;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
-	POP DWORD [_x]
+	POP DWORD ECX
+	MOV DWORD [_x], ECX
 ;R34:	<sentencia_simple> ::= <asignacion>
 ;R32:	<sentencia> ::= <sentencia_simple> ;
 ;D:	y
@@ -116,7 +117,8 @@ main:
 	PUSH DWORD 3
 ;D:	;
 ;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
-	POP DWORD [_y]
+	POP DWORD ECX
+	MOV DWORD [_y], ECX
 ;R34:	<sentencia_simple> ::= <asignacion>
 ;R32:	<sentencia> ::= <sentencia_simple> ;
 ;D:	resultado
@@ -143,7 +145,8 @@ main:
 	PUSH DWORD EAX
 ;D:	;
 ;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
-	POP DWORD [_resultado]
+	POP DWORD ECX
+	MOV DWORD [_resultado], ECX
 ;R34:	<sentencia_simple> ::= <asignacion>
 ;R32:	<sentencia> ::= <sentencia_simple> ;
 ;D:	printf
@@ -186,7 +189,8 @@ main:
 	PUSH DWORD EAX
 ;D:	;
 ;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
-	POP DWORD [_resultado]
+	POP DWORD ECX
+	MOV DWORD [_resultado], ECX
 ;R34:	<sentencia_simple> ::= <asignacion>
 ;R32:	<sentencia> ::= <sentencia_simple> ;
 ;D:	printf
@@ -229,7 +233,8 @@ main:
 	PUSH DWORD EAX
 ;D:	;
 ;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
-	POP DWORD [_resultado]
+	POP DWORD ECX
+	MOV DWORD [_resultado], ECX
 ;R34:	<sentencia_simple> ::= <asignacion>
 ;R32:	<sentencia> ::= <sentencia_simple> ;
 ;D:	printf
@@ -273,7 +278,8 @@ main:
 	PUSH DWORD EAX
 ;D:	;
 ;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
-	POP DWORD [_resultado]
+	POP DWORD ECX
+	MOV DWORD [_resultado], ECX
 ;R34:	<sentencia_simple> ::= <asignacion>
 ;R32:	<sentencia> ::= <sentencia_simple> ;
 ;D:	printf

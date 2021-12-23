@@ -232,6 +232,7 @@ fn_declaration:           fn_name TOK_PARENTESISIZQUIERDO parametros_funcion TOK
                                 fprintf(yyout,";R:\t<fn_declaration> ::= <fn_name> ( <parametros> ) { <declaraciones_funcion>\n");
 
                                 strcpy($$.nombre, $1.nombre);
+                                res = set($1.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, num_variables_locales_actual, NO_CHANGE, tabla_global);
                                 res = set($1.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, num_variables_locales_actual, NO_CHANGE, tabla_local);
                                 if(res == ERROR){
                                   error_semantico(VARIABLE_NO_DECLARADA, $1.nombre);
@@ -340,11 +341,14 @@ asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                               {
                                 /*TODO: cambiar para que llame a escribirParametro, escribirVariableLocal, asignarDestinoEnPila*/
                                 fprintf(yyout,";R43:\t<asignacion> ::= TOK_IDENTIFICADOR = <exp>\n");
+                                val = NULL;
                                 if(ambito == LOCAL){
                                   val = get($1.nombre, tabla_local);
-                                } else {
+                                }
+                                if(val == NULL){
                                   val = get($1.nombre, tabla_global);
                                 }
+                                
                                 if(val){ /*Si encontramos el simbolo en el ambito local / global */
                                   if(val->element_category != FUNCION && val->category == ESCALAR
                                     && val->basic_type == $3.tipo){
@@ -646,7 +650,7 @@ exp:                      exp TOK_MAS exp
                                     $$.tipo = val_local->basic_type;
                                     $$.es_direccion = VALOR_REFERENCIA;
                                     if(val_local->element_category == PARAMETRO){
-                                      escribirParametro(yyout, val_local->pos_param, val_local->num_params);
+                                      escribirParametro(yyout, val_local->pos_param, get(nombre_funcion_actual, tabla_global)->num_params);
                                     }else{
                                       escribirVariableLocal(yyout, val_local->pos_local_variable);
                                     }
