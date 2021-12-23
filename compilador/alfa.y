@@ -681,8 +681,6 @@ exp:                      exp TOK_MAS exp
                                 fprintf(yyout,";R83:\t<exp> ::= ( <comparacion> )\n");
                                 $$.tipo = $2.tipo;
                                 $$.es_direccion = $2.es_direccion;
-                                sprintf(str_aux, "%d", $2.valor_entero);
-                                escribir_operando(yyout, str_aux, VALOR_EXPLICITO);
                               }
                           |   elemento_vector
                               {

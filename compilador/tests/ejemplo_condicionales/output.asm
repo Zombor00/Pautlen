@@ -89,7 +89,6 @@ es_igual_1:
 	PUSH DWORD 1
 igual_fin_1:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 1
 ;D:	&&
 ;D:	(
 ;D:	y
@@ -115,7 +114,6 @@ es_igual_2:
 	PUSH DWORD 1
 igual_fin_2:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 1
 ;D:	&&
 ;R77:	<exp> ::= exp> && <exp>
 	POP DWORD EBX
@@ -146,7 +144,6 @@ es_igual_3:
 	PUSH DWORD 1
 igual_fin_3:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 1
 ;D:	)
 ;R77:	<exp> ::= exp> && <exp>
 	POP DWORD EBX
@@ -206,7 +203,6 @@ es_mayor_5:
 	PUSH DWORD 1
 mayor_fin_5:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 0
 ;D:	&&
 ;D:	(
 ;D:	y
@@ -232,7 +228,6 @@ es_mayor_6:
 	PUSH DWORD 1
 mayor_fin_6:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 0
 ;D:	)
 ;R77:	<exp> ::= exp> && <exp>
 	POP DWORD EBX
@@ -270,7 +265,6 @@ es_mayor_8:
 	PUSH DWORD 1
 mayor_fin_8:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 0
 ;D:	)
 ;D:	{
 ;R:	<if_exp> ::= if ( <exp> ) {
@@ -352,7 +346,6 @@ es_menor_10:
 	PUSH DWORD 1
 menor_fin_10:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 0
 ;D:	&&
 ;D:	(
 ;D:	y
@@ -378,7 +371,6 @@ es_mayor_11:
 	PUSH DWORD 1
 mayor_fin_11:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 0
 ;D:	)
 ;R77:	<exp> ::= exp> && <exp>
 	POP DWORD EBX
@@ -416,7 +408,6 @@ es_mayor_13:
 	PUSH DWORD 1
 mayor_fin_13:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 0
 ;D:	)
 ;D:	{
 ;R:	<if_exp> ::= if ( <exp> ) {
@@ -498,7 +489,6 @@ es_menor_15:
 	PUSH DWORD 1
 menor_fin_15:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 0
 ;D:	&&
 ;D:	(
 ;D:	y
@@ -524,7 +514,6 @@ es_menor_16:
 	PUSH DWORD 1
 menor_fin_16:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 0
 ;D:	)
 ;R77:	<exp> ::= exp> && <exp>
 	POP DWORD EBX
@@ -562,7 +551,6 @@ es_mayor_18:
 	PUSH DWORD 1
 mayor_fin_18:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 0
 ;D:	)
 ;D:	{
 ;R:	<if_exp> ::= if ( <exp> ) {
@@ -644,7 +632,6 @@ es_mayor_20:
 	PUSH DWORD 1
 mayor_fin_20:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 1
 ;D:	&&
 ;D:	(
 ;D:	y
@@ -670,7 +657,6 @@ es_menor_21:
 	PUSH DWORD 1
 menor_fin_21:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 0
 ;D:	)
 ;R77:	<exp> ::= exp> && <exp>
 	POP DWORD EBX
@@ -708,7 +694,6 @@ es_mayor_23:
 	PUSH DWORD 1
 mayor_fin_23:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 0
 ;D:	)
 ;D:	{
 ;R:	<if_exp> ::= if ( <exp> ) {
