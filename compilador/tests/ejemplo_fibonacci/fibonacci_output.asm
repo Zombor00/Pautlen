@@ -48,11 +48,9 @@ segment .text
 ;R5:	<clase> ::= <clase_escalar>
 ;D:	res1
 ;R108:	<identificador> ::= TOK_IDENTIFICADOR
-;pos res1: 1
 ;D:	,
 ;D:	res2
 ;R108:	<identificador> ::= TOK_IDENTIFICADOR
-;pos res2: 2
 ;D:	;
 ;R18:	<identificadores> ::= <identificador>
 ;R19:	<identificadores> ::= <identificador> , <identificadores>
@@ -175,7 +173,7 @@ fin_then_4:
 ;D:	fibonacci
 ;D:	(
 ;R:	<idf_llamada_funcion> ::= TOK_IDENTIFICADOR
-;NICE;D:	num1
+;D:	num1
 ;D:	-
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
 	LEA EAX, [EBP + 8]
@@ -213,7 +211,7 @@ fin_then_4:
 ;D:	fibonacci
 ;D:	(
 ;R:	<idf_llamada_funcion> ::= TOK_IDENTIFICADOR
-;NICE;D:	num1
+;D:	num1
 ;D:	-
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
 	LEA EAX, [EBP + 8]
@@ -267,3 +265,89 @@ fin_then_4:
 	ADD EAX, EBX
 	PUSH DWORD EAX
 ;R61:	<retorno_funcion> ::= return <exp>
+	POP DWORD EAX
+	MOV DWORD ESP, EBP
+	POP DWORD EBP
+	ret
+;R38:	<sentencia_simple> ::= <retorno_funcion>
+;R32:	<sentencia> ::= <sentencia_simple> ;
+;D:	}
+;R30:	<sentencias> ::= <sentencia>
+;R31:	<sentencias> ::= <sentencia> <sentencias>
+;R31:	<sentencias> ::= <sentencia> <sentencias>
+;R31:	<sentencias> ::= <sentencia> <sentencias>
+;R31:	<sentencias> ::= <sentencia> <sentencias>
+;R22:	<funcion> ::=  <fn_declaration> <sentencias> }
+;D:	scanf
+;R21:	<funciones> ::= 
+;R20:	<funciones> ::= <funcion> <funciones>
+;R:	<escritura_main>:
+main:
+	MOV DWORD [__esp], ESP
+;D:	x
+;R54:	<lectura> ::= scanf TOK_IDENTIFICADOR
+	PUSH DWORD _x
+	CALL scan_int
+	ADD ESP, 4
+;R35:	<sentencia_simple> ::= <lectura>
+;D:	;
+;R32:	<sentencia> ::= <sentencia_simple> ;
+;D:	resultado
+;D:	=
+;D:	fibonacci
+;D:	(
+;R:	<idf_llamada_funcion> ::= TOK_IDENTIFICADOR
+;D:	x
+;D:	)
+;R80:	<exp> ::= TOK_IDENTIFICADOR
+	PUSH DWORD _x
+	POP DWORD EAX
+	MOV DWORD EAX, [EAX]
+	PUSH DWORD EAX
+;R92:	<resto_lista_expresiones> ::= 
+;R89:	<lista_expresiones> ::= <exp> <resto_lista_expresiones>
+;R88:	<exp> ::= <idf_llamada_funcion> ( <lista_expresiones> )
+	CALL fibonacci
+	ADD ESP, 4
+	PUSH DWORD EAX
+;D:	;
+;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
+	POP DWORD ECX
+	MOV DWORD [_resultado], ECX
+;R34:	<sentencia_simple> ::= <asignacion>
+;R32:	<sentencia> ::= <sentencia_simple> ;
+;D:	printf
+;D:	resultado
+;D:	;
+;R80:	<exp> ::= TOK_IDENTIFICADOR
+	PUSH DWORD _resultado
+;R56:	<escritura> ::= printf <exp>
+	POP DWORD ECX
+	MOV DWORD ECX, [ECX]
+	MOV DWORD EAX, ECX
+	PUSH DWORD EAX
+	CALL print_int
+	CALL print_endofline
+	ADD ESP, 4
+;R36:	<sentencia_simple> ::= <escritura>
+;R32:	<sentencia> ::= <sentencia_simple> ;
+;D:	}
+;R30:	<sentencias> ::= <sentencia>
+;R31:	<sentencias> ::= <sentencia> <sentencias>
+;R31:	<sentencias> ::= <sentencia> <sentencias>
+;R1:	<programa> ::= <inicioTabla> main { <declaraciones> <escritura_TS> <funciones> <escritura_main> <sentencias> }
+fin:
+	MOV DWORD ESP, [__esp]
+	ret
+div_0:
+	PUSH DWORD _err_div_0
+	CALL print_string
+	ADD ESP, 4
+	CALL print_endofline
+	JMP fin
+fin_indice_fuera_rango:
+	PUSH DWORD _err_indice_fuera_rango
+	CALL print_string
+	ADD ESP, 4
+	CALL print_endofline
+	JMP fin

@@ -515,13 +515,13 @@ retorno_funcion:          TOK_RETURN exp
                                   error_semantico(VARIABLE_NO_DECLARADA, nombre_funcion_actual);
                                   return -1;
                                 }
-                                if($2.valor_entero != 0 && $2.valor_entero != 1){
-                                  /*TODO: Las direcciones de
+                                /*TODO:THIS NO SENSE: Las direcciones de
                                     exp siempre tienen
-                                    que ser 0 ó 1.,??*/
+                                    que ser 0 ó 1.,?? 
+                                if($2.valor_entero != 0 && $2.valor_entero != 1){
                                   fprintf(stderr, "Error valor ilegal! en valor_entero");
                                   return -1;
-                                }
+                                }*/
                                 if(val->basic_type != $2.tipo){
                                   error_semantico(RETORNO_DIFERENTE_TIPO, NULL);
                                   return -1;
