@@ -35,9 +35,11 @@ segment .text
 ;D:	(
 ;D:	int
 ;R10:	<tipo> ::= int
+;R9:	<clase_escalar> ::= <tipo>
+;R5:	<clase> ::= <clase_escalar>
 ;D:	num1
 ;R:	<idpf> ::= TOK_IDENTIFICADOR
-;R27:	<parametro_funcion> ::= <tipo> <idpf>
+;R27:	<parametro_funcion> ::= <clase> <idpf>
 ;D:	)
 ;R26:	<resto_parametros_funcion> ::= 
 ;R23:	<parametros_funcion> ::= <parametro_funcion> <resto_parametros_funcion>

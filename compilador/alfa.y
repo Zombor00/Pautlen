@@ -288,8 +288,8 @@ resto_parametros_funcion: TOK_PUNTOYCOMA parametro_funcion resto_parametros_func
                           |   /* vacío */
                               {fprintf(yyout,";R26:\t<resto_parametros_funcion> ::= \n");}
                           ;
-parametro_funcion:        tipo idpf
-                              {fprintf(yyout,";R27:\t<parametro_funcion> ::= <tipo> <idpf>\n");}
+parametro_funcion:        clase idpf
+                              {fprintf(yyout,";R27:\t<parametro_funcion> ::= <clase> <idpf>\n");}
                           ;
 idpf:                     TOK_IDENTIFICADOR
                             {
