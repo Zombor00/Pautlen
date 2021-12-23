@@ -451,7 +451,7 @@ while:                    TOK_WHILE TOK_PARENTESISIZQUIERDO
                           ;
 lectura:                  TOK_SCANF TOK_IDENTIFICADOR
                               {
-                                fprintf(yyout,";R54:\t<lectura> ::= scanf TOK_IDENTIFICADOR");
+                                fprintf(yyout,";R54:\t<lectura> ::= scanf TOK_IDENTIFICADOR\n");
                                 val_global = get($2.nombre, tabla_global);
                                 val_local = NULL;
                                 if(ambito == LOCAL){
