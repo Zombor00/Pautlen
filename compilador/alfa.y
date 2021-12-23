@@ -337,6 +337,7 @@ bloque:                   condicional
                           ;
 asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                               {
+                                /*TODO: cambiar para que llame a escribirParametro, escribirVariableLocal, asignarDestinoEnPila*/
                                 fprintf(yyout,";R43:\t<asignacion> ::= TOK_IDENTIFICADOR = <exp>\n");
                                 if(ambito == LOCAL){
                                   val = get($1.nombre, tabla_local);
@@ -438,8 +439,8 @@ while_exp:                while exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA
                                   error_semantico(CONDICIONAL_INT, NULL);
                                   return -1;
                                 }
-                                $$.etiqueta = $2.etiqueta;
-                                while_exp_pila(yyout, $2.es_direccion, $2.etiqueta);
+                                $$.etiqueta = $1.etiqueta;
+                                while_exp_pila(yyout, $2.es_direccion, $1.etiqueta);
                               }
                           ;
 while:                    TOK_WHILE TOK_PARENTESISIZQUIERDO

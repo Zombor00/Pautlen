@@ -36,7 +36,7 @@ segment .text
 ;D:	int
 ;R10:	<tipo> ::= int
 ;D:	suma
-;R:	<fn_name> ::= function <tipo> <identificador>
+;R:	<fn_name> ::= function <tipo> TOK_IDENTIFICADOR
 ;D:	(
 ;D:	int
 ;R10:	<tipo> ::= int
@@ -99,7 +99,6 @@ main:
 ;D:	=
 ;D:	1
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 1
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 1
@@ -112,7 +111,6 @@ main:
 ;D:	=
 ;D:	3
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 3
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 3
@@ -175,7 +173,6 @@ main:
 	PUSH DWORD EAX
 ;D:	1
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 1
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 1
@@ -214,7 +211,6 @@ main:
 ;R:	<idf_llamada_funcion> ::= TOK_IDENTIFICADOR
 ;D:	10
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 10
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 10
@@ -258,14 +254,12 @@ main:
 ;R:	<idf_llamada_funcion> ::= TOK_IDENTIFICADOR
 ;D:	3
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 3
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 3
 ;D:	,
 ;D:	5
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 5
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 5
