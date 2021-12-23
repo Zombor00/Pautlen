@@ -156,8 +156,6 @@ main:
 	ADD EAX, EBX
 	PUSH DWORD EAX
 ;R82:	<exp> ::= ( <exp> )
-; escribir_operando:
-	PUSH DWORD 8
 ;R74:	<exp> ::= <exp> / <exp>
 	POP DWORD EBX
 	POP DWORD EAX
@@ -202,8 +200,6 @@ main:
 	LEA EAX, [EDX + EAX*4]
 	PUSH DWORD EAX
 ;R85:	<exp> ::= <elemento_vector>
-; escribir_operando:
-	PUSH DWORD _x
 ;D:	;
 ;R56:	<escritura> ::= printf <exp>
 	POP DWORD ECX

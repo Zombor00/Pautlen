@@ -119,7 +119,8 @@ es_igual_2:
 igual_fin_2:
 ;R83:	<exp> ::= ( <comparacion> )
 ;D:	&&
-;R77:	<exp> ::= exp> && <exp>
+;R77:	<exp> ::= <exp> && <exp>
+;mm 0 0
 	POP DWORD EBX
 	POP DWORD EAX
 	AND EAX, EBX
@@ -151,7 +152,8 @@ es_igual_3:
 igual_fin_3:
 ;R83:	<exp> ::= ( <comparacion> )
 ;D:	)
-;R77:	<exp> ::= exp> && <exp>
+;R77:	<exp> ::= <exp> && <exp>
+;mm 0 0
 	POP DWORD EBX
 	POP DWORD EAX
 	AND EAX, EBX
@@ -240,7 +242,8 @@ es_mayor_6:
 mayor_fin_6:
 ;R83:	<exp> ::= ( <comparacion> )
 ;D:	)
-;R77:	<exp> ::= exp> && <exp>
+;R77:	<exp> ::= <exp> && <exp>
+;mm 0 0
 	POP DWORD EBX
 	POP DWORD EAX
 	AND EAX, EBX
@@ -391,7 +394,8 @@ es_mayor_11:
 mayor_fin_11:
 ;R83:	<exp> ::= ( <comparacion> )
 ;D:	)
-;R77:	<exp> ::= exp> && <exp>
+;R77:	<exp> ::= <exp> && <exp>
+;mm 0 0
 	POP DWORD EBX
 	POP DWORD EAX
 	AND EAX, EBX
@@ -542,7 +546,8 @@ es_menor_16:
 menor_fin_16:
 ;R83:	<exp> ::= ( <comparacion> )
 ;D:	)
-;R77:	<exp> ::= exp> && <exp>
+;R77:	<exp> ::= <exp> && <exp>
+;mm 0 0
 	POP DWORD EBX
 	POP DWORD EAX
 	AND EAX, EBX
@@ -693,7 +698,8 @@ es_menor_21:
 menor_fin_21:
 ;R83:	<exp> ::= ( <comparacion> )
 ;D:	)
-;R77:	<exp> ::= exp> && <exp>
+;R77:	<exp> ::= <exp> && <exp>
+;mm 0 0
 	POP DWORD EBX
 	POP DWORD EAX
 	AND EAX, EBX

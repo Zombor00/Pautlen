@@ -239,8 +239,6 @@ main:
 	OR EAX, EBX
 	PUSH DWORD EAX
 ;R82:	<exp> ::= ( <exp> )
-; escribir_operando:
-	PUSH DWORD 1
 ;D:	||
 ;R77:	<exp> ::= <exp> && <exp>
 ;mm 1 0

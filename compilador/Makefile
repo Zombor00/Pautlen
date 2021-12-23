@@ -69,28 +69,34 @@ run_factorial: all
 run_funciones_vectores: all
 	$(ALFA) $(FUNC_VECT_DIR).alfa $(FUNC_VECT_DIR)_output.asm
 
-run_mas: all
+run_uno: all
 	$(ALFA) $(MAS_DIR)uno.alfa $(MAS_DIR)uno_output.asm
+
+run_dos: all
 	$(ALFA) $(MAS_DIR)dos.alfa $(MAS_DIR)dos_output.asm
+
+run_tres: all
 	$(ALFA) $(MAS_DIR)tres.alfa $(MAS_DIR)tres_output.asm
+
+run_cuatro: all
 	$(ALFA) $(MAS_DIR)cuatro.alfa $(MAS_DIR)cuatro_output.asm
 
-nasm_uno: run_mas
+nasm_uno: run_uno
 	$(NASM) $(MAS_DIR)uno.o $(NASMFLAGS) $(MAS_DIR)uno_output.asm
 	$(CC) $(CFLAGS) -m32 -o $(MAS_DIR)uno $(MAS_DIR)uno.o $(LIB)
 	./$(MAS_DIR)uno
 
-nasm_dos: run_mas
+nasm_dos: run_dos
 	$(NASM) $(MAS_DIR)dos.o $(NASMFLAGS) $(MAS_DIR)dos_output.asm
 	$(CC) $(CFLAGS) -m32 -o $(MAS_DIR)dos $(MAS_DIR)dos.o $(LIB)
 	./$(MAS_DIR)dos
 
-nasm_tres: run_mas
+nasm_tres: run_tres
 	$(NASM) $(MAS_DIR)tres.o $(NASMFLAGS) $(MAS_DIR)tres_output.asm
 	$(CC) $(CFLAGS) -m32 -o $(MAS_DIR)tres $(MAS_DIR)tres.o $(LIB)
 	./$(MAS_DIR)tres
 
-nasm_cuatro: run_mas
+nasm_cuatro: run_cuatro
 	$(NASM) $(MAS_DIR)cuatro.o $(NASMFLAGS) $(MAS_DIR)cuatro_output.asm
 	$(CC) $(CFLAGS) -m32 -o $(MAS_DIR)cuatro $(MAS_DIR)cuatro.o $(LIB)
 	./$(MAS_DIR)cuatro
@@ -141,3 +147,5 @@ clean:
 	@rm -rvf $(CONDICIONALES_DIR) $(CONDICIONALES_DIR).o $(FUNCIONES_DIR) $(FUNCIONES_DIR).o
 	@rm -rvf $(FIBONACCI_DIR) $(FIBONACCI_DIR).o $(FACTORIAL_DIR) $(FACTORIAL_DIR).o
 	@rm -rvf $(FUNC_VECT_DIR) $(FUNC_VECT_DIR).o
+	@rm -rvf $(MAS_DIR)uno.o $(MAS_DIR)uno $(MAS_DIR)dos.o $(MAS_DIR)dos
+	@rm -rvf $(MAS_DIR)tres.o $(MAS_DIR)tres $(MAS_DIR)tres.o $(MAS_DIR)tres

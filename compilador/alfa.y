@@ -697,9 +697,11 @@ exp:                      exp TOK_MAS exp
                                 fprintf(yyout,";R82:\t<exp> ::= ( <exp> )\n");
                                 $$.tipo = $2.tipo;
                                 $$.es_direccion = $2.es_direccion;
+                                /*
                                 sprintf(str_aux, "%d", $2.valor_entero);
                                 fprintf(yyout, "; escribir_operando:\n");
                                 escribir_operando(yyout, str_aux, VALOR_EXPLICITO);
+                                */
                               }
                           |   TOK_PARENTESISIZQUIERDO comparacion TOK_PARENTESISDERECHO
                               {
@@ -714,13 +716,14 @@ exp:                      exp TOK_MAS exp
                                 $$.es_direccion = $1.es_direccion;
 
                                 if(en_explist == TRUE){
-                                  fprintf(yyout, "; escribirParametro:\n");
+                                  fprintf(yyout, "; operandoEnPilaAArgumento:\n");
                                   operandoEnPilaAArgumento(yyout, $1.es_direccion);
                                   //escribirParametro(yyout, pos_parametro_actual, num_parametros_actual);
-                                } else {
+                                }
+                                /* else {
                                   fprintf(yyout, "; escribir_operando:\n");
                                   escribir_operando(yyout, $1.nombre, $1.es_direccion);
-                                }
+                                } */
                               }
                           |   idf_llamada_funcion TOK_PARENTESISIZQUIERDO lista_expresiones TOK_PARENTESISDERECHO
                               {
