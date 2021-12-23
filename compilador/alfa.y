@@ -123,7 +123,11 @@ programa:                 inicioTabla TOK_MAIN TOK_LLAVEIZQUIERDA declaraciones 
                                 fprintf(yyout, ";R1:\t<programa> ::= <inicioTabla> main { <declaraciones> <escritura_TS> <funciones> <escritura_main> <sentencias> }\n");
 
                                 escribir_fin(yyout);
+                                if(ambito == LOCAL){
+                                  wipe(tabla_local);
+                                }
                                 wipe(tabla_global);
+                                return 0;
                               }
                           ;
 inicioTabla:                /* empty */ {
@@ -147,6 +151,8 @@ escritura_TS:                 {
                                 for(i = 0; i < tabla_global->n_elems; i++){
                                   declarar_variable(yyout, contents[i]->name, contents[i]->val->basic_type, contents[i]->val->size);
                                 }
+                                free(contents);
+
                                 escribir_subseccion_data(yyout);
                                 escribir_segmento_codigo(yyout);
                               }
@@ -219,8 +225,6 @@ funcion:                  fn_declaration sentencias TOK_LLAVEDERECHA
                                   error_semantico(VARIABLE_NO_DECLARADA, $1.nombre);
                                   return -1;
                                 }
-                                //TODO:falta comprobar el tipo del return
-
                                 wipe(tabla_local);
                                 ambito = GLOBAL;
                                 set($1.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, num_variables_locales_actual, NO_CHANGE, tabla_global);
@@ -520,13 +524,6 @@ retorno_funcion:          TOK_RETURN exp
                                   error_semantico(VARIABLE_NO_DECLARADA, nombre_funcion_actual);
                                   return -1;
                                 }
-                                /*TODO:THIS NO SENSE: Las direcciones de
-                                    exp siempre tienen
-                                    que ser 0 ó 1.,??
-                                if($2.valor_entero != 0 && $2.valor_entero != 1){
-                                  fprintf(stderr, "Error valor ilegal! en valor_entero");
-                                  return -1;
-                                }*/
                                 if(val->basic_type != $2.tipo){
                                   error_semantico(RETORNO_DIFERENTE_TIPO, NULL);
                                   return -1;
