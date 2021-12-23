@@ -419,8 +419,9 @@ if_exp:                   TOK_IF TOK_PARENTESISIZQUIERDO exp TOK_PARENTESISDEREC
                                 if($3.tipo != BOOLEAN){
                                   error_semantico(CONDICIONAL_INT, NULL);
                                 }
-                                $$.etiqueta = etiqueta++;
-                                ifthen_inicio(yyout, $3.es_direccion, $$.etiqueta);
+                                $$.etiqueta = etiqueta;
+                                ifthenelse_inicio(yyout, $3.es_direccion, $$.etiqueta);
+                                etiqueta++;
                               }
                           ;
 bucle:                    while_exp sentencias TOK_LLAVEDERECHA
@@ -444,8 +445,9 @@ while_exp:                while exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA
 while:                    TOK_WHILE TOK_PARENTESISIZQUIERDO
                               {
                                 fprintf(yyout,";R:\t<while> ::= while (\n");
-                                $$.etiqueta = etiqueta++;
+                                $$.etiqueta = etiqueta;
                                 while_inicio(yyout, $$.etiqueta);
+                                etiqueta++;
                               }
                           ;
 lectura:                  TOK_SCANF TOK_IDENTIFICADOR

@@ -41,13 +41,16 @@ y.tab.h: alfa.y
 lex.yy.c: alfa.l y.tab.h
 	$(FLEX) $(FLEXFLAGS) alfa.l
 
+run_condicionales: all
+	$(ALFA) tests/ejemplo_condicionales/condicionales.alfa tests/ejemplo_condicionales/output.asm
+
 valgrind_condicionales: all
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out.txt $(ALFA) tests/ejemplo_condicionales/condicionales.alfa tests/ejemplo_condicionales/output.asm
 
 valgrind_funciones: all
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out.txt $(ALFA) tests/ejemplo_funciones/funciones.alfa tests/ejemplo_funciones/output.asm
 
-nasm_condicionales: all tests/ejemplo_condicionales/output.asm
+nasm_condicionales: run_condicionales
 	$(NASM) tests/ejemplo_condicionales/condicionales.o $(NASMFLAGS) tests/ejemplo_condicionales/output.asm
 	$(CC) $(CFLAGS) -m32 -o tests/ejemplo_condicionales/condicionales tests/ejemplo_condicionales/condicionales.o lib/alfalib.o
 	./condicionales

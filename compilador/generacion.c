@@ -691,7 +691,7 @@ void ifthenelse_inicio(FILE *fpasm, int exp_es_variable, int etiqueta)
   }
   asignar_reg(fpasm, "EAX", exp_es_variable);
   fprintf(fpasm, "\tCMP EAX, 0\n");
-  fprintf(fpasm, "\tJE NEAR else_%d\n", etiqueta);
+  fprintf(fpasm, "\tJE NEAR fin_then_%d\n", etiqueta);
 }
 
 
@@ -709,7 +709,7 @@ void ifthen_inicio(FILE *fpasm, int exp_es_variable, int etiqueta)
   }
   asignar_reg(fpasm, "EAX", exp_es_variable);
   fprintf(fpasm, "\tCMP EAX, 0\n");
-  fprintf(fpasm, "\tJE NEAR fin_ifthen_%d\n", etiqueta);
+  fprintf(fpasm, "\tJE NEAR fin_then_%d\n", etiqueta);
 }
 
 
@@ -720,7 +720,7 @@ void ifthen_fin(FILE *fpasm, int etiqueta)
     printf("Error NULL file ifthen_fin");
     exit(1);
   }
-  fprintf(fpasm, "fin_ifthen_%d:\n", etiqueta);
+  fprintf(fpasm, "fin_then_%d:\n", etiqueta);
 }
 
 
@@ -732,7 +732,7 @@ void ifthenelse_fin_then(FILE *fpasm, int etiqueta)
     exit(1);
   }
   fprintf(fpasm, "\tJMP NEAR ifthenelse_fin_%d\n", etiqueta);
-  fprintf(fpasm, "else_%d:\n", etiqueta);
+  fprintf(fpasm, "fin_then_%d:\n", etiqueta);
 }
 
 
