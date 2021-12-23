@@ -527,6 +527,7 @@ exp:                      exp TOK_MAS exp
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.valor_entero = $1.valor_entero + $3.valor_entero;
                                   $$.tipo = INT;
+                                  $$.es_direccion = VALOR_EXPLICITO;
                                   sumar(yyout, $1.es_direccion, $3.es_direccion);
                                 } else {
                                   error_semantico(OPERACION_ARITMETICA_BOOLEAN, NULL);
@@ -539,6 +540,7 @@ exp:                      exp TOK_MAS exp
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.valor_entero = $1.valor_entero - $3.valor_entero;
                                   $$.tipo = INT;
+                                  $$.es_direccion = VALOR_EXPLICITO;
                                   restar(yyout, $1.es_direccion, $3.es_direccion);
                                 } else {
                                   error_semantico(OPERACION_ARITMETICA_BOOLEAN, NULL);
@@ -551,6 +553,7 @@ exp:                      exp TOK_MAS exp
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.valor_entero = $1.valor_entero / $3.valor_entero;
                                   $$.tipo = INT;
+                                  $$.es_direccion = VALOR_EXPLICITO;
                                   dividir(yyout, $1.es_direccion, $3.es_direccion);
                                 } else {
                                   error_semantico(OPERACION_ARITMETICA_BOOLEAN, NULL);
@@ -563,6 +566,7 @@ exp:                      exp TOK_MAS exp
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.valor_entero = $1.valor_entero * $3.valor_entero;
                                   $$.tipo = INT;
+                                  $$.es_direccion = VALOR_EXPLICITO;
                                   multiplicar(yyout, $1.es_direccion, $3.es_direccion);
                                 } else {
                                   error_semantico(OPERACION_ARITMETICA_BOOLEAN, NULL);
@@ -575,6 +579,7 @@ exp:                      exp TOK_MAS exp
                                 if($2.tipo == INT){
                                   $$.valor_entero = - $2.valor_entero;
                                   $$.tipo = INT;
+                                  $$.es_direccion = VALOR_EXPLICITO;
                                   cambiar_signo(yyout, $2.es_direccion);
                                 } else {
                                   error_semantico(OPERACION_ARITMETICA_BOOLEAN, NULL);
