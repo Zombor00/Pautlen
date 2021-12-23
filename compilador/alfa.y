@@ -219,6 +219,7 @@ funcion:                  fn_declaration sentencias TOK_LLAVEDERECHA
                                   error_semantico(VARIABLE_NO_DECLARADA, $1.nombre);
                                   return -1;
                                 }
+                                //TODO:falta comprobar el tipo del return
 
                                 wipe(tabla_local);
                                 ambito = GLOBAL;
