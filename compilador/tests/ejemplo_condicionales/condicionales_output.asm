@@ -72,7 +72,6 @@ main:
 	PUSH DWORD _x
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 0
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 0
@@ -90,7 +89,6 @@ es_igual_1:
 	PUSH DWORD 1
 igual_fin_1:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 1
 ;D:	&&
 ;D:	(
 ;D:	y
@@ -99,7 +97,6 @@ igual_fin_1:
 	PUSH DWORD _y
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 0
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 0
@@ -117,7 +114,6 @@ es_igual_2:
 	PUSH DWORD 1
 igual_fin_2:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 1
 ;D:	&&
 ;R77:	<exp> ::= exp> && <exp>
 	POP DWORD EBX
@@ -131,7 +127,6 @@ igual_fin_2:
 	PUSH DWORD _z
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 0
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 0
@@ -149,7 +144,6 @@ es_igual_3:
 	PUSH DWORD 1
 igual_fin_3:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 1
 ;D:	)
 ;R77:	<exp> ::= exp> && <exp>
 	POP DWORD EBX
@@ -164,7 +158,6 @@ igual_fin_3:
 ;D:	printf
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 0
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 0
@@ -193,7 +186,6 @@ fin_then_4:
 	PUSH DWORD _x
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 0
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 0
@@ -211,7 +203,6 @@ es_mayor_5:
 	PUSH DWORD 1
 mayor_fin_5:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 0
 ;D:	&&
 ;D:	(
 ;D:	y
@@ -220,7 +211,6 @@ mayor_fin_5:
 	PUSH DWORD _y
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 0
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 0
@@ -238,7 +228,6 @@ es_mayor_6:
 	PUSH DWORD 1
 mayor_fin_6:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 0
 ;D:	)
 ;R77:	<exp> ::= exp> && <exp>
 	POP DWORD EBX
@@ -259,7 +248,6 @@ mayor_fin_6:
 	PUSH DWORD _z
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 0
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 0
@@ -277,7 +265,6 @@ es_mayor_8:
 	PUSH DWORD 1
 mayor_fin_8:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 0
 ;D:	)
 ;D:	{
 ;R:	<if_exp> ::= if ( <exp> ) {
@@ -287,7 +274,6 @@ mayor_fin_8:
 ;D:	printf
 ;D:	1
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 1
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 1
@@ -310,7 +296,6 @@ fin_then_9:
 ;D:	printf
 ;D:	5
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 5
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 5
@@ -344,7 +329,6 @@ fin_then_7:
 	PUSH DWORD _x
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 0
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 0
@@ -362,7 +346,6 @@ es_menor_10:
 	PUSH DWORD 1
 menor_fin_10:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 0
 ;D:	&&
 ;D:	(
 ;D:	y
@@ -371,7 +354,6 @@ menor_fin_10:
 	PUSH DWORD _y
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 0
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 0
@@ -389,7 +371,6 @@ es_mayor_11:
 	PUSH DWORD 1
 mayor_fin_11:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 0
 ;D:	)
 ;R77:	<exp> ::= exp> && <exp>
 	POP DWORD EBX
@@ -410,7 +391,6 @@ mayor_fin_11:
 	PUSH DWORD _z
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 0
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 0
@@ -428,7 +408,6 @@ es_mayor_13:
 	PUSH DWORD 1
 mayor_fin_13:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 0
 ;D:	)
 ;D:	{
 ;R:	<if_exp> ::= if ( <exp> ) {
@@ -438,7 +417,6 @@ mayor_fin_13:
 ;D:	printf
 ;D:	2
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 2
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 2
@@ -461,7 +439,6 @@ fin_then_14:
 ;D:	printf
 ;D:	6
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 6
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 6
@@ -495,7 +472,6 @@ fin_then_12:
 	PUSH DWORD _x
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 0
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 0
@@ -513,7 +489,6 @@ es_menor_15:
 	PUSH DWORD 1
 menor_fin_15:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 0
 ;D:	&&
 ;D:	(
 ;D:	y
@@ -522,7 +497,6 @@ menor_fin_15:
 	PUSH DWORD _y
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 0
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 0
@@ -540,7 +514,6 @@ es_menor_16:
 	PUSH DWORD 1
 menor_fin_16:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 0
 ;D:	)
 ;R77:	<exp> ::= exp> && <exp>
 	POP DWORD EBX
@@ -561,7 +534,6 @@ menor_fin_16:
 	PUSH DWORD _z
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 0
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 0
@@ -579,7 +551,6 @@ es_mayor_18:
 	PUSH DWORD 1
 mayor_fin_18:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 0
 ;D:	)
 ;D:	{
 ;R:	<if_exp> ::= if ( <exp> ) {
@@ -589,7 +560,6 @@ mayor_fin_18:
 ;D:	printf
 ;D:	3
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 3
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 3
@@ -612,7 +582,6 @@ fin_then_19:
 ;D:	printf
 ;D:	7
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 7
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 7
@@ -646,7 +615,6 @@ fin_then_17:
 	PUSH DWORD _x
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 0
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 0
@@ -664,7 +632,6 @@ es_mayor_20:
 	PUSH DWORD 1
 mayor_fin_20:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 1
 ;D:	&&
 ;D:	(
 ;D:	y
@@ -673,7 +640,6 @@ mayor_fin_20:
 	PUSH DWORD _y
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 0
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 0
@@ -691,7 +657,6 @@ es_menor_21:
 	PUSH DWORD 1
 menor_fin_21:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 0
 ;D:	)
 ;R77:	<exp> ::= exp> && <exp>
 	POP DWORD EBX
@@ -712,7 +677,6 @@ menor_fin_21:
 	PUSH DWORD _z
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 0
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 0
@@ -730,7 +694,6 @@ es_mayor_23:
 	PUSH DWORD 1
 mayor_fin_23:
 ;R83:	<exp> ::= ( <comparacion> )
-	PUSH DWORD 0
 ;D:	)
 ;D:	{
 ;R:	<if_exp> ::= if ( <exp> ) {
@@ -740,7 +703,6 @@ mayor_fin_23:
 ;D:	printf
 ;D:	4
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 4
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 4
@@ -763,7 +725,6 @@ fin_then_24:
 ;D:	printf
 ;D:	8
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-	PUSH DWORD 8
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 8

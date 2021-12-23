@@ -219,6 +219,7 @@ funcion:                  fn_declaration sentencias TOK_LLAVEDERECHA
                                   error_semantico(VARIABLE_NO_DECLARADA, $1.nombre);
                                   return -1;
                                 }
+                                //TODO:falta comprobar el tipo del return
 
                                 wipe(tabla_local);
                                 ambito = GLOBAL;
@@ -337,6 +338,7 @@ bloque:                   condicional
                           ;
 asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                               {
+                                /*TODO: cambiar para que llame a escribirParametro, escribirVariableLocal, asignarDestinoEnPila*/
                                 fprintf(yyout,";R43:\t<asignacion> ::= TOK_IDENTIFICADOR = <exp>\n");
                                 if(ambito == LOCAL){
                                   val = get($1.nombre, tabla_local);
@@ -438,8 +440,8 @@ while_exp:                while exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA
                                   error_semantico(CONDICIONAL_INT, NULL);
                                   return -1;
                                 }
-                                $$.etiqueta = $2.etiqueta;
-                                while_exp_pila(yyout, $2.es_direccion, $2.etiqueta);
+                                $$.etiqueta = $1.etiqueta;
+                                while_exp_pila(yyout, $2.es_direccion, $1.etiqueta);
                               }
                           ;
 while:                    TOK_WHILE TOK_PARENTESISIZQUIERDO
@@ -526,6 +528,7 @@ exp:                      exp TOK_MAS exp
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.valor_entero = $1.valor_entero + $3.valor_entero;
                                   $$.tipo = INT;
+                                  $$.es_direccion = VALOR_EXPLICITO;
                                   sumar(yyout, $1.es_direccion, $3.es_direccion);
                                 } else {
                                   error_semantico(OPERACION_ARITMETICA_BOOLEAN, NULL);
@@ -538,6 +541,7 @@ exp:                      exp TOK_MAS exp
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.valor_entero = $1.valor_entero - $3.valor_entero;
                                   $$.tipo = INT;
+                                  $$.es_direccion = VALOR_EXPLICITO;
                                   restar(yyout, $1.es_direccion, $3.es_direccion);
                                 } else {
                                   error_semantico(OPERACION_ARITMETICA_BOOLEAN, NULL);
@@ -550,6 +554,7 @@ exp:                      exp TOK_MAS exp
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.valor_entero = $1.valor_entero / $3.valor_entero;
                                   $$.tipo = INT;
+                                  $$.es_direccion = VALOR_EXPLICITO;
                                   dividir(yyout, $1.es_direccion, $3.es_direccion);
                                 } else {
                                   error_semantico(OPERACION_ARITMETICA_BOOLEAN, NULL);
@@ -562,6 +567,7 @@ exp:                      exp TOK_MAS exp
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.valor_entero = $1.valor_entero * $3.valor_entero;
                                   $$.tipo = INT;
+                                  $$.es_direccion = VALOR_EXPLICITO;
                                   multiplicar(yyout, $1.es_direccion, $3.es_direccion);
                                 } else {
                                   error_semantico(OPERACION_ARITMETICA_BOOLEAN, NULL);
@@ -574,6 +580,7 @@ exp:                      exp TOK_MAS exp
                                 if($2.tipo == INT){
                                   $$.valor_entero = - $2.valor_entero;
                                   $$.tipo = INT;
+                                  $$.es_direccion = VALOR_EXPLICITO;
                                   cambiar_signo(yyout, $2.es_direccion);
                                 } else {
                                   error_semantico(OPERACION_ARITMETICA_BOOLEAN, NULL);
@@ -681,8 +688,6 @@ exp:                      exp TOK_MAS exp
                                 fprintf(yyout,";R83:\t<exp> ::= ( <comparacion> )\n");
                                 $$.tipo = $2.tipo;
                                 $$.es_direccion = $2.es_direccion;
-                                sprintf(str_aux, "%d", $2.valor_entero);
-                                escribir_operando(yyout, str_aux, VALOR_EXPLICITO);
                               }
                           |   elemento_vector
                               {
@@ -865,8 +870,6 @@ constante_entera:         TOK_CONSTANTE_ENTERA
                                 $$.valor_entero = $1.valor_entero;
                                 $$.tipo = INT;
                                 $$.es_direccion = VALOR_EXPLICITO;
-                                sprintf(str_aux, "%d", $1.valor_entero);
-                                escribir_operando(yyout, str_aux, VALOR_EXPLICITO);
                               }
                           ;
 identificador:            TOK_IDENTIFICADOR
