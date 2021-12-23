@@ -148,4 +148,4 @@ clean:
 	@rm -rvf $(FIBONACCI_DIR) $(FIBONACCI_DIR).o $(FACTORIAL_DIR) $(FACTORIAL_DIR).o
 	@rm -rvf $(FUNC_VECT_DIR) $(FUNC_VECT_DIR).o
 	@rm -rvf $(MAS_DIR)uno.o $(MAS_DIR)uno $(MAS_DIR)dos.o $(MAS_DIR)dos
-	@rm -rvf $(MAS_DIR)tres.o $(MAS_DIR)tres $(MAS_DIR)tres.o $(MAS_DIR)tres
+	@rm -rvf $(MAS_DIR)tres.o $(MAS_DIR)tres $(MAS_DIR)cuatro.o $(MAS_DIR)cuatro
