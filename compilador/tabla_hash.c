@@ -153,10 +153,15 @@ int wipe(hash_table *ht)
   {
     if (ht->tuples[i] != NULL)
     {
-      free(ht->tuples[i]->val);
+      if(ht->tuples[i]->val != NULL){
+        free(ht->tuples[i]->val);
+      }
       /*If the element at hash position i exists we free it*/
       free(ht->tuples[i]);
     }
+  }
+  if(ht->tuples != NULL){
+    free(ht->tuples);
   }
   free(ht);
   return 0;
