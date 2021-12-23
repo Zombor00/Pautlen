@@ -64,4 +64,5 @@ int set(char *name, int element_category, int basic_type, int category,
         int pos_local_variable, hash_table *ht);
 
 tuple **extract_table_contents(hash_table *ht);
+void print_table(hash_table *ht);
 #endif

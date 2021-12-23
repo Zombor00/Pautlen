@@ -13,16 +13,8 @@
 ;D:	,
 ;D:	z
 ;R108:	<identificador> ::= TOK_IDENTIFICADOR
-;D:	,
-;D:	p
-;R108:	<identificador> ::= TOK_IDENTIFICADOR
-;D:	,
-;D:	r
-;R108:	<identificador> ::= TOK_IDENTIFICADOR
 ;D:	;
 ;R18:	<identificadores> ::= <identificador>
-;R19:	<identificadores> ::= <identificador> , <identificadores>
-;R19:	<identificadores> ::= <identificador> , <identificadores>
 ;R19:	<identificadores> ::= <identificador> , <identificadores>
 ;R19:	<identificadores> ::= <identificador> , <identificadores>
 ;R4:	<declaracion> ::= <clase> <identificadores> ;
@@ -31,8 +23,6 @@
 ;R:	<escritura_TS>:
 segment .bss
 	__esp resd 1
-	_p resd 1
-	_r resd 1
 	_x resd 1
 	_y resd 1
 	_z resd 1

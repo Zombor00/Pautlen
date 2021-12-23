@@ -47,5 +47,10 @@ valgrind_condicionales: all
 valgrind_funciones: all
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out.txt $(ALFA) tests/ejemplo_funciones/funciones.alfa tests/ejemplo_funciones/output.asm
 
+nasm_condicionales: all tests/ejemplo_condicionales/output.asm
+	$(NASM) tests/ejemplo_condicionales/condicionales.o $(NASMFLAGS) tests/ejemplo_condicionales/output.asm
+	$(CC) $(CFLAGS) -m32 -o tests/ejemplo_condicionales/condicionales tests/ejemplo_condicionales/condicionales.o lib/alfalib.o
+	./condicionales
+
 clean:
 	@rm -rvf $(BIN) $(OBJ) lex.yy.c lex.yy.o y.tab.h y.tab.c y.tab.o y.output alfa

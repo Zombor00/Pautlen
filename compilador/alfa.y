@@ -240,9 +240,9 @@ fn_declaration:           fn_name TOK_PARENTESISIZQUIERDO parametros_funcion TOK
                               }
                           ;
 
-fn_name:                  TOK_FUNCTION tipo identificador
+fn_name:                  TOK_FUNCTION tipo TOK_IDENTIFICADOR
                               {
-                                fprintf(yyout,";R:\t<fn_name> ::= function <tipo> <identificador>\n");
+                                fprintf(yyout,";R:\t<fn_name> ::= function <tipo> TOK_IDENTIFICADOR\n");
 
                                 if(ambito == LOCAL){
                                   error_semantico(VAR_LOCAL_NO_ESCALAR, NULL);

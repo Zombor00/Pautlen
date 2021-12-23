@@ -178,3 +178,12 @@ tuple **extract_table_contents(hash_table *ht)
   }
   return content;
 }
+
+void print_table(hash_table *ht){
+  int i;
+  tuple **contents;
+  contents = extract_table_contents(ht);
+  for(i = 0; i < ht->n_elems; i++){
+    printf("%s: tipo %d, size %d\n", contents[i]->name, contents[i]->val->basic_type, contents[i]->val->size);
+  }
+}
