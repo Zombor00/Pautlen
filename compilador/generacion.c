@@ -896,16 +896,33 @@ void asignarDestinoEnPila(FILE *fpasm, int es_variable)
 {
   if (fpasm == NULL)
   {
-    printf("Error NULL file al operandoEnPilaAArgumento\n");
+    printf("Error NULL file al asignarDestinoEnPila\n");
     exit(1);
   }
   else if (es_variable != VALOR_EXPLICITO && es_variable != VALOR_REFERENCIA)
   {
-    printf("Error es_variable mal definido al operandoEnPilaAArgumento\n");
+    printf("Error es_variable mal definido al asignarDestinoEnPila\n");
     exit(1);
   }
   asignar_reg(fpasm, "EAX", VALOR_EXPLICITO); //direccion donde guardamos la variable o valor
   asignar_reg(fpasm, "EBX", es_variable);     //variable o valor a guardar
+  fprintf(fpasm, "\tMOV DWORD [EAX], EBX\n");
+}
+
+void asignarDestinoEnPilaVector(FILE *fpasm, int es_variable)
+{
+  if (fpasm == NULL)
+  {
+    printf("Error NULL file al asignarDestinoEnPilaVector\n");
+    exit(1);
+  }
+  else if (es_variable != VALOR_EXPLICITO && es_variable != VALOR_REFERENCIA)
+  {
+    printf("Error es_variable mal definido al asignarDestinoEnPilaVector\n");
+    exit(1);
+  }
+  asignar_reg(fpasm, "EBX", es_variable);     //variable o valor a guardar
+  asignar_reg(fpasm, "EAX", VALOR_EXPLICITO); //direccion donde guardamos la variable o valor
   fprintf(fpasm, "\tMOV DWORD [EAX], EBX\n");
 }
 

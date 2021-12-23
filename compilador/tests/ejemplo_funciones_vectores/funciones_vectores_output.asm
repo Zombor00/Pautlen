@@ -174,14 +174,13 @@ main:
 ;D:	=
 ;D:	false
 ;R103:	<constante_logica> ::= false
-	PUSH DWORD 0
 ;R99:	<constante> ::= <constante_logica>
 ;R81:	<exp> ::= <constante>
 	PUSH DWORD 0
 ;D:	;
 ;R44:	<asignacion> ::= <elemento_vector> = <exp>
-	POP DWORD EAX
 	POP DWORD EBX
+	POP DWORD EAX
 	MOV DWORD [EAX], EBX
 ;R34:	<sentencia_simple> ::= <asignacion>
 ;R32:	<sentencia> ::= <sentencia_simple> ;
@@ -203,16 +202,15 @@ main:
 	LEA EAX, [EDX + EAX*4]
 	PUSH DWORD EAX
 ;D:	=
-;D:	true
-;R102:	<constante_logica> ::= true
-	PUSH DWORD 1
+;D:	false
+;R103:	<constante_logica> ::= false
 ;R99:	<constante> ::= <constante_logica>
 ;R81:	<exp> ::= <constante>
-	PUSH DWORD 1
+	PUSH DWORD 0
 ;D:	;
 ;R44:	<asignacion> ::= <elemento_vector> = <exp>
-	POP DWORD EAX
 	POP DWORD EBX
+	POP DWORD EAX
 	MOV DWORD [EAX], EBX
 ;R34:	<sentencia_simple> ::= <asignacion>
 ;R32:	<sentencia> ::= <sentencia_simple> ;
@@ -236,14 +234,13 @@ main:
 ;D:	=
 ;D:	false
 ;R103:	<constante_logica> ::= false
-	PUSH DWORD 0
 ;R99:	<constante> ::= <constante_logica>
 ;R81:	<exp> ::= <constante>
-	PUSH DWORD 2
+	PUSH DWORD 0
 ;D:	;
 ;R44:	<asignacion> ::= <elemento_vector> = <exp>
-	POP DWORD EAX
 	POP DWORD EBX
+	POP DWORD EAX
 	MOV DWORD [EAX], EBX
 ;R34:	<sentencia_simple> ::= <asignacion>
 ;R32:	<sentencia> ::= <sentencia_simple> ;
@@ -270,8 +267,6 @@ main:
 	LEA EAX, [EDX + EAX*4]
 	PUSH DWORD EAX
 ;R85:	<exp> ::= <elemento_vector>
-	LEA EAX, [EBP + 4]
-	PUSH DWORD EAX
 ;D:	,
 ;D:	vector
 ;D:	[
@@ -291,8 +286,6 @@ main:
 	LEA EAX, [EDX + EAX*4]
 	PUSH DWORD EAX
 ;R85:	<exp> ::= <elemento_vector>
-	LEA EAX, [EBP + 4]
-	PUSH DWORD EAX
 ;D:	,
 ;D:	vector
 ;D:	[
@@ -312,8 +305,6 @@ main:
 	LEA EAX, [EDX + EAX*4]
 	PUSH DWORD EAX
 ;R85:	<exp> ::= <elemento_vector>
-	LEA EAX, [EBP + 4]
-	PUSH DWORD EAX
 ;D:	)
 ;R92:	<resto_lista_expresiones> ::= 
 ;R91:	<resto_lista_expresiones> ::= , <exp> <resto_lista_expresiones>

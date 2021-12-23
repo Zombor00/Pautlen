@@ -290,6 +290,8 @@ Es 1 si la expresión que se va a asignar es algo asimilable a una variable
 Es 0 en caso contrario (constante u otro tipo de expresión)
 */
 
+void asignarDestinoEnPilaVector(FILE *fpasm, int es_variable);
+
 void operandoEnPilaAArgumento(FILE * fd_asm, int es_variable);
 /*
 Como habrás visto en el material, nuestro convenio de llamadas a las funciones asume que

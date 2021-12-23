@@ -339,7 +339,6 @@ bloque:                   condicional
                           ;
 asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                               {
-                                /*TODO: cambiar para que llame a escribirParametro, escribirVariableLocal, asignarDestinoEnPila*/
                                 fprintf(yyout,";R43:\t<asignacion> ::= TOK_IDENTIFICADOR = <exp>\n");
                                 val = NULL;
                                 if(ambito == LOCAL){
@@ -368,7 +367,7 @@ asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                               {
                                 fprintf(yyout,";R44:\t<asignacion> ::= <elemento_vector> = <exp>\n");
                                 if($1.tipo == $3.tipo){
-                                  asignarDestinoEnPila(yyout, $3.es_direccion);
+                                  asignarDestinoEnPilaVector(yyout, $3.es_direccion);
                                 } else {
                                   error_semantico(ASIGN_INCOMPATIBLE, NULL);
                                   return -1;
@@ -703,11 +702,13 @@ exp:                      exp TOK_MAS exp
                                 fprintf(yyout,";R85:\t<exp> ::= <elemento_vector>\n");
                                 $$.tipo = $1.tipo;
                                 $$.es_direccion = $1.es_direccion;
+                                /*TODO: ??
                                 if(en_explist == TRUE){
                                   escribirParametro(yyout, pos_parametro_actual, num_parametros_actual);
                                 } else {
                                   escribir_operando(yyout, $1.nombre, $1.es_direccion);
                                 }
+                                */
                               }
                           |   idf_llamada_funcion TOK_PARENTESISIZQUIERDO lista_expresiones TOK_PARENTESISDERECHO
                               {
@@ -850,12 +851,14 @@ constante:                constante_logica
                                 fprintf(yyout,";R99:\t<constante> ::= <constante_logica>\n");
                                 $$.tipo = $1.tipo;
                                 $$.es_direccion = $1.es_direccion;
+                                $$.valor_entero = $1.valor_entero;
                               }
                           |   constante_entera
                               {
                                 fprintf(yyout,";R100:\t<constante> ::= <constante_entera>\n");
                                 $$.tipo = $1.tipo;
                                 $$.es_direccion = $1.es_direccion;
+                                $$.valor_entero = $1.valor_entero;
                               }
                           ;
 constante_logica:         TOK_TRUE
@@ -863,14 +866,14 @@ constante_logica:         TOK_TRUE
                                 fprintf(yyout,";R102:\t<constante_logica> ::= true\n");
                                 $$.tipo = BOOLEAN;
                                 $$.es_direccion = VALOR_EXPLICITO;
-                                escribir_operando(yyout, "1", VALOR_EXPLICITO);
+                                $$.valor_entero = 1;
                               }
                           |   TOK_FALSE
                               {
                                 fprintf(yyout,";R103:\t<constante_logica> ::= false\n");
                                 $$.tipo = BOOLEAN;
                                 $$.es_direccion = VALOR_EXPLICITO;
-                                escribir_operando(yyout, "0", VALOR_EXPLICITO);
+                                $$.valor_entero = 0;
                               }
                           ;
 constante_entera:         TOK_CONSTANTE_ENTERA
