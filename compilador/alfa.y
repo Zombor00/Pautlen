@@ -645,11 +645,18 @@ exp:                      exp TOK_MAS exp
                                   } else {
                                     $$.tipo = val_local->basic_type;
                                     $$.es_direccion = VALOR_REFERENCIA;
+                                    if(val_local->element_category == PARAMETRO){
+                                      escribirParametro(yyout, val_local->pos_param, val_local->num_params);
+                                    }else{
+                                      escribirVariableLocal(yyout, val_local->pos_local_variable);
+                                    }
+
+                                    /*TODO: Check que esto esta mal @Carmen
                                     if(en_explist == TRUE){
                                       escribirParametro(yyout, val_local->pos_param, val_local->num_params);
                                     } else {
                                       escribir_operando(yyout, $1.nombre, VALOR_REFERENCIA);
-                                    }
+                                    }*/
                                   }
                                 } else {
                                   if(val_global->element_category == FUNCION || val_global->category == VECTOR){
@@ -725,6 +732,7 @@ idf_llamada_funcion:      TOK_IDENTIFICADOR
                                 } else { //Si encuentra la función
                                   if(val->element_category == FUNCION && en_explist == FALSE){
                                     num_parametros_llamada_actual = 0;
+                                    fprintf(yyout,";NICE");
                                     en_explist = TRUE;
                                     strcpy($$.nombre, $1.nombre);
                                   } else {

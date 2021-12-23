@@ -64,11 +64,13 @@ suma:
 ;D:	num1
 ;D:	+
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
-	PUSH DWORD _num1
+	LEA EAX, [EBP + 4]
+	PUSH DWORD EAX
 ;D:	num2
 ;D:	;
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
-	PUSH DWORD _num2
+	LEA EAX, [EBP + 0]
+	PUSH DWORD EAX
 ;R72:	<exp> ::= <exp> + <exp>
 	POP DWORD ECX
 	MOV DWORD ECX, [ECX]
@@ -79,9 +81,7 @@ suma:
 	ADD EAX, EBX
 	PUSH DWORD EAX
 ;R61:	<retorno_funcion> ::= return <exp>
-	POP DWORD ECX
-	MOV DWORD ECX, [ECX]
-	MOV DWORD EAX, ECX
+	POP DWORD EAX
 	MOV DWORD ESP, EBP
 	POP DWORD EBP
 	ret
@@ -124,7 +124,7 @@ main:
 ;D:	suma
 ;D:	(
 ;R:	<idf_llamada_funcion> ::= TOK_IDENTIFICADOR
-;D:	x
+;NICE;D:	x
 ;D:	,
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
 	LEA EAX, [EBP + 4]
@@ -166,7 +166,7 @@ main:
 ;D:	suma
 ;D:	(
 ;R:	<idf_llamada_funcion> ::= TOK_IDENTIFICADOR
-;D:	x
+;NICE;D:	x
 ;D:	,
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
 	LEA EAX, [EBP + 4]
@@ -209,7 +209,7 @@ main:
 ;D:	suma
 ;D:	(
 ;R:	<idf_llamada_funcion> ::= TOK_IDENTIFICADOR
-;D:	10
+;NICE;D:	10
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
@@ -252,7 +252,7 @@ main:
 ;D:	suma
 ;D:	(
 ;R:	<idf_llamada_funcion> ::= TOK_IDENTIFICADOR
-;D:	3
+;NICE;D:	3
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
