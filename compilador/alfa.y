@@ -232,14 +232,13 @@ fn_declaration:           fn_name TOK_PARENTESISIZQUIERDO parametros_funcion TOK
                                 fprintf(yyout,";R:\t<fn_declaration> ::= <fn_name> ( <parametros> ) { <declaraciones_funcion>\n");
 
                                 strcpy($$.nombre, $1.nombre);
-                                printf("%d\n\n", num_parametros_actual);
                                 res = set($1.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, num_variables_locales_actual, NO_CHANGE, tabla_global);
                                 res = set($1.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, num_variables_locales_actual, NO_CHANGE, tabla_local);
                                 if(res == ERROR){
                                   error_semantico(VARIABLE_NO_DECLARADA, $1.nombre);
                                   return -1;
                                 }
-                                declararFuncion(yyout, $1.nombre, num_parametros_actual);
+                                declararFuncion(yyout, $1.nombre, num_variables_locales_actual);
                               }
                           ;
 
@@ -518,7 +517,7 @@ retorno_funcion:          TOK_RETURN exp
                                 }
                                 /*TODO:THIS NO SENSE: Las direcciones de
                                     exp siempre tienen
-                                    que ser 0 ó 1.,?? 
+                                    que ser 0 ó 1.,??
                                 if($2.valor_entero != 0 && $2.valor_entero != 1){
                                   fprintf(stderr, "Error valor ilegal! en valor_entero");
                                   return -1;
@@ -897,6 +896,7 @@ identificador:            TOK_IDENTIFICADOR
                                 }
                                 if(ambito == LOCAL){
                                     if(clase_actual == ESCALAR){
+                                        num_variables_locales_actual++;
                                         res = insert($1.nombre, VARIABLE, tipo_actual, clase_actual, 1, 0, 0, num_variables_locales_actual, pos_variable_local_actual, tabla_local);
                                         pos_variable_local_actual++;
                                     } else{ //if clase_actual == VECTOR

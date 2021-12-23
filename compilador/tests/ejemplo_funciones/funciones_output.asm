@@ -60,7 +60,7 @@ segment .text
 suma:
 	PUSH DWORD EBP
 	MOV DWORD EBP, ESP
-	SUB ESP, 8
+	SUB ESP, 0
 ;D:	num1
 ;D:	+
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
