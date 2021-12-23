@@ -46,9 +46,11 @@ main:
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 1
 ;D:	;
 ;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
+; asignar:
 	POP DWORD ECX
 	MOV DWORD [_y], ECX
 ;R34:	<sentencia_simple> ::= <asignacion>
@@ -61,11 +63,13 @@ while_ini_1:
 ;D:	x
 ;D:	>
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _x
 ;D:	1
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 1
 ;D:	)
 ;R98:	<comparacion> ::= <exp> > <exp>
@@ -92,10 +96,12 @@ mayor_fin_2:
 ;D:	x
 ;D:	*
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _x
 ;D:	y
 ;D:	;
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _y
 ;R75:	<exp> ::= <exp> * <exp>
 	POP DWORD ECX
@@ -107,6 +113,7 @@ mayor_fin_2:
 	IMUL DWORD EBX
 	PUSH DWORD EAX
 ;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
+; asignar:
 	POP DWORD ECX
 	MOV DWORD [_y], ECX
 ;R34:	<sentencia_simple> ::= <asignacion>
@@ -116,11 +123,13 @@ mayor_fin_2:
 ;D:	x
 ;D:	-
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _x
 ;D:	1
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 1
 ;D:	;
 ;R73:	<exp> ::= <exp> - <exp>
@@ -131,6 +140,7 @@ mayor_fin_2:
 	SUB EAX, EBX
 	PUSH DWORD EAX
 ;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
+; asignar:
 	POP DWORD ECX
 	MOV DWORD [_x], ECX
 ;R34:	<sentencia_simple> ::= <asignacion>
@@ -147,6 +157,7 @@ while_fin_1:
 ;D:	y
 ;D:	;
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _y
 ;R56:	<escritura> ::= printf <exp>
 	POP DWORD ECX

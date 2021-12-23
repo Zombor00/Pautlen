@@ -61,6 +61,7 @@ segment .text
 ;R2:	<declaraciones> ::= <declaracion>
 ;R28:	<declaraciones_funcion> ::= <declaraciones>
 ;R:	<fn_declaration> ::= <fn_name> ( <parametros> ) { <declaraciones_funcion>
+; declararFuncion:
 fibonacci:
 	PUSH DWORD EBP
 	MOV DWORD EBP, ESP
@@ -70,12 +71,14 @@ fibonacci:
 ;D:	num1
 ;D:	==
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribirParametro:
 	LEA EAX, [EBP + 8]
 	PUSH DWORD EAX
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 0
 ;D:	)
 ;R93:	<comparacion> ::= <exp> == <exp>
@@ -102,6 +105,7 @@ igual_fin_1:
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 0
 ;D:	;
 ;R61:	<retorno_funcion> ::= return <exp>
@@ -123,12 +127,14 @@ fin_then_2:
 ;D:	num1
 ;D:	==
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribirParametro:
 	LEA EAX, [EBP + 8]
 	PUSH DWORD EAX
 ;D:	1
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 1
 ;D:	)
 ;R93:	<comparacion> ::= <exp> == <exp>
@@ -155,6 +161,7 @@ igual_fin_3:
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 1
 ;D:	;
 ;R61:	<retorno_funcion> ::= return <exp>
@@ -178,12 +185,14 @@ fin_then_4:
 ;D:	num1
 ;D:	-
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribirParametro:
 	LEA EAX, [EBP + 8]
 	PUSH DWORD EAX
 ;D:	1
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 1
 ;D:	)
 ;R73:	<exp> ::= <exp> - <exp>
@@ -201,8 +210,10 @@ fin_then_4:
 	PUSH DWORD EAX
 ;D:	;
 ;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
+; escribirVariableLocal:
 	LEA EAX, [EBP - 4]
 	PUSH DWORD EAX
+; asignarDestinoEnPila:
 	POP DWORD EAX
 	POP DWORD EBX
 	MOV DWORD [EAX], EBX
@@ -216,12 +227,14 @@ fin_then_4:
 ;D:	num1
 ;D:	-
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribirParametro:
 	LEA EAX, [EBP + 8]
 	PUSH DWORD EAX
 ;D:	2
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 2
 ;D:	)
 ;R73:	<exp> ::= <exp> - <exp>
@@ -239,8 +252,10 @@ fin_then_4:
 	PUSH DWORD EAX
 ;D:	;
 ;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
+; escribirVariableLocal:
 	LEA EAX, [EBP - 8]
 	PUSH DWORD EAX
+; asignarDestinoEnPila:
 	POP DWORD EAX
 	POP DWORD EBX
 	MOV DWORD [EAX], EBX
@@ -250,11 +265,13 @@ fin_then_4:
 ;D:	res1
 ;D:	+
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribirVariableLocal:
 	LEA EAX, [EBP - 4]
 	PUSH DWORD EAX
 ;D:	res2
 ;D:	;
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribirVariableLocal:
 	LEA EAX, [EBP - 8]
 	PUSH DWORD EAX
 ;R72:	<exp> ::= <exp> + <exp>
@@ -302,7 +319,9 @@ main:
 ;D:	x
 ;D:	)
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _x
+; operandoEnPilaAArgumento:
 	POP DWORD EAX
 	MOV DWORD EAX, [EAX]
 	PUSH DWORD EAX
@@ -314,6 +333,7 @@ main:
 	PUSH DWORD EAX
 ;D:	;
 ;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
+; asignar:
 	POP DWORD ECX
 	MOV DWORD [_resultado], ECX
 ;R34:	<sentencia_simple> ::= <asignacion>
@@ -322,6 +342,7 @@ main:
 ;D:	resultado
 ;D:	;
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _resultado
 ;R56:	<escritura> ::= printf <exp>
 	POP DWORD ECX

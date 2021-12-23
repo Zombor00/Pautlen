@@ -69,11 +69,13 @@ main:
 ;D:	x
 ;D:	==
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _x
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 0
 ;D:	)
 ;R93:	<comparacion> ::= <exp> == <exp>
@@ -94,11 +96,13 @@ igual_fin_1:
 ;D:	y
 ;D:	==
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _y
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 0
 ;D:	)
 ;R93:	<comparacion> ::= <exp> == <exp>
@@ -124,11 +128,13 @@ igual_fin_2:
 ;D:	z
 ;D:	==
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _z
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 0
 ;D:	)
 ;R93:	<comparacion> ::= <exp> == <exp>
@@ -160,6 +166,7 @@ igual_fin_3:
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 0
 ;D:	;
 ;R56:	<escritura> ::= printf <exp>
@@ -183,11 +190,13 @@ fin_then_4:
 ;D:	x
 ;D:	>
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _x
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 0
 ;D:	)
 ;R98:	<comparacion> ::= <exp> > <exp>
@@ -208,11 +217,13 @@ mayor_fin_5:
 ;D:	y
 ;D:	>
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _y
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 0
 ;D:	)
 ;R98:	<comparacion> ::= <exp> > <exp>
@@ -245,11 +256,13 @@ mayor_fin_6:
 ;D:	z
 ;D:	>
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _z
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 0
 ;D:	)
 ;R98:	<comparacion> ::= <exp> > <exp>
@@ -276,6 +289,7 @@ mayor_fin_8:
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 1
 ;D:	;
 ;R56:	<escritura> ::= printf <exp>
@@ -298,6 +312,7 @@ fin_then_9:
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 5
 ;D:	;
 ;R56:	<escritura> ::= printf <exp>
@@ -326,11 +341,13 @@ fin_then_7:
 ;D:	x
 ;D:	<
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _x
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 0
 ;D:	)
 ;R97:	<comparacion> ::= <exp> < <exp>
@@ -351,11 +368,13 @@ menor_fin_10:
 ;D:	y
 ;D:	>
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _y
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 0
 ;D:	)
 ;R98:	<comparacion> ::= <exp> > <exp>
@@ -388,11 +407,13 @@ mayor_fin_11:
 ;D:	z
 ;D:	>
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _z
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 0
 ;D:	)
 ;R98:	<comparacion> ::= <exp> > <exp>
@@ -419,6 +440,7 @@ mayor_fin_13:
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 2
 ;D:	;
 ;R56:	<escritura> ::= printf <exp>
@@ -441,6 +463,7 @@ fin_then_14:
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 6
 ;D:	;
 ;R56:	<escritura> ::= printf <exp>
@@ -469,11 +492,13 @@ fin_then_12:
 ;D:	x
 ;D:	<
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _x
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 0
 ;D:	)
 ;R97:	<comparacion> ::= <exp> < <exp>
@@ -494,11 +519,13 @@ menor_fin_15:
 ;D:	y
 ;D:	<
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _y
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 0
 ;D:	)
 ;R97:	<comparacion> ::= <exp> < <exp>
@@ -531,11 +558,13 @@ menor_fin_16:
 ;D:	z
 ;D:	>
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _z
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 0
 ;D:	)
 ;R98:	<comparacion> ::= <exp> > <exp>
@@ -562,6 +591,7 @@ mayor_fin_18:
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 3
 ;D:	;
 ;R56:	<escritura> ::= printf <exp>
@@ -584,6 +614,7 @@ fin_then_19:
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 7
 ;D:	;
 ;R56:	<escritura> ::= printf <exp>
@@ -612,11 +643,13 @@ fin_then_17:
 ;D:	x
 ;D:	>
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _x
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 0
 ;D:	)
 ;R98:	<comparacion> ::= <exp> > <exp>
@@ -637,11 +670,13 @@ mayor_fin_20:
 ;D:	y
 ;D:	<
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _y
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 0
 ;D:	)
 ;R97:	<comparacion> ::= <exp> < <exp>
@@ -674,11 +709,13 @@ menor_fin_21:
 ;D:	z
 ;D:	>
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _z
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 0
 ;D:	)
 ;R98:	<comparacion> ::= <exp> > <exp>
@@ -705,6 +742,7 @@ mayor_fin_23:
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 4
 ;D:	;
 ;R56:	<escritura> ::= printf <exp>
@@ -727,6 +765,7 @@ fin_then_24:
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 8
 ;D:	;
 ;R56:	<escritura> ::= printf <exp>

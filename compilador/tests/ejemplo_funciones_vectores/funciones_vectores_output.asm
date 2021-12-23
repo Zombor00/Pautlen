@@ -86,6 +86,7 @@ segment .text
 ;R2:	<declaraciones> ::= <declaracion>
 ;R28:	<declaraciones_funcion> ::= <declaraciones>
 ;R:	<fn_declaration> ::= <fn_name> ( <parametros> ) { <declaraciones_funcion>
+; declararFuncion:
 or:
 	PUSH DWORD EBP
 	MOV DWORD EBP, ESP
@@ -94,11 +95,13 @@ or:
 ;D:	b1
 ;D:	||
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribirParametro:
 	LEA EAX, [EBP + 16]
 	PUSH DWORD EAX
 ;D:	b2
 ;D:	||
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribirParametro:
 	LEA EAX, [EBP + 12]
 	PUSH DWORD EAX
 ;R78:	<exp> ::= <exp> || <exp>
@@ -113,6 +116,7 @@ or:
 ;D:	b3
 ;D:	;
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribirParametro:
 	LEA EAX, [EBP + 8]
 	PUSH DWORD EAX
 ;R78:	<exp> ::= <exp> || <exp>
@@ -123,8 +127,10 @@ or:
 	OR EAX, EBX
 	PUSH DWORD EAX
 ;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
+; escribirVariableLocal:
 	LEA EAX, [EBP - 4]
 	PUSH DWORD EAX
+; asignarDestinoEnPila:
 	POP DWORD EAX
 	POP DWORD EBX
 	MOV DWORD [EAX], EBX
@@ -134,6 +140,7 @@ or:
 ;D:	a
 ;D:	;
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribirVariableLocal:
 	LEA EAX, [EBP - 4]
 	PUSH DWORD EAX
 ;R61:	<retorno_funcion> ::= return <exp>
@@ -160,9 +167,11 @@ main:
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 0
 ;D:	]
 ;R48:	<elemento_vector> ::= TOK_IDENTIFICADOR [ <exp> ]
+; escribir_elemento_vector:
 	POP DWORD EAX
 	CMP EAX, 0
 	JL NEAR fin_indice_fuera_rango
@@ -176,9 +185,11 @@ main:
 ;R103:	<constante_logica> ::= false
 ;R99:	<constante> ::= <constante_logica>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 0
 ;D:	;
 ;R44:	<asignacion> ::= <elemento_vector> = <exp>
+; asignarDestinoEnPilaVector:
 	POP DWORD EBX
 	POP DWORD EAX
 	MOV DWORD [EAX], EBX
@@ -190,9 +201,11 @@ main:
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 1
 ;D:	]
 ;R48:	<elemento_vector> ::= TOK_IDENTIFICADOR [ <exp> ]
+; escribir_elemento_vector:
 	POP DWORD EAX
 	CMP EAX, 0
 	JL NEAR fin_indice_fuera_rango
@@ -202,13 +215,15 @@ main:
 	LEA EAX, [EDX + EAX*4]
 	PUSH DWORD EAX
 ;D:	=
-;D:	false
-;R103:	<constante_logica> ::= false
+;D:	true
+;R102:	<constante_logica> ::= true
 ;R99:	<constante> ::= <constante_logica>
 ;R81:	<exp> ::= <constante>
-	PUSH DWORD 0
+; escribir_operando:
+	PUSH DWORD 1
 ;D:	;
 ;R44:	<asignacion> ::= <elemento_vector> = <exp>
+; asignarDestinoEnPilaVector:
 	POP DWORD EBX
 	POP DWORD EAX
 	MOV DWORD [EAX], EBX
@@ -220,9 +235,11 @@ main:
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 2
 ;D:	]
 ;R48:	<elemento_vector> ::= TOK_IDENTIFICADOR [ <exp> ]
+; escribir_elemento_vector:
 	POP DWORD EAX
 	CMP EAX, 0
 	JL NEAR fin_indice_fuera_rango
@@ -236,9 +253,11 @@ main:
 ;R103:	<constante_logica> ::= false
 ;R99:	<constante> ::= <constante_logica>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 0
 ;D:	;
 ;R44:	<asignacion> ::= <elemento_vector> = <exp>
+; asignarDestinoEnPilaVector:
 	POP DWORD EBX
 	POP DWORD EAX
 	MOV DWORD [EAX], EBX
@@ -255,9 +274,11 @@ main:
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 0
 ;D:	]
 ;R48:	<elemento_vector> ::= TOK_IDENTIFICADOR [ <exp> ]
+; escribir_elemento_vector:
 	POP DWORD EAX
 	CMP EAX, 0
 	JL NEAR fin_indice_fuera_rango
@@ -267,6 +288,10 @@ main:
 	LEA EAX, [EDX + EAX*4]
 	PUSH DWORD EAX
 ;R85:	<exp> ::= <elemento_vector>
+; escribirParametro:
+	POP DWORD EAX
+	MOV DWORD EAX, [EAX]
+	PUSH DWORD EAX
 ;D:	,
 ;D:	vector
 ;D:	[
@@ -274,9 +299,11 @@ main:
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 1
 ;D:	]
 ;R48:	<elemento_vector> ::= TOK_IDENTIFICADOR [ <exp> ]
+; escribir_elemento_vector:
 	POP DWORD EAX
 	CMP EAX, 0
 	JL NEAR fin_indice_fuera_rango
@@ -286,6 +313,10 @@ main:
 	LEA EAX, [EDX + EAX*4]
 	PUSH DWORD EAX
 ;R85:	<exp> ::= <elemento_vector>
+; escribirParametro:
+	POP DWORD EAX
+	MOV DWORD EAX, [EAX]
+	PUSH DWORD EAX
 ;D:	,
 ;D:	vector
 ;D:	[
@@ -293,9 +324,11 @@ main:
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 2
 ;D:	]
 ;R48:	<elemento_vector> ::= TOK_IDENTIFICADOR [ <exp> ]
+; escribir_elemento_vector:
 	POP DWORD EAX
 	CMP EAX, 0
 	JL NEAR fin_indice_fuera_rango
@@ -305,6 +338,10 @@ main:
 	LEA EAX, [EDX + EAX*4]
 	PUSH DWORD EAX
 ;R85:	<exp> ::= <elemento_vector>
+; escribirParametro:
+	POP DWORD EAX
+	MOV DWORD EAX, [EAX]
+	PUSH DWORD EAX
 ;D:	)
 ;R92:	<resto_lista_expresiones> ::= 
 ;R91:	<resto_lista_expresiones> ::= , <exp> <resto_lista_expresiones>
@@ -316,6 +353,7 @@ main:
 	PUSH DWORD EAX
 ;D:	;
 ;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
+; asignar:
 	POP DWORD ECX
 	MOV DWORD [_resultado], ECX
 ;R34:	<sentencia_simple> ::= <asignacion>
@@ -324,6 +362,7 @@ main:
 ;D:	resultado
 ;D:	;
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _resultado
 ;R56:	<escritura> ::= printf <exp>
 	POP DWORD ECX
