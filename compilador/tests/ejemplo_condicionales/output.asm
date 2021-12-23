@@ -160,7 +160,7 @@ igual_fin_3:
 ;R:	<if_exp> ::= if ( <exp> ) {
 	POP DWORD EAX
 	CMP EAX, 0
-	JE NEAR fin_ifthen_4
+	JE NEAR fin_then_4
 ;D:	printf
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
@@ -182,7 +182,7 @@ igual_fin_3:
 ;D:	else
 ;R:	<if_exp_sentencias> ::= <if_exp> <sentencias> }
 	JMP NEAR ifthenelse_fin_4
-else_4:
+fin_then_4:
 ;D:	{
 ;D:	if
 ;D:	(
@@ -249,7 +249,7 @@ mayor_fin_6:
 ;R:	<if_exp> ::= if ( <exp> ) {
 	POP DWORD EAX
 	CMP EAX, 0
-	JE NEAR fin_ifthen_7
+	JE NEAR fin_then_7
 ;D:	if
 ;D:	(
 ;D:	(
@@ -283,7 +283,7 @@ mayor_fin_8:
 ;R:	<if_exp> ::= if ( <exp> ) {
 	POP DWORD EAX
 	CMP EAX, 0
-	JE NEAR fin_ifthen_9
+	JE NEAR fin_then_9
 ;D:	printf
 ;D:	1
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
@@ -305,7 +305,7 @@ mayor_fin_8:
 ;D:	else
 ;R:	<if_exp_sentencias> ::= <if_exp> <sentencias> }
 	JMP NEAR ifthenelse_fin_9
-else_9:
+fin_then_9:
 ;D:	{
 ;D:	printf
 ;D:	5
@@ -333,7 +333,7 @@ ifthenelse_fin_9:
 ;R30:	<sentencias> ::= <sentencia>
 ;D:	if
 ;R50:	<condicional> ::= if ( <exp> ) { <sentencias> }
-fin_ifthen_7:
+fin_then_7:
 ;R40:	<bloque> ::= <condicional>
 ;R33:	<sentencia> ::= <bloque>
 ;D:	(
@@ -400,7 +400,7 @@ mayor_fin_11:
 ;R:	<if_exp> ::= if ( <exp> ) {
 	POP DWORD EAX
 	CMP EAX, 0
-	JE NEAR fin_ifthen_12
+	JE NEAR fin_then_12
 ;D:	if
 ;D:	(
 ;D:	(
@@ -434,7 +434,7 @@ mayor_fin_13:
 ;R:	<if_exp> ::= if ( <exp> ) {
 	POP DWORD EAX
 	CMP EAX, 0
-	JE NEAR fin_ifthen_14
+	JE NEAR fin_then_14
 ;D:	printf
 ;D:	2
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
@@ -456,7 +456,7 @@ mayor_fin_13:
 ;D:	else
 ;R:	<if_exp_sentencias> ::= <if_exp> <sentencias> }
 	JMP NEAR ifthenelse_fin_14
-else_14:
+fin_then_14:
 ;D:	{
 ;D:	printf
 ;D:	6
@@ -484,7 +484,7 @@ ifthenelse_fin_14:
 ;R30:	<sentencias> ::= <sentencia>
 ;D:	if
 ;R50:	<condicional> ::= if ( <exp> ) { <sentencias> }
-fin_ifthen_12:
+fin_then_12:
 ;R40:	<bloque> ::= <condicional>
 ;R33:	<sentencia> ::= <bloque>
 ;D:	(
@@ -551,7 +551,7 @@ menor_fin_16:
 ;R:	<if_exp> ::= if ( <exp> ) {
 	POP DWORD EAX
 	CMP EAX, 0
-	JE NEAR fin_ifthen_17
+	JE NEAR fin_then_17
 ;D:	if
 ;D:	(
 ;D:	(
@@ -585,7 +585,7 @@ mayor_fin_18:
 ;R:	<if_exp> ::= if ( <exp> ) {
 	POP DWORD EAX
 	CMP EAX, 0
-	JE NEAR fin_ifthen_19
+	JE NEAR fin_then_19
 ;D:	printf
 ;D:	3
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
@@ -607,7 +607,7 @@ mayor_fin_18:
 ;D:	else
 ;R:	<if_exp_sentencias> ::= <if_exp> <sentencias> }
 	JMP NEAR ifthenelse_fin_19
-else_19:
+fin_then_19:
 ;D:	{
 ;D:	printf
 ;D:	7
@@ -635,7 +635,7 @@ ifthenelse_fin_19:
 ;R30:	<sentencias> ::= <sentencia>
 ;D:	if
 ;R50:	<condicional> ::= if ( <exp> ) { <sentencias> }
-fin_ifthen_17:
+fin_then_17:
 ;R40:	<bloque> ::= <condicional>
 ;R33:	<sentencia> ::= <bloque>
 ;D:	(
@@ -702,7 +702,7 @@ menor_fin_21:
 ;R:	<if_exp> ::= if ( <exp> ) {
 	POP DWORD EAX
 	CMP EAX, 0
-	JE NEAR fin_ifthen_22
+	JE NEAR fin_then_22
 ;D:	if
 ;D:	(
 ;D:	(
@@ -736,7 +736,7 @@ mayor_fin_23:
 ;R:	<if_exp> ::= if ( <exp> ) {
 	POP DWORD EAX
 	CMP EAX, 0
-	JE NEAR fin_ifthen_24
+	JE NEAR fin_then_24
 ;D:	printf
 ;D:	4
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
@@ -758,7 +758,7 @@ mayor_fin_23:
 ;D:	else
 ;R:	<if_exp_sentencias> ::= <if_exp> <sentencias> }
 	JMP NEAR ifthenelse_fin_24
-else_24:
+fin_then_24:
 ;D:	{
 ;D:	printf
 ;D:	8
@@ -786,7 +786,7 @@ ifthenelse_fin_24:
 ;R30:	<sentencias> ::= <sentencia>
 ;D:	}
 ;R50:	<condicional> ::= if ( <exp> ) { <sentencias> }
-fin_ifthen_22:
+fin_then_22:
 ;R40:	<bloque> ::= <condicional>
 ;R33:	<sentencia> ::= <bloque>
 ;R30:	<sentencias> ::= <sentencia>

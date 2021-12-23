@@ -53,7 +53,7 @@ valgrind_funciones: all
 nasm_condicionales: run_condicionales
 	$(NASM) tests/ejemplo_condicionales/condicionales.o $(NASMFLAGS) tests/ejemplo_condicionales/output.asm
 	$(CC) $(CFLAGS) -m32 -o tests/ejemplo_condicionales/condicionales tests/ejemplo_condicionales/condicionales.o lib/alfalib.o
-	./condicionales
+	./tests/ejemplo_condicionales/condicionales
 
 clean:
 	@rm -rvf $(BIN) $(OBJ) lex.yy.c lex.yy.o y.tab.h y.tab.c y.tab.o y.output alfa
