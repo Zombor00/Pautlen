@@ -45,7 +45,6 @@ value *get(char *name, hash_table *ht)
     tuple_found = ht->tuples[hash_val];
     if (tuple_found == NULL)
     {
-      printf("%s", name);
       return NULL;
     }
     else if (strcmp(tuple_found->name, name) == 0)

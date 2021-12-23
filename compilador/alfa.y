@@ -120,13 +120,14 @@ void yyerror(const char * s);
 
 programa:                 inicioTabla TOK_MAIN TOK_LLAVEIZQUIERDA declaraciones escritura_TS funciones escritura_main sentencias TOK_LLAVEDERECHA
                               {
-                                fprintf(yyout, ";R1:\t<programa> ::= main { <declaraciones> <funciones> <sentencias> }\n");
+                                fprintf(yyout, ";R1:\t<programa> ::= <inicioTabla> main { <declaraciones> <escritura_TS> <funciones> <escritura_main> <sentencias> }\n");
 
                                 escribir_fin(yyout);
                                 wipe(tabla_global);
                               }
                           ;
 inicioTabla:                /* empty */ {
+                                fprintf(yyout, ";R:\t<inicioTabla>:\n");
                                 /*Creamos la tabla global*/
                                 tabla_global = create_table();
                                 if (tabla_global == NULL)
@@ -138,6 +139,7 @@ inicioTabla:                /* empty */ {
                           ;
 
 escritura_TS:                 {
+                                fprintf(yyout, ";R:\t<escritura_TS>:\n");
                                 //Aqui tenemos que crear la cabecera del segmento BSS y el de datos
                                 escribir_cabecera_bss(yyout);
 
@@ -150,7 +152,10 @@ escritura_TS:                 {
                                 escribir_segmento_codigo(yyout);
                               }
                           ;
-escritura_main:               {escribir_inicio_main(yyout);}
+escritura_main:               {
+                                fprintf(yyout, ";R:\t<escritura_main>:\n");
+                                escribir_inicio_main(yyout);
+                              }
                           ;
 
 declaraciones:            declaracion
@@ -202,8 +207,44 @@ funciones:                funcion funciones
                           |   /* vacío */
                               {fprintf(yyout,";R21:\t<funciones> ::= \n");}
                           ;
+funcion:                  fn_declaration sentencias TOK_LLAVEDERECHA
+                              {
+                                fprintf(yyout,";R22:\t<funcion> ::=  <fn_declaration> <sentencias> }\n");
+                                /*Hay que comprobar que haya un return y que el tipo del retorno sea = tipo de la variable retornada por la funcion*/
+                                if(existe_retorno == FALSE){
+                                  error_semantico(FUNC_NO_RETURN, NULL);
+                                  return -1;
+                                }
+                                val = get($1.nombre, tabla_global);
+                                if(val == NULL){
+                                  error_semantico(VARIABLE_NO_DECLARADA, $1.nombre);
+                                  return -1;
+                                }
+
+                                wipe(tabla_local);
+                                ambito = GLOBAL;
+                                set($1.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, num_variables_locales_actual, NO_CHANGE, tabla_global);
+                                existe_retorno = FALSE;
+                              }
+                          ;
+fn_declaration:           fn_name TOK_PARENTESISIZQUIERDO parametros_funcion TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA declaraciones_funcion
+                              {
+                                fprintf(yyout,";R:\t<fn_declaration> ::= <fn_name> ( <parametros> ) { <declaraciones_funcion>\n");
+
+                                strcpy($$.nombre, $1.nombre);
+                                res = set($1.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, num_variables_locales_actual, NO_CHANGE, tabla_local);
+                                if(res == ERROR){
+                                  error_semantico(VARIABLE_NO_DECLARADA, $1.nombre);
+                                  return -1;
+                                }
+                                declararFuncion(yyout, $1.nombre, num_variables_locales_actual);
+                              }
+                          ;
+
 fn_name:                  TOK_FUNCTION tipo identificador
                               {
+                                fprintf(yyout,";R:\t<fn_name> ::= function <tipo> <identificador>\n");
+
                                 if(ambito == LOCAL){
                                   error_semantico(VAR_LOCAL_NO_ESCALAR, NULL);
                                   return -1;
@@ -236,39 +277,6 @@ fn_name:                  TOK_FUNCTION tipo identificador
                                 }
                               }
                           ;
-
-fn_declaration:           fn_name TOK_PARENTESISIZQUIERDO parametros_funcion TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA declaraciones_funcion
-                              {
-                                strcpy($$.nombre, $1.nombre);
-                                res = set($1.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, num_variables_locales_actual, NO_CHANGE, tabla_local);
-                                if(res == ERROR){
-                                  error_semantico(VARIABLE_NO_DECLARADA, $1.nombre);
-                                  return -1;
-                                }
-                                declararFuncion(yyout, $1.nombre, num_variables_locales_actual);
-                              }
-                          ;
-funcion:                  fn_declaration sentencias TOK_LLAVEDERECHA
-                              {
-                                fprintf(yyout,";R22:\t<funcion> ::= function <tipo> <identificador> ( <parametros_funcion> ) { <declaraciones_funcion> <sentencias> }\n");
-                                /*Hay que comprobar que haya un return y que el tipo del retorno sea = tipo de la variable retornada por la funcion*/
-                                if(existe_retorno == FALSE){
-                                  error_semantico(FUNC_NO_RETURN, NULL);
-                                  return -1;
-                                }
-                                val = get($1.nombre, tabla_global);
-                                if(val == NULL){
-                                  error_semantico(VARIABLE_NO_DECLARADA, $1.nombre);
-                                  return -1;
-                                }
-
-                                wipe(tabla_local);
-                                ambito = GLOBAL;
-                                set($1.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, num_variables_locales_actual, NO_CHANGE, tabla_global);
-                                existe_retorno = FALSE;
-                              }
-                          ;
-
 parametros_funcion:       parametro_funcion resto_parametros_funcion
                               {fprintf(yyout,";R23:\t<parametros_funcion> ::= <parametro_funcion> <resto_parametros_funcion>\n");}
                           |   /* vacío */
@@ -284,6 +292,8 @@ parametro_funcion:        tipo idpf
                           ;
 idpf:                     TOK_IDENTIFICADOR
                             {
+                              fprintf(yyout,";R:\t<idpf> ::= TOK_IDENTIFICADOR\n");
+
                               if(clase_actual == VECTOR){
                                 error_semantico(PARAM_ES_FUNC, NULL);
                                 return -1;
@@ -328,7 +338,7 @@ bloque:                   condicional
                           ;
 asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                               {
-                                fprintf(yyout,";R43:\t<asignacion> ::= <identificador> = <exp>\n");
+                                fprintf(yyout,";R43:\t<asignacion> ::= TOK_IDENTIFICADOR = <exp>\n");
                                 if(ambito == LOCAL){
                                   val = get($1.nombre, tabla_local);
                                 } else {
@@ -357,7 +367,7 @@ asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                           ;
 elemento_vector:          TOK_IDENTIFICADOR TOK_CORCHETEIZQUIERDO exp TOK_CORCHETEDERECHO
                               {
-                                fprintf(yyout,";R48:\t<elemento_vector> ::= <identificador> [ <exp> ]\n");
+                                fprintf(yyout,";R48:\t<elemento_vector> ::= TOK_IDENTIFICADOR [ <exp> ]\n");
                                 if(ambito == LOCAL){
                                   val = get($1.nombre, tabla_local);
                                 } else {
@@ -397,12 +407,16 @@ condicional:              if_exp sentencias TOK_LLAVEDERECHA
                           ;
 if_exp_sentencias:        if_exp sentencias TOK_LLAVEDERECHA
                               {
+                                fprintf(yyout,";R:\t<if_exp_sentencias> ::= <if_exp> <sentencias> }\n");
+
                                 $$.etiqueta = $1.etiqueta;
                                 ifthenelse_fin_then(yyout, $1.etiqueta);
                               }
                           ;
 if_exp:                   TOK_IF TOK_PARENTESISDERECHO exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA
                               {
+                                fprintf(yyout,";R:\t<if_exp> ::= if ( <exp> ) {\n");
+
                                 if($3.tipo != BOOLEAN){
                                   error_semantico(CONDICIONAL_INT, NULL);
                                 }
@@ -412,12 +426,14 @@ if_exp:                   TOK_IF TOK_PARENTESISDERECHO exp TOK_PARENTESISDERECHO
                           ;
 bucle:                    while_exp sentencias TOK_LLAVEDERECHA
                               {
-                                fprintf(yyout,";R52:\t<bucle> ::= while ( <exp> ) { <sentencias> }\n");
+                                fprintf(yyout,";R52:\t<bucle> ::= <while_exp> <sentencias> }\n");
                                 while_fin(yyout, $1.etiqueta);
                               }
                           ;
 while_exp:                while exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA
                               {
+                                fprintf(yyout,";R:\t<while_exp> ::= <while> <exp> ) } \n");
+
                                 if($2.tipo != BOOLEAN){
                                   error_semantico(CONDICIONAL_INT, NULL);
                                   return -1;
@@ -428,19 +444,20 @@ while_exp:                while exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA
                           ;
 while:                    TOK_WHILE TOK_PARENTESISIZQUIERDO
                               {
+                                fprintf(yyout,";R:\t<while> ::= while (\n");
                                 $$.etiqueta = etiqueta++;
                                 while_inicio(yyout, $$.etiqueta);
                               }
                           ;
 lectura:                  TOK_SCANF TOK_IDENTIFICADOR
                               {
-                                fprintf(yyout,";R54:\t<lectura> ::= scanf <identificador>\n");
+                                fprintf(yyout,";R54:\t<lectura> ::= scanf TOK_IDENTIFICADOR");
                                 val_global = get($2.nombre, tabla_global);
                                 val_local = NULL;
                                 if(ambito == LOCAL){
                                  val_local = get($2.nombre, tabla_local);
                                 }
-                                if(val_local == NULL && val_global == NULL){
+                                if(val_global == NULL && val_local == NULL){
                                   error_semantico(VARIABLE_NO_DECLARADA, $2.nombre);
                                   return -1;
                                 } else if(val_local) { //Si la encontramos en la tabla local
@@ -603,12 +620,12 @@ exp:                      exp TOK_MAS exp
                               }
                           |   TOK_IDENTIFICADOR
                               {
-                                fprintf(yyout,";R80:\t<exp> ::= <identificador>\n");
+                                fprintf(yyout,";R80:\t<exp> ::= TOK_IDENTIFICADOR\n");
                                 val_local = NULL;
                                 if(ambito == LOCAL){
                                   val_local = get($1.nombre, tabla_local);
                                 }
-                                
+
                                 val_global = get($1.nombre, tabla_global);
                                 if(val_local == NULL && val_global == NULL){
                                   error_semantico(VARIABLE_NO_DECLARADA, $1.nombre);
@@ -679,7 +696,7 @@ exp:                      exp TOK_MAS exp
                               }
                           |   idf_llamada_funcion TOK_PARENTESISIZQUIERDO lista_expresiones TOK_PARENTESISDERECHO
                               {
-                                fprintf(yyout,";R88:\t<exp> ::= <identificador> ( <lista_expresiones> )\n");
+                                fprintf(yyout,";R88:\t<exp> ::= <idf_llamada_funcion> ( <lista_expresiones> )\n");
                                 val = get($1.nombre, tabla_global);
                                 if(val->num_params == num_parametros_llamada_actual){
                                   llamarFuncion(yyout, $1.nombre, num_parametros_llamada_actual);
@@ -694,6 +711,8 @@ exp:                      exp TOK_MAS exp
                           ;
 idf_llamada_funcion:      TOK_IDENTIFICADOR
                               {
+                                fprintf(yyout,";R:\t<idf_llamada_funcion> ::= TOK_IDENTIFICADOR\n");
+
                                 val = get($1.nombre, tabla_global);
                                 if(val == NULL){
                                   error_semantico(VARIABLE_NO_DECLARADA, $1.nombre);
