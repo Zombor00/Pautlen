@@ -244,11 +244,7 @@ main:
 	MOV DWORD [EAX], EBX
 ;R34:	<sentencia_simple> ::= <asignacion>
 ;R32:	<sentencia> ::= <sentencia_simple> ;
-;D:	resultado
-;D:	=
-;D:	or
-;D:	(
-;R:	<idf_llamada_funcion> ::= TOK_IDENTIFICADOR
+;D:	printf
 ;D:	vector
 ;D:	[
 ;D:	0
@@ -267,64 +263,7 @@ main:
 	LEA EAX, [EDX + EAX*4]
 	PUSH DWORD EAX
 ;R85:	<exp> ::= <elemento_vector>
-;D:	,
-;D:	vector
-;D:	[
-;D:	1
-;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-;R100:	<constante> ::= <constante_entera>
-;R81:	<exp> ::= <constante>
-	PUSH DWORD 1
-;D:	]
-;R48:	<elemento_vector> ::= TOK_IDENTIFICADOR [ <exp> ]
-	POP DWORD EAX
-	CMP EAX, 0
-	JL NEAR fin_indice_fuera_rango
-	CMP EAX, 2
-	JG NEAR fin_indice_fuera_rango
-	MOV DWORD EDX, _vector
-	LEA EAX, [EDX + EAX*4]
-	PUSH DWORD EAX
-;R85:	<exp> ::= <elemento_vector>
-;D:	,
-;D:	vector
-;D:	[
-;D:	2
-;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
-;R100:	<constante> ::= <constante_entera>
-;R81:	<exp> ::= <constante>
-	PUSH DWORD 2
-;D:	]
-;R48:	<elemento_vector> ::= TOK_IDENTIFICADOR [ <exp> ]
-	POP DWORD EAX
-	CMP EAX, 0
-	JL NEAR fin_indice_fuera_rango
-	CMP EAX, 2
-	JG NEAR fin_indice_fuera_rango
-	MOV DWORD EDX, _vector
-	LEA EAX, [EDX + EAX*4]
-	PUSH DWORD EAX
-;R85:	<exp> ::= <elemento_vector>
-;D:	)
-;R92:	<resto_lista_expresiones> ::= 
-;R91:	<resto_lista_expresiones> ::= , <exp> <resto_lista_expresiones>
-;R91:	<resto_lista_expresiones> ::= , <exp> <resto_lista_expresiones>
-;R89:	<lista_expresiones> ::= <exp> <resto_lista_expresiones>
-;R88:	<exp> ::= <idf_llamada_funcion> ( <lista_expresiones> )
-	CALL or
-	ADD ESP, 12
-	PUSH DWORD EAX
-;D:	;
-;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
-	POP DWORD ECX
-	MOV DWORD [_resultado], ECX
-;R34:	<sentencia_simple> ::= <asignacion>
-;R32:	<sentencia> ::= <sentencia_simple> ;
-;D:	printf
 ;D:	resultado
-;D:	;
-;R80:	<exp> ::= TOK_IDENTIFICADOR
-	PUSH DWORD _resultado
 ;R56:	<escritura> ::= printf <exp>
 	POP DWORD ECX
 	MOV DWORD ECX, [ECX]
@@ -334,26 +273,3 @@ main:
 	CALL print_endofline
 	ADD ESP, 4
 ;R36:	<sentencia_simple> ::= <escritura>
-;R32:	<sentencia> ::= <sentencia_simple> ;
-;D:	}
-;R30:	<sentencias> ::= <sentencia>
-;R31:	<sentencias> ::= <sentencia> <sentencias>
-;R31:	<sentencias> ::= <sentencia> <sentencias>
-;R31:	<sentencias> ::= <sentencia> <sentencias>
-;R31:	<sentencias> ::= <sentencia> <sentencias>
-;R1:	<programa> ::= <inicioTabla> main { <declaraciones> <escritura_TS> <funciones> <escritura_main> <sentencias> }
-fin:
-	MOV DWORD ESP, [__esp]
-	ret
-div_0:
-	PUSH DWORD _err_div_0
-	CALL print_string
-	ADD ESP, 4
-	CALL print_endofline
-	JMP fin
-fin_indice_fuera_rango:
-	PUSH DWORD _err_indice_fuera_rango
-	CALL print_string
-	ADD ESP, 4
-	CALL print_endofline
-	JMP fin
