@@ -147,7 +147,6 @@ escritura_TS:                 {
                                 for(i = 0; i < tabla_global->n_elems; i++){
                                   declarar_variable(yyout, contents[i]->name, contents[i]->val->basic_type, contents[i]->val->size);
                                 }
-
                                 escribir_subseccion_data(yyout);
                                 escribir_segmento_codigo(yyout);
                               }
@@ -413,7 +412,7 @@ if_exp_sentencias:        if_exp sentencias TOK_LLAVEDERECHA
                                 ifthenelse_fin_then(yyout, $1.etiqueta);
                               }
                           ;
-if_exp:                   TOK_IF TOK_PARENTESISDERECHO exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA
+if_exp:                   TOK_IF TOK_PARENTESISIZQUIERDO exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA
                               {
                                 fprintf(yyout,";R:\t<if_exp> ::= if ( <exp> ) {\n");
 

@@ -43,7 +43,7 @@ struct Value
 
 struct Tuple
 {
-  char *name;
+  char name[100];
   value *val;
 };
 

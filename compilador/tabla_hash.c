@@ -91,7 +91,7 @@ int insert(char *name, int element_category, int basic_type, int category,
 
       /*Creamos la tupla*/
       tuple_new = (tuple*)malloc(sizeof(tuple));
-      tuple_new->name = name;
+      strcpy(tuple_new->name, name);
       tuple_new->val = val;
       ht->tuples[hash_val] = tuple_new;
       ht->n_elems += 1;
