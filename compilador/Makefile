@@ -12,7 +12,7 @@ FLEXFLAGS =
 
 BISONFLAGS = -dyv
 
-NASMFLAGS = -f -elf32
+NASMFLAGS = -f elf32
 
 OBJ = tabla_hash.o generacion.o compilador.o
 
