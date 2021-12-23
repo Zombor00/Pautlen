@@ -820,9 +820,9 @@ void escribir_elemento_vector(FILE *fpasm, char *nombre_vector,
 }
 
 
-void declararFuncion(FILE *fd_asm, char *nombre_funcion, int num_var_loc)
+void declararFuncion(FILE *fd_asm, char *nombre_funcion, int num_params)
 {
-  if (fd_asm == NULL || nombre_funcion == NULL || num_var_loc < 0)
+  if (fd_asm == NULL || nombre_funcion == NULL || num_params < 0)
   {
     printf("Error al declararFuncion");
     exit(1);
@@ -830,7 +830,7 @@ void declararFuncion(FILE *fd_asm, char *nombre_funcion, int num_var_loc)
   fprintf(fd_asm, "%s:\n", nombre_funcion);
   fprintf(fd_asm, "\tPUSH DWORD EBP\n");
   fprintf(fd_asm, "\tMOV DWORD EBP, ESP\n");
-  fprintf(fd_asm, "\tSUB ESP, %d\n", 4 * num_var_loc);
+  fprintf(fd_asm, "\tSUB ESP, %d\n", 4 * num_params);
 }
 
 void retornarFuncion(FILE *fd_asm, int es_variable)

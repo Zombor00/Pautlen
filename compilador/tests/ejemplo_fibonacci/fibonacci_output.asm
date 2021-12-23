@@ -62,7 +62,7 @@ segment .text
 fibonacci:
 	PUSH DWORD EBP
 	MOV DWORD EBP, ESP
-	SUB ESP, 0
+	SUB ESP, 4
 ;D:	(
 ;D:	(
 ;D:	num1

@@ -238,7 +238,7 @@ fn_declaration:           fn_name TOK_PARENTESISIZQUIERDO parametros_funcion TOK
                                   error_semantico(VARIABLE_NO_DECLARADA, $1.nombre);
                                   return -1;
                                 }
-                                declararFuncion(yyout, $1.nombre, num_variables_locales_actual);
+                                declararFuncion(yyout, $1.nombre, num_parametros_actual);
                               }
                           ;
 

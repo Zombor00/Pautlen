@@ -60,7 +60,7 @@ segment .text
 suma:
 	PUSH DWORD EBP
 	MOV DWORD EBP, ESP
-	SUB ESP, 0
+	SUB ESP, 8
 ;D:	num1
 ;D:	+
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
@@ -126,7 +126,7 @@ main:
 ;D:	suma
 ;D:	(
 ;R:	<idf_llamada_funcion> ::= TOK_IDENTIFICADOR
-;NICE;D:	x
+;D:	x
 ;D:	,
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
 	PUSH DWORD _x
@@ -173,7 +173,7 @@ main:
 ;D:	suma
 ;D:	(
 ;R:	<idf_llamada_funcion> ::= TOK_IDENTIFICADOR
-;NICE;D:	x
+;D:	x
 ;D:	,
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
 	PUSH DWORD _x
@@ -219,7 +219,7 @@ main:
 ;D:	suma
 ;D:	(
 ;R:	<idf_llamada_funcion> ::= TOK_IDENTIFICADOR
-;NICE;D:	10
+;D:	10
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
@@ -265,7 +265,7 @@ main:
 ;D:	suma
 ;D:	(
 ;R:	<idf_llamada_funcion> ::= TOK_IDENTIFICADOR
-;NICE;D:	3
+;D:	3
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>

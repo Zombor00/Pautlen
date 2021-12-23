@@ -49,7 +49,8 @@ main:
 	PUSH DWORD 1
 ;D:	;
 ;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
-	POP DWORD [_y]
+	POP DWORD ECX
+	MOV DWORD [_y], ECX
 ;R34:	<sentencia_simple> ::= <asignacion>
 ;R32:	<sentencia> ::= <sentencia_simple> ;
 ;D:	while
@@ -106,7 +107,8 @@ mayor_fin_2:
 	IMUL DWORD EBX
 	PUSH DWORD EAX
 ;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
-	POP DWORD [_y]
+	POP DWORD ECX
+	MOV DWORD [_y], ECX
 ;R34:	<sentencia_simple> ::= <asignacion>
 ;R32:	<sentencia> ::= <sentencia_simple> ;
 ;D:	x
@@ -129,7 +131,8 @@ mayor_fin_2:
 	SUB EAX, EBX
 	PUSH DWORD EAX
 ;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
-	POP DWORD [_x]
+	POP DWORD ECX
+	MOV DWORD [_x], ECX
 ;R34:	<sentencia_simple> ::= <asignacion>
 ;R32:	<sentencia> ::= <sentencia_simple> ;
 ;D:	}
