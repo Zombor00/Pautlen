@@ -865,8 +865,6 @@ constante_entera:         TOK_CONSTANTE_ENTERA
                                 $$.valor_entero = $1.valor_entero;
                                 $$.tipo = INT;
                                 $$.es_direccion = VALOR_EXPLICITO;
-                                sprintf(str_aux, "%d", $1.valor_entero);
-                                escribir_operando(yyout, str_aux, VALOR_EXPLICITO);
                               }
                           ;
 identificador:            TOK_IDENTIFICADOR

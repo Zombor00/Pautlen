@@ -57,8 +57,5 @@ nasm_condicionales: run_condicionales
 	$(CC) $(CFLAGS) -m32 -o tests/ejemplo_condicionales/condicionales tests/ejemplo_condicionales/condicionales.o lib/alfalib.o
 	./tests/ejemplo_condicionales/condicionales
 
-valgrind_nasm_condicionales:
-	$(VALGRIND) ./tests/ejemplo_condicionales/condicionales
-
 clean:
-	@rm -rvf $(BIN) $(OBJ) lex.yy.c lex.yy.o y.tab.h y.tab.c y.tab.o y.output alfa /tests/ejemplo_condicionales/condicionales /tests/ejemplo_condicionales/condicionales.o
+	@rm -rvf $(BIN) $(OBJ) lex.yy.c lex.yy.o y.tab.h y.tab.c y.tab.o y.output alfa tests/ejemplo_condicionales/condicionales tests/ejemplo_condicionales/condicionales.o
