@@ -48,9 +48,11 @@ segment .text
 ;R5:	<clase> ::= <clase_escalar>
 ;D:	res1
 ;R108:	<identificador> ::= TOK_IDENTIFICADOR
+;pos res1: 1
 ;D:	,
 ;D:	res2
 ;R108:	<identificador> ::= TOK_IDENTIFICADOR
+;pos res2: 2
 ;D:	;
 ;R18:	<identificadores> ::= <identificador>
 ;R19:	<identificadores> ::= <identificador> , <identificadores>
@@ -68,7 +70,8 @@ fibonacci:
 ;D:	num1
 ;D:	==
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
-	PUSH DWORD _num1
+	LEA EAX, [EBP + 8]
+	PUSH DWORD EAX
 ;D:	0
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
@@ -120,7 +123,8 @@ fin_then_2:
 ;D:	num1
 ;D:	==
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
-	PUSH DWORD _num1
+	LEA EAX, [EBP + 8]
+	PUSH DWORD EAX
 ;D:	1
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
@@ -171,10 +175,10 @@ fin_then_4:
 ;D:	fibonacci
 ;D:	(
 ;R:	<idf_llamada_funcion> ::= TOK_IDENTIFICADOR
-;D:	num1
+;NICE;D:	num1
 ;D:	-
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
-	LEA EAX, [EBP + 4]
+	LEA EAX, [EBP + 8]
 	PUSH DWORD EAX
 ;D:	1
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
@@ -192,3 +196,74 @@ fin_then_4:
 ;R92:	<resto_lista_expresiones> ::= 
 ;R89:	<lista_expresiones> ::= <exp> <resto_lista_expresiones>
 ;R88:	<exp> ::= <idf_llamada_funcion> ( <lista_expresiones> )
+	CALL fibonacci
+	ADD ESP, 4
+	PUSH DWORD EAX
+;D:	;
+;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
+	LEA EAX, [EBP - 4]
+	PUSH DWORD EAX
+	POP DWORD EAX
+	POP DWORD EBX
+	MOV DWORD [EAX], EBX
+;R34:	<sentencia_simple> ::= <asignacion>
+;R32:	<sentencia> ::= <sentencia_simple> ;
+;D:	res2
+;D:	=
+;D:	fibonacci
+;D:	(
+;R:	<idf_llamada_funcion> ::= TOK_IDENTIFICADOR
+;NICE;D:	num1
+;D:	-
+;R80:	<exp> ::= TOK_IDENTIFICADOR
+	LEA EAX, [EBP + 8]
+	PUSH DWORD EAX
+;D:	2
+;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
+;R100:	<constante> ::= <constante_entera>
+;R81:	<exp> ::= <constante>
+	PUSH DWORD 2
+;D:	)
+;R73:	<exp> ::= <exp> - <exp>
+	POP DWORD EBX
+	POP DWORD ECX
+	MOV DWORD ECX, [ECX]
+	MOV DWORD EAX, ECX
+	SUB EAX, EBX
+	PUSH DWORD EAX
+;R92:	<resto_lista_expresiones> ::= 
+;R89:	<lista_expresiones> ::= <exp> <resto_lista_expresiones>
+;R88:	<exp> ::= <idf_llamada_funcion> ( <lista_expresiones> )
+	CALL fibonacci
+	ADD ESP, 4
+	PUSH DWORD EAX
+;D:	;
+;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
+	LEA EAX, [EBP - 8]
+	PUSH DWORD EAX
+	POP DWORD EAX
+	POP DWORD EBX
+	MOV DWORD [EAX], EBX
+;R34:	<sentencia_simple> ::= <asignacion>
+;R32:	<sentencia> ::= <sentencia_simple> ;
+;D:	return
+;D:	res1
+;D:	+
+;R80:	<exp> ::= TOK_IDENTIFICADOR
+	LEA EAX, [EBP - 4]
+	PUSH DWORD EAX
+;D:	res2
+;D:	;
+;R80:	<exp> ::= TOK_IDENTIFICADOR
+	LEA EAX, [EBP - 8]
+	PUSH DWORD EAX
+;R72:	<exp> ::= <exp> + <exp>
+	POP DWORD ECX
+	MOV DWORD ECX, [ECX]
+	MOV DWORD EBX, ECX
+	POP DWORD ECX
+	MOV DWORD ECX, [ECX]
+	MOV DWORD EAX, ECX
+	ADD EAX, EBX
+	PUSH DWORD EAX
+;R61:	<retorno_funcion> ::= return <exp>

@@ -352,7 +352,12 @@ asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                                 if(val){ /*Si encontramos el simbolo en el ambito local / global */
                                   if(val->element_category != FUNCION && val->category == ESCALAR
                                     && val->basic_type == $3.tipo){
-                                      asignar(yyout, $1.nombre, $3.es_direccion);
+                                      if(ambito == LOCAL){
+                                        escribirVariableLocal(yyout, val->pos_local_variable);
+                                        asignarDestinoEnPila(yyout, $3.es_direccion);
+                                      } else {
+                                        asignar(yyout, $1.nombre, $3.es_direccion);
+                                      }
                                   } else {
                                     error_semantico(ASIGN_INCOMPATIBLE, NULL);
                                     return -1;
@@ -654,13 +659,6 @@ exp:                      exp TOK_MAS exp
                                     }else{
                                       escribirVariableLocal(yyout, val_local->pos_local_variable);
                                     }
-
-                                    /*TODO: Check que esto esta mal @Carmen
-                                    if(en_explist == TRUE){
-                                      escribirParametro(yyout, val_local->pos_param, val_local->num_params);
-                                    } else {
-                                      escribir_operando(yyout, $1.nombre, VALOR_REFERENCIA);
-                                    }*/
                                   }
                                 } else {
                                   if(val_global->element_category == FUNCION || val_global->category == VECTOR){
@@ -736,7 +734,6 @@ idf_llamada_funcion:      TOK_IDENTIFICADOR
                                 } else { //Si encuentra la función
                                   if(val->element_category == FUNCION && en_explist == FALSE){
                                     num_parametros_llamada_actual = 0;
-                                    fprintf(yyout,";NICE");
                                     en_explist = TRUE;
                                     strcpy($$.nombre, $1.nombre);
                                   } else {
@@ -888,7 +885,6 @@ identificador:            TOK_IDENTIFICADOR
                               {
                                 fprintf(yyout,";R108:\t<identificador> ::= TOK_IDENTIFICADOR\n");
                                 strcpy($$.nombre, $1.nombre);
-                                pos_variable_local_actual++;
                                 if(clase_actual == ESCALAR){
                                     size = 1;
                                 } else{ //clase_actual == VECTOR
@@ -901,6 +897,7 @@ identificador:            TOK_IDENTIFICADOR
                                 if(ambito == LOCAL){
                                     if(clase_actual == ESCALAR){
                                         res = insert($1.nombre, VARIABLE, tipo_actual, clase_actual, 1, 0, 0, num_variables_locales_actual, pos_variable_local_actual, tabla_local);
+                                        pos_variable_local_actual++;
                                     } else{ //if clase_actual == VECTOR
                                         error_semantico(VAR_LOCAL_NO_ESCALAR, NULL);
                                         return -1;
