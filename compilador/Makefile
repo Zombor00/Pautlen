@@ -22,6 +22,8 @@ FACTORIAL_DIR=$(TESTS)factorial/factorial
 FUNCIONES_DIR=$(TESTS)funciones/funciones
 FIBONACCI_DIR=$(TESTS)fibonacci/fibonacci
 FUNC_VECT_DIR=$(TESTS)funciones_vectores/funciones_vectores
+MAS_DIR=$(TESTS)mas/
+
 
 LIB=lib/alfalib.o
 
@@ -67,6 +69,31 @@ run_factorial: all
 run_funciones_vectores: all
 	$(ALFA) $(FUNC_VECT_DIR).alfa $(FUNC_VECT_DIR)_output.asm
 
+run_mas: all
+	$(ALFA) $(MAS_DIR)uno.alfa $(MAS_DIR)uno_output.asm
+	$(ALFA) $(MAS_DIR)dos.alfa $(MAS_DIR)dos_output.asm
+	$(ALFA) $(MAS_DIR)tres.alfa $(MAS_DIR)tres_output.asm
+	$(ALFA) $(MAS_DIR)cuatro.alfa $(MAS_DIR)cuatro_output.asm
+
+nasm_uno: run_mas
+	$(NASM) $(MAS_DIR)uno.o $(NASMFLAGS) $(MAS_DIR)uno_output.asm
+	$(CC) $(CFLAGS) -m32 -o $(MAS_DIR)uno $(MAS_DIR)uno.o $(LIB)
+	./$(MAS_DIR)uno
+
+nasm_dos: run_mas
+	$(NASM) $(MAS_DIR)dos.o $(NASMFLAGS) $(MAS_DIR)dos_output.asm
+	$(CC) $(CFLAGS) -m32 -o $(MAS_DIR)dos $(MAS_DIR)dos.o $(LIB)
+	./$(MAS_DIR)dos
+
+nasm_tres: run_mas
+	$(NASM) $(MAS_DIR)tres.o $(NASMFLAGS) $(MAS_DIR)tres_output.asm
+	$(CC) $(CFLAGS) -m32 -o $(MAS_DIR)tres $(MAS_DIR)tres.o $(LIB)
+	./$(MAS_DIR)tres
+
+nasm_cuatro: run_mas
+	$(NASM) $(MAS_DIR)cuatro.o $(NASMFLAGS) $(MAS_DIR)cuatro_output.asm
+	$(CC) $(CFLAGS) -m32 -o $(MAS_DIR)cuatro $(MAS_DIR)cuatro.o $(LIB)
+	./$(MAS_DIR)cuatro
 
 valgrind_condicionales: all
 	$(VALGRIND) $(ALFA) $(CONDICIONALES_DIR).alfa $(CONDICIONALES_DIR)_output.asm

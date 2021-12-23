@@ -600,11 +600,12 @@ exp:                      exp TOK_MAS exp
                               }
                           |   exp TOK_AND exp
                               {
-                                fprintf(yyout,";R77:\t<exp> ::= exp> && <exp>\n");
+                                fprintf(yyout,";R77:\t<exp> ::= <exp> && <exp>\n");
                                 if($1.tipo == BOOLEAN && $3.tipo == BOOLEAN){
                                   $$.tipo = BOOLEAN;
                                   $$.valor_entero = $1.valor_entero && $3.valor_entero;
                                   $$.es_direccion = VALOR_EXPLICITO;
+                                  fprintf(yyout, ";mm %d %d\n", $1.es_direccion, $3.es_direccion);
                                   y(yyout, $1.es_direccion, $3.es_direccion);
                                 } else {
                                   error_semantico(OPERACION_LOGICA_INT, NULL);
