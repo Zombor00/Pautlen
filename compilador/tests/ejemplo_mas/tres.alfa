@@ -1,9 +1,23 @@
 main {
-  array int [30] x, y;
   int w, z;
   boolean a, b, c;
+  array int [30] x, y;
+
+  function int suma2 (int num1; int num2)
+	{
+		return num1+num2;
+	}
+
+  function int suma (int z; int w)
+	{
+    x[2] = w + 6/(z+2);
+    printf x[2];
+    return 1;
+  }
+
   w = 3;
   z = 1;
-  x[2] = w + 6/(z+2);
-  printf x[2];
+
+  suma(z,w);
+ 
 }

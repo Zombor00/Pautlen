@@ -345,18 +345,22 @@ bloque:                   condicional
 asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                               {
                                 fprintf(yyout,";R43:\t<asignacion> ::= TOK_IDENTIFICADOR = <exp>\n");
-                                val = NULL;
+                                val_local = NULL;
                                 if(ambito == LOCAL){
-                                  val = get($1.nombre, tabla_local);
+                                  val_local = get($1.nombre, tabla_local);
                                 }
-                                if(val == NULL){
-                                  val = get($1.nombre, tabla_global);
+                                if(val_local == NULL){
+                                  val_global = get($1.nombre, tabla_global);
+                                  val = val_global;
+                                }else{
+                                  val = val_local;
                                 }
+                                
 
                                 if(val){ /*Si encontramos el simbolo en el ambito local / global */
                                   if(val->element_category != FUNCION && val->category == ESCALAR
                                     && val->basic_type == $3.tipo){
-                                      if(ambito == LOCAL){
+                                      if(ambito == LOCAL && val_local != NULL){
                                         fprintf(yyout, "; escribirVariableLocal:\n");
                                         escribirVariableLocal(yyout, val->pos_local_variable);
                                         fprintf(yyout, "; asignarDestinoEnPila:\n");
