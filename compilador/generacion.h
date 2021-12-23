@@ -246,11 +246,12 @@ Según se especifica en el material, es suficiente con utilizar dos registros pa
 tarea.
 */
 
-void declararFuncion(FILE * fd_asm, char * nombre_funcion, int num_params);
+void declararFuncion(FILE * fd_asm, char * nombre_funcion, int num_var_loc);
 /*
 Generación de código para iniciar la declaración de una función.
 Es necesario proporcionar
-Su nombre y número de parametros
+Su nombre
+Su número de variables locales
 */
 
 void retornarFuncion(FILE * fd_asm, int es_variable);
