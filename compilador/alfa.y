@@ -348,7 +348,7 @@ asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                                 if(val == NULL){
                                   val = get($1.nombre, tabla_global);
                                 }
-                                
+
                                 if(val){ /*Si encontramos el simbolo en el ambito local / global */
                                   if(val->element_category != FUNCION && val->category == ESCALAR
                                     && val->basic_type == $3.tipo){
@@ -669,11 +669,11 @@ exp:                      exp TOK_MAS exp
                                   } else {
                                     $$.tipo = val_global->basic_type;
                                     $$.es_direccion = VALOR_REFERENCIA;
+                                    escribir_operando(yyout, $1.nombre, VALOR_REFERENCIA);
                                     if(en_explist == TRUE){
-                                      escribirParametro(yyout, val_global->pos_param, val_global->num_params);
-                                    } else {
-                                      escribir_operando(yyout, $1.nombre, VALOR_REFERENCIA);
-                                    }                                  }
+                                      operandoEnPilaAArgumento(yyout, VALOR_REFERENCIA);
+                                    }
+                                  }
                                 }
                                 strcpy($$.nombre, $1.nombre);
                               }

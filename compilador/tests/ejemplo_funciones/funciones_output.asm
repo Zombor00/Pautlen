@@ -129,12 +129,16 @@ main:
 ;NICE;D:	x
 ;D:	,
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
-	LEA EAX, [EBP + 4]
+	PUSH DWORD _x
+	POP DWORD EAX
+	MOV DWORD EAX, [EAX]
 	PUSH DWORD EAX
 ;D:	y
 ;D:	)
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
-	LEA EAX, [EBP + 4]
+	PUSH DWORD _y
+	POP DWORD EAX
+	MOV DWORD EAX, [EAX]
 	PUSH DWORD EAX
 ;R92:	<resto_lista_expresiones> ::= 
 ;R91:	<resto_lista_expresiones> ::= , <exp> <resto_lista_expresiones>
@@ -172,7 +176,9 @@ main:
 ;NICE;D:	x
 ;D:	,
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
-	LEA EAX, [EBP + 4]
+	PUSH DWORD _x
+	POP DWORD EAX
+	MOV DWORD EAX, [EAX]
 	PUSH DWORD EAX
 ;D:	1
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
@@ -222,7 +228,9 @@ main:
 ;D:	y
 ;D:	)
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
-	LEA EAX, [EBP + 4]
+	PUSH DWORD _y
+	POP DWORD EAX
+	MOV DWORD EAX, [EAX]
 	PUSH DWORD EAX
 ;R92:	<resto_lista_expresiones> ::= 
 ;R91:	<resto_lista_expresiones> ::= , <exp> <resto_lista_expresiones>
