@@ -61,6 +61,7 @@ segment .text
 ;D:	return
 ;R29:	<declaraciones_funcion> ::= 
 ;R:	<fn_declaration> ::= <fn_name> ( <parametros> ) { <declaraciones_funcion>
+; declararFuncion:
 suma:
 	PUSH DWORD EBP
 	MOV DWORD EBP, ESP
@@ -68,11 +69,13 @@ suma:
 ;D:	num1
 ;D:	+
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribirParametro:
 	LEA EAX, [EBP + 12]
 	PUSH DWORD EAX
 ;D:	num2
 ;D:	;
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribirParametro:
 	LEA EAX, [EBP + 8]
 	PUSH DWORD EAX
 ;R72:	<exp> ::= <exp> + <exp>
@@ -105,9 +108,11 @@ main:
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 1
 ;D:	;
 ;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
+; asignar:
 	POP DWORD ECX
 	MOV DWORD [_x], ECX
 ;R34:	<sentencia_simple> ::= <asignacion>
@@ -118,9 +123,11 @@ main:
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 3
 ;D:	;
 ;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
+; asignar:
 	POP DWORD ECX
 	MOV DWORD [_y], ECX
 ;R34:	<sentencia_simple> ::= <asignacion>
@@ -133,14 +140,18 @@ main:
 ;D:	x
 ;D:	,
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _x
+; operandoEnPilaAArgumento:
 	POP DWORD EAX
 	MOV DWORD EAX, [EAX]
 	PUSH DWORD EAX
 ;D:	y
 ;D:	)
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _y
+; operandoEnPilaAArgumento:
 	POP DWORD EAX
 	MOV DWORD EAX, [EAX]
 	PUSH DWORD EAX
@@ -153,6 +164,7 @@ main:
 	PUSH DWORD EAX
 ;D:	;
 ;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
+; asignar:
 	POP DWORD ECX
 	MOV DWORD [_resultado], ECX
 ;R34:	<sentencia_simple> ::= <asignacion>
@@ -161,6 +173,7 @@ main:
 ;D:	resultado
 ;D:	;
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _resultado
 ;R56:	<escritura> ::= printf <exp>
 	POP DWORD ECX
@@ -180,7 +193,9 @@ main:
 ;D:	x
 ;D:	,
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _x
+; operandoEnPilaAArgumento:
 	POP DWORD EAX
 	MOV DWORD EAX, [EAX]
 	PUSH DWORD EAX
@@ -188,6 +203,7 @@ main:
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 1
 ;D:	)
 ;R92:	<resto_lista_expresiones> ::= 
@@ -199,6 +215,7 @@ main:
 	PUSH DWORD EAX
 ;D:	;
 ;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
+; asignar:
 	POP DWORD ECX
 	MOV DWORD [_resultado], ECX
 ;R34:	<sentencia_simple> ::= <asignacion>
@@ -207,6 +224,7 @@ main:
 ;D:	resultado
 ;D:	;
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _resultado
 ;R56:	<escritura> ::= printf <exp>
 	POP DWORD ECX
@@ -227,12 +245,15 @@ main:
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 10
 ;D:	,
 ;D:	y
 ;D:	)
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _y
+; operandoEnPilaAArgumento:
 	POP DWORD EAX
 	MOV DWORD EAX, [EAX]
 	PUSH DWORD EAX
@@ -245,6 +266,7 @@ main:
 	PUSH DWORD EAX
 ;D:	;
 ;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
+; asignar:
 	POP DWORD ECX
 	MOV DWORD [_resultado], ECX
 ;R34:	<sentencia_simple> ::= <asignacion>
@@ -253,6 +275,7 @@ main:
 ;D:	resultado
 ;D:	;
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _resultado
 ;R56:	<escritura> ::= printf <exp>
 	POP DWORD ECX
@@ -273,12 +296,14 @@ main:
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 3
 ;D:	,
 ;D:	5
 ;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
 ;R100:	<constante> ::= <constante_entera>
 ;R81:	<exp> ::= <constante>
+; escribir_operando:
 	PUSH DWORD 5
 ;D:	)
 ;R92:	<resto_lista_expresiones> ::= 
@@ -290,6 +315,7 @@ main:
 	PUSH DWORD EAX
 ;D:	;
 ;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
+; asignar:
 	POP DWORD ECX
 	MOV DWORD [_resultado], ECX
 ;R34:	<sentencia_simple> ::= <asignacion>
@@ -298,6 +324,7 @@ main:
 ;D:	resultado
 ;D:	;
 ;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
 	PUSH DWORD _resultado
 ;R56:	<escritura> ::= printf <exp>
 	POP DWORD ECX

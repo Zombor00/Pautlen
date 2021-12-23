@@ -123,7 +123,11 @@ programa:                 inicioTabla TOK_MAIN TOK_LLAVEIZQUIERDA declaraciones 
                                 fprintf(yyout, ";R1:\t<programa> ::= <inicioTabla> main { <declaraciones> <escritura_TS> <funciones> <escritura_main> <sentencias> }\n");
 
                                 escribir_fin(yyout);
+                                if(ambito == LOCAL){
+                                  wipe(tabla_local);
+                                }
                                 wipe(tabla_global);
+                                return 0;
                               }
                           ;
 inicioTabla:                /* empty */ {
@@ -147,6 +151,8 @@ escritura_TS:                 {
                                 for(i = 0; i < tabla_global->n_elems; i++){
                                   declarar_variable(yyout, contents[i]->name, contents[i]->val->basic_type, contents[i]->val->size);
                                 }
+                                free(contents);
+
                                 escribir_subseccion_data(yyout);
                                 escribir_segmento_codigo(yyout);
                               }
@@ -186,7 +192,7 @@ tipo:                     TOK_INT
                               }
                           |   TOK_BOOLEAN
                               {
-                                {fprintf(yyout,";R11:\t<tipo> ::= boolean\n");}
+                                fprintf(yyout,";R11:\t<tipo> ::= boolean\n");
                                 tipo_actual = BOOLEAN;
                               }
                           ;
@@ -219,8 +225,6 @@ funcion:                  fn_declaration sentencias TOK_LLAVEDERECHA
                                   error_semantico(VARIABLE_NO_DECLARADA, $1.nombre);
                                   return -1;
                                 }
-                                //TODO:falta comprobar el tipo del return
-
                                 wipe(tabla_local);
                                 ambito = GLOBAL;
                                 set($1.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, num_variables_locales_actual, NO_CHANGE, tabla_global);
@@ -238,6 +242,7 @@ fn_declaration:           fn_name TOK_PARENTESISIZQUIERDO parametros_funcion TOK
                                   error_semantico(VARIABLE_NO_DECLARADA, $1.nombre);
                                   return -1;
                                 }
+                                fprintf(yyout, "; declararFuncion:\n");
                                 declararFuncion(yyout, $1.nombre, num_variables_locales_actual);
                               }
                           ;
@@ -352,9 +357,12 @@ asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                                   if(val->element_category != FUNCION && val->category == ESCALAR
                                     && val->basic_type == $3.tipo){
                                       if(ambito == LOCAL){
+                                        fprintf(yyout, "; escribirVariableLocal:\n");
                                         escribirVariableLocal(yyout, val->pos_local_variable);
+                                        fprintf(yyout, "; asignarDestinoEnPila:\n");
                                         asignarDestinoEnPila(yyout, $3.es_direccion);
                                       } else {
+                                        fprintf(yyout, "; asignar:\n");
                                         asignar(yyout, $1.nombre, $3.es_direccion);
                                       }
                                   } else {
@@ -367,6 +375,7 @@ asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                               {
                                 fprintf(yyout,";R44:\t<asignacion> ::= <elemento_vector> = <exp>\n");
                                 if($1.tipo == $3.tipo){
+                                  fprintf(yyout, "; asignarDestinoEnPilaVector:\n");
                                   asignarDestinoEnPilaVector(yyout, $3.es_direccion);
                                 } else {
                                   error_semantico(ASIGN_INCOMPATIBLE, NULL);
@@ -387,6 +396,7 @@ elemento_vector:          TOK_IDENTIFICADOR TOK_CORCHETEIZQUIERDO exp TOK_CORCHE
                                     if($3.tipo == INT){
                                       $$.tipo = val->basic_type;
                                       $$.es_direccion = VALOR_REFERENCIA;
+                                      fprintf(yyout, "; escribir_elemento_vector:\n");
                                       escribir_elemento_vector(yyout, $1.nombre, val->size, $3.es_direccion);
                                     }else{
                                       error_semantico(INDEX_INT, NULL);
@@ -514,13 +524,6 @@ retorno_funcion:          TOK_RETURN exp
                                   error_semantico(VARIABLE_NO_DECLARADA, nombre_funcion_actual);
                                   return -1;
                                 }
-                                /*TODO:THIS NO SENSE: Las direcciones de
-                                    exp siempre tienen
-                                    que ser 0 ó 1.,??
-                                if($2.valor_entero != 0 && $2.valor_entero != 1){
-                                  fprintf(stderr, "Error valor ilegal! en valor_entero");
-                                  return -1;
-                                }*/
                                 if(val->basic_type != $2.tipo){
                                   error_semantico(RETORNO_DIFERENTE_TIPO, NULL);
                                   return -1;
@@ -654,8 +657,10 @@ exp:                      exp TOK_MAS exp
                                     $$.tipo = val_local->basic_type;
                                     $$.es_direccion = VALOR_REFERENCIA;
                                     if(val_local->element_category == PARAMETRO){
+                                      fprintf(yyout, "; escribirParametro:\n");
                                       escribirParametro(yyout, val_local->pos_param, get(nombre_funcion_actual, tabla_global)->num_params);
                                     }else{
+                                      fprintf(yyout, "; escribirVariableLocal:\n");
                                       escribirVariableLocal(yyout, val_local->pos_local_variable);
                                     }
                                   }
@@ -666,8 +671,10 @@ exp:                      exp TOK_MAS exp
                                   } else {
                                     $$.tipo = val_global->basic_type;
                                     $$.es_direccion = VALOR_REFERENCIA;
+                                    fprintf(yyout, "; escribir_operando:\n");
                                     escribir_operando(yyout, $1.nombre, VALOR_REFERENCIA);
                                     if(en_explist == TRUE){
+                                      fprintf(yyout, "; operandoEnPilaAArgumento:\n");
                                       operandoEnPilaAArgumento(yyout, VALOR_REFERENCIA);
                                     }
                                   }
@@ -681,6 +688,7 @@ exp:                      exp TOK_MAS exp
                                 $$.es_direccion = $1.es_direccion;
                                 $$.valor_entero = $1.valor_entero;
                                 sprintf(str_aux, "%d", $1.valor_entero);
+                                fprintf(yyout, "; escribir_operando:\n");
                                 escribir_operando(yyout, str_aux, VALOR_EXPLICITO);
                               }
                           |   TOK_PARENTESISIZQUIERDO exp TOK_PARENTESISDERECHO
@@ -689,6 +697,7 @@ exp:                      exp TOK_MAS exp
                                 $$.tipo = $2.tipo;
                                 $$.es_direccion = $2.es_direccion;
                                 sprintf(str_aux, "%d", $2.valor_entero);
+                                fprintf(yyout, "; escribir_operando:\n");
                                 escribir_operando(yyout, str_aux, VALOR_EXPLICITO);
                               }
                           |   TOK_PARENTESISIZQUIERDO comparacion TOK_PARENTESISDERECHO
@@ -702,13 +711,15 @@ exp:                      exp TOK_MAS exp
                                 fprintf(yyout,";R85:\t<exp> ::= <elemento_vector>\n");
                                 $$.tipo = $1.tipo;
                                 $$.es_direccion = $1.es_direccion;
-                                /*TODO: ??
+
                                 if(en_explist == TRUE){
-                                  escribirParametro(yyout, pos_parametro_actual, num_parametros_actual);
+                                  fprintf(yyout, "; escribirParametro:\n");
+                                  operandoEnPilaAArgumento(yyout, $1.es_direccion);
+                                  //escribirParametro(yyout, pos_parametro_actual, num_parametros_actual);
                                 } else {
+                                  fprintf(yyout, "; escribir_operando:\n");
                                   escribir_operando(yyout, $1.nombre, $1.es_direccion);
                                 }
-                                */
                               }
                           |   idf_llamada_funcion TOK_PARENTESISIZQUIERDO lista_expresiones TOK_PARENTESISDERECHO
                               {
