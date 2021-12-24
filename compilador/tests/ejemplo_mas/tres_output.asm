@@ -177,3 +177,216 @@ suma:
 	PUSH DWORD 2
 ;D:	]
 ;R48:	<elemento_vector> ::= TOK_IDENTIFICADOR [ <exp> ]
+; escribir_elemento_vector:
+	POP DWORD EAX
+	CMP EAX, 0
+	JL NEAR fin_indice_fuera_rango
+	CMP EAX, 29
+	JG NEAR fin_indice_fuera_rango
+	MOV DWORD EDX, _x
+	LEA EAX, [EDX + EAX*4]
+	PUSH DWORD EAX
+;D:	=
+;D:	w
+;D:	+
+;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribirParametro:
+	LEA EAX, [EBP + 8]
+	PUSH DWORD EAX
+;D:	6
+;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
+;R100:	<constante> ::= <constante_entera>
+;R81:	<exp> ::= <constante>
+; escribir_operando:
+	PUSH DWORD 6
+;D:	/
+;D:	(
+;D:	z
+;D:	+
+;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribirParametro:
+	LEA EAX, [EBP + 12]
+	PUSH DWORD EAX
+;D:	2
+;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
+;R100:	<constante> ::= <constante_entera>
+;R81:	<exp> ::= <constante>
+; escribir_operando:
+	PUSH DWORD 2
+;D:	)
+;R72:	<exp> ::= <exp> + <exp>
+	POP DWORD EBX
+	POP DWORD ECX
+	MOV DWORD ECX, [ECX]
+	MOV DWORD EAX, ECX
+	ADD EAX, EBX
+	PUSH DWORD EAX
+;R82:	<exp> ::= ( <exp> )
+;R74:	<exp> ::= <exp> / <exp>
+	POP DWORD EBX
+	POP DWORD EAX
+	CMP EBX, 0
+	JE div_0
+	CDQ
+	IDIV EBX
+	PUSH DWORD EAX
+;D:	;
+;R72:	<exp> ::= <exp> + <exp>
+	POP DWORD EBX
+	POP DWORD ECX
+	MOV DWORD ECX, [ECX]
+	MOV DWORD EAX, ECX
+	ADD EAX, EBX
+	PUSH DWORD EAX
+;R44:	<asignacion> ::= <elemento_vector> = <exp>
+; asignarDestinoEnPilaVector:
+	POP DWORD EBX
+	POP DWORD EAX
+	MOV DWORD [EAX], EBX
+;R34:	<sentencia_simple> ::= <asignacion>
+;R32:	<sentencia> ::= <sentencia_simple> ;
+;D:	printf
+;D:	x
+;D:	[
+;D:	2
+;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
+;R100:	<constante> ::= <constante_entera>
+;R81:	<exp> ::= <constante>
+; escribir_operando:
+	PUSH DWORD 2
+;D:	]
+;R48:	<elemento_vector> ::= TOK_IDENTIFICADOR [ <exp> ]
+; escribir_elemento_vector:
+	POP DWORD EAX
+	CMP EAX, 0
+	JL NEAR fin_indice_fuera_rango
+	CMP EAX, 29
+	JG NEAR fin_indice_fuera_rango
+	MOV DWORD EDX, _x
+	LEA EAX, [EDX + EAX*4]
+	PUSH DWORD EAX
+;R85:	<exp> ::= <elemento_vector>
+;D:	;
+;R56:	<escritura> ::= printf <exp>
+	POP DWORD ECX
+	MOV DWORD ECX, [ECX]
+	MOV DWORD EAX, ECX
+	PUSH DWORD EAX
+	CALL print_int
+	CALL print_endofline
+	ADD ESP, 4
+;R36:	<sentencia_simple> ::= <escritura>
+;R32:	<sentencia> ::= <sentencia_simple> ;
+;D:	return
+;D:	1
+;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
+;R100:	<constante> ::= <constante_entera>
+;R81:	<exp> ::= <constante>
+; escribir_operando:
+	PUSH DWORD 1
+;D:	;
+;R61:	<retorno_funcion> ::= return <exp>
+	POP DWORD EAX
+	MOV DWORD ESP, EBP
+	POP DWORD EBP
+	ret
+;R38:	<sentencia_simple> ::= <retorno_funcion>
+;R32:	<sentencia> ::= <sentencia_simple> ;
+;D:	}
+;R30:	<sentencias> ::= <sentencia>
+;R31:	<sentencias> ::= <sentencia> <sentencias>
+;R31:	<sentencias> ::= <sentencia> <sentencias>
+;R22:	<funcion> ::=  <fn_declaration> <sentencias> }
+;D:	w
+;R21:	<funciones> ::= 
+;R20:	<funciones> ::= <funcion> <funciones>
+;R20:	<funciones> ::= <funcion> <funciones>
+;R:	<escritura_main>:
+main:
+	MOV DWORD [__esp], ESP
+;D:	=
+;D:	3
+;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
+;R100:	<constante> ::= <constante_entera>
+;R81:	<exp> ::= <constante>
+; escribir_operando:
+	PUSH DWORD 3
+;D:	;
+;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
+; asignar:
+	POP DWORD ECX
+	MOV DWORD [_w], ECX
+;R34:	<sentencia_simple> ::= <asignacion>
+;R32:	<sentencia> ::= <sentencia_simple> ;
+;D:	z
+;D:	=
+;D:	1
+;R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA
+;R100:	<constante> ::= <constante_entera>
+;R81:	<exp> ::= <constante>
+; escribir_operando:
+	PUSH DWORD 1
+;D:	;
+;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
+; asignar:
+	POP DWORD ECX
+	MOV DWORD [_z], ECX
+;R34:	<sentencia_simple> ::= <asignacion>
+;R32:	<sentencia> ::= <sentencia_simple> ;
+;D:	w
+;D:	=
+;D:	suma
+;D:	(
+;R:	<idf_llamada_funcion> ::= TOK_IDENTIFICADOR
+;D:	z
+;D:	,
+;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
+	PUSH DWORD _z
+; operandoEnPilaAArgumento:
+	POP DWORD EAX
+	MOV DWORD EAX, [EAX]
+	PUSH DWORD EAX
+;D:	w
+;D:	)
+;R80:	<exp> ::= TOK_IDENTIFICADOR
+; escribir_operando:
+	PUSH DWORD _w
+; operandoEnPilaAArgumento:
+	POP DWORD EAX
+	MOV DWORD EAX, [EAX]
+	PUSH DWORD EAX
+;R92:	<resto_lista_expresiones> ::= 
+;R91:	<resto_lista_expresiones> ::= , <exp> <resto_lista_expresiones>
+;R89:	<lista_expresiones> ::= <exp> <resto_lista_expresiones>
+;R88:	<exp> ::= <idf_llamada_funcion> ( <lista_expresiones> )
+	CALL suma
+	ADD ESP, 8
+	PUSH DWORD EAX
+;D:	;
+;R43:	<asignacion> ::= TOK_IDENTIFICADOR = <exp>
+; asignar:
+	POP DWORD ECX
+	MOV DWORD [_w], ECX
+;R34:	<sentencia_simple> ::= <asignacion>
+;R32:	<sentencia> ::= <sentencia_simple> ;
+;D:	}
+;R30:	<sentencias> ::= <sentencia>
+;R31:	<sentencias> ::= <sentencia> <sentencias>
+;R31:	<sentencias> ::= <sentencia> <sentencias>
+;R1:	<programa> ::= <inicioTabla> main { <declaraciones> <escritura_TS> <funciones> <escritura_main> <sentencias> }
+fin:
+	MOV DWORD ESP, [__esp]
+	ret
+div_0:
+	PUSH DWORD _err_div_0
+	CALL print_string
+	ADD ESP, 4
+	CALL print_endofline
+	JMP fin
+fin_indice_fuera_rango:
+	PUSH DWORD _err_indice_fuera_rango
+	CALL print_string
+	ADD ESP, 4
+	CALL print_endofline
+	JMP fin

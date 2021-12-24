@@ -18,6 +18,6 @@ main {
   w = 3;
   z = 1;
 
-  suma(z,w);
- 
+  w = suma(z,w);
+
 }
