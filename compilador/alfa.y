@@ -628,7 +628,8 @@ exp:                      exp TOK_MAS exp
                                 if($2.tipo == BOOLEAN){
                                   $$.tipo = BOOLEAN;
                                   $$.es_direccion = VALOR_EXPLICITO;
-                                  no(yyout, $2.es_direccion, 1);
+                                  no(yyout, $2.es_direccion, etiqueta);
+                                  etiqueta++;
                                 } else {
                                   error_semantico(OPERACION_LOGICA_INT, NULL);
                                   return -1;
