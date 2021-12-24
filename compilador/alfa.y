@@ -390,11 +390,17 @@ asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
 elemento_vector:          TOK_IDENTIFICADOR TOK_CORCHETEIZQUIERDO exp TOK_CORCHETEDERECHO
                               {
                                 fprintf(yyout,";R48:\t<elemento_vector> ::= TOK_IDENTIFICADOR [ <exp> ]\n");
+                                val_local = NULL;
                                 if(ambito == LOCAL){
-                                  val = get($1.nombre, tabla_local);
-                                } else {
-                                  val = get($1.nombre, tabla_global);
+                                  val_local = get($1.nombre, tabla_local);
                                 }
+                                if(val_local == NULL){
+                                  val_global = get($1.nombre, tabla_global);
+                                  val = val_global;
+                                }else{
+                                  val = val_local;
+                                }
+                                
                                 if(val){
                                   if(val->category == VECTOR){
                                     if($3.tipo == INT){
