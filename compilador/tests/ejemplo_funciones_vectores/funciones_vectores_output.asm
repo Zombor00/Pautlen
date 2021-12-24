@@ -288,7 +288,7 @@ main:
 	LEA EAX, [EDX + EAX*4]
 	PUSH DWORD EAX
 ;R85:	<exp> ::= <elemento_vector>
-; escribirParametro:
+; operandoEnPilaAArgumento:
 	POP DWORD EAX
 	MOV DWORD EAX, [EAX]
 	PUSH DWORD EAX
@@ -313,7 +313,7 @@ main:
 	LEA EAX, [EDX + EAX*4]
 	PUSH DWORD EAX
 ;R85:	<exp> ::= <elemento_vector>
-; escribirParametro:
+; operandoEnPilaAArgumento:
 	POP DWORD EAX
 	MOV DWORD EAX, [EAX]
 	PUSH DWORD EAX
@@ -338,7 +338,7 @@ main:
 	LEA EAX, [EDX + EAX*4]
 	PUSH DWORD EAX
 ;R85:	<exp> ::= <elemento_vector>
-; escribirParametro:
+; operandoEnPilaAArgumento:
 	POP DWORD EAX
 	MOV DWORD EAX, [EAX]
 	PUSH DWORD EAX

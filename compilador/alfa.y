@@ -355,7 +355,7 @@ asignacion:               TOK_IDENTIFICADOR TOK_ASIGNACION exp
                                 }else{
                                   val = val_local;
                                 }
-                                
+
 
                                 if(val){ /*Si encontramos el simbolo en el ambito local / global */
                                   if(val->element_category != FUNCION && val->category == ESCALAR
@@ -541,7 +541,6 @@ exp:                      exp TOK_MAS exp
                               {
                                 fprintf(yyout,";R72:\t<exp> ::= <exp> + <exp>\n");
                                 if($1.tipo == INT && $3.tipo == INT){
-                                  $$.valor_entero = $1.valor_entero + $3.valor_entero;
                                   $$.tipo = INT;
                                   $$.es_direccion = VALOR_EXPLICITO;
                                   sumar(yyout, $1.es_direccion, $3.es_direccion);
@@ -554,7 +553,6 @@ exp:                      exp TOK_MAS exp
                               {
                                 fprintf(yyout,";R73:\t<exp> ::= <exp> - <exp>\n");
                                 if($1.tipo == INT && $3.tipo == INT){
-                                  $$.valor_entero = $1.valor_entero - $3.valor_entero;
                                   $$.tipo = INT;
                                   $$.es_direccion = VALOR_EXPLICITO;
                                   restar(yyout, $1.es_direccion, $3.es_direccion);
@@ -567,7 +565,6 @@ exp:                      exp TOK_MAS exp
                               {
                                 fprintf(yyout,";R74:\t<exp> ::= <exp> / <exp>\n");
                                 if($1.tipo == INT && $3.tipo == INT){
-                                  $$.valor_entero = $1.valor_entero / $3.valor_entero;
                                   $$.tipo = INT;
                                   $$.es_direccion = VALOR_EXPLICITO;
                                   dividir(yyout, $1.es_direccion, $3.es_direccion);
@@ -580,7 +577,6 @@ exp:                      exp TOK_MAS exp
                               {
                                 fprintf(yyout,";R75:\t<exp> ::= <exp> * <exp>\n");
                                 if($1.tipo == INT && $3.tipo == INT){
-                                  $$.valor_entero = $1.valor_entero * $3.valor_entero;
                                   $$.tipo = INT;
                                   $$.es_direccion = VALOR_EXPLICITO;
                                   multiplicar(yyout, $1.es_direccion, $3.es_direccion);
@@ -593,7 +589,6 @@ exp:                      exp TOK_MAS exp
                               {
                                 fprintf(yyout,";R76:\t<exp> ::= - <exp>\n");
                                 if($2.tipo == INT){
-                                  $$.valor_entero = - $2.valor_entero;
                                   $$.tipo = INT;
                                   $$.es_direccion = VALOR_EXPLICITO;
                                   cambiar_signo(yyout, $2.es_direccion);
@@ -607,7 +602,6 @@ exp:                      exp TOK_MAS exp
                                 fprintf(yyout,";R77:\t<exp> ::= <exp> && <exp>\n");
                                 if($1.tipo == BOOLEAN && $3.tipo == BOOLEAN){
                                   $$.tipo = BOOLEAN;
-                                  $$.valor_entero = $1.valor_entero && $3.valor_entero;
                                   $$.es_direccion = VALOR_EXPLICITO;
                                   fprintf(yyout, ";mm %d %d\n", $1.es_direccion, $3.es_direccion);
                                   y(yyout, $1.es_direccion, $3.es_direccion);
@@ -621,7 +615,6 @@ exp:                      exp TOK_MAS exp
                                 fprintf(yyout,";R78:\t<exp> ::= <exp> || <exp>\n");
                                 if($1.tipo == BOOLEAN && $3.tipo == BOOLEAN){
                                   $$.tipo = BOOLEAN;
-                                  $$.valor_entero = $1.valor_entero || $3.valor_entero;
                                   $$.es_direccion = VALOR_EXPLICITO;
                                   o(yyout, $1.es_direccion, $3.es_direccion);
                                 } else {
@@ -634,7 +627,6 @@ exp:                      exp TOK_MAS exp
                                 fprintf(yyout,";R79:\t<exp> ::= ! <exp>\n");
                                 if($2.tipo == BOOLEAN){
                                   $$.tipo = BOOLEAN;
-                                  $$.valor_entero = ! $2.valor_entero;
                                   $$.es_direccion = VALOR_EXPLICITO;
                                   no(yyout, $2.es_direccion, 1);
                                 } else {
@@ -785,7 +777,6 @@ comparacion:              exp TOK_IGUAL exp
                                 fprintf(yyout,";R93:\t<comparacion> ::= <exp> == <exp>\n");
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.tipo = BOOLEAN;
-                                  $$.valor_entero = ($1.valor_entero == $3.valor_entero);
                                   $$.es_direccion = VALOR_EXPLICITO;
                                   igual(yyout, $1.es_direccion, $3.es_direccion, etiqueta);
                                   etiqueta++;
@@ -799,7 +790,6 @@ comparacion:              exp TOK_IGUAL exp
                                 fprintf(yyout,";R94:\t<comparacion> ::= <exp> != <exp>\n");
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.tipo = BOOLEAN;
-                                  $$.valor_entero = ($1.valor_entero != $3.valor_entero);
                                   $$.es_direccion = VALOR_EXPLICITO;
                                   distinto(yyout, $1.es_direccion, $3.es_direccion, etiqueta);
                                   etiqueta++;
@@ -813,7 +803,6 @@ comparacion:              exp TOK_IGUAL exp
                                 fprintf(yyout,";R95:\t<comparacion> ::= <exp> <= <exp>\n");
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.tipo = BOOLEAN;
-                                  $$.valor_entero = ($1.valor_entero <= $3.valor_entero);
                                   $$.es_direccion = VALOR_EXPLICITO;
                                   menor_igual(yyout, $1.es_direccion, $3.es_direccion, etiqueta);
                                   etiqueta++;
@@ -827,7 +816,6 @@ comparacion:              exp TOK_IGUAL exp
                                 fprintf(yyout,";R96:\t<comparacion> ::= <exp> >= <exp>\n");
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.tipo = BOOLEAN;
-                                  $$.valor_entero = ($1.valor_entero >= $3.valor_entero);
                                   $$.es_direccion = VALOR_EXPLICITO;
                                   mayor_igual(yyout, $1.es_direccion, $3.es_direccion, etiqueta);
                                   etiqueta++;
@@ -841,7 +829,6 @@ comparacion:              exp TOK_IGUAL exp
                                 fprintf(yyout,";R97:\t<comparacion> ::= <exp> < <exp>\n");
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.tipo = BOOLEAN;
-                                  $$.valor_entero = ($1.valor_entero < $3.valor_entero);
                                   $$.es_direccion = VALOR_EXPLICITO;
                                   menor(yyout, $1.es_direccion, $3.es_direccion, etiqueta);
                                   etiqueta++;
@@ -855,7 +842,6 @@ comparacion:              exp TOK_IGUAL exp
                                 fprintf(yyout,";R98:\t<comparacion> ::= <exp> > <exp>\n");
                                 if($1.tipo == INT && $3.tipo == INT){
                                   $$.tipo = BOOLEAN;
-                                  $$.valor_entero = ($1.valor_entero > $3.valor_entero);
                                   $$.es_direccion = VALOR_EXPLICITO;
                                   mayor(yyout, $1.es_direccion, $3.es_direccion, etiqueta);
                                   etiqueta++;
