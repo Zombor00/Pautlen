@@ -111,7 +111,8 @@ void yyerror(const char * s);
 %type <atributos> identificador
 
 %left TOK_IGUAL TOK_MENORIGUAL TOK_MENOR TOK_MAYORIGUAL TOK_MAYOR TOK_DISTINTO
-%left TOK_AND TOK_OR
+%left TOK_OR
+%left TOK_AND
 %left TOK_MAS TOK_MENOS
 %left TOK_ASTERISCO TOK_DIVISION
 %right NEG TOK_NOT
