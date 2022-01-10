@@ -217,12 +217,11 @@ funcion:                  fn_declaration sentencias TOK_LLAVEDERECHA
                                 fprintf(yyout,";R22:\t<funcion> ::=  <fn_declaration> <sentencias> }\n");
                                 /*Hay que comprobar que haya un return y que el tipo del retorno sea = tipo de la variable retornada por la funcion*/
                                 if(existe_retorno == FALSE){
-                                  error_semantico(FUNC_NO_RETURN, NULL);
+                                  error_semantico(FUNC_NO_RETURN, $1.nombre);
                                   return -1;
                                 }
                                 val = get($1.nombre, tabla_global);
                                 if(val == NULL){
-                                  error_semantico(FUNC_NO_DECLARADA, $1.nombre);
                                   return -1;
                                 }
                                 wipe(tabla_local);
@@ -239,8 +238,7 @@ fn_declaration:           fn_name TOK_PARENTESISIZQUIERDO parametros_funcion TOK
                                 res = set($1.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, num_variables_locales_actual, NO_CHANGE, tabla_global);
                                 res = set($1.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, num_variables_locales_actual, NO_CHANGE, tabla_local);
                                 if(res == ERROR){
-                                  //TODO: Carmen check
-                                  error_semantico(FUNC_NO_DECLARADA, $1.nombre);
+                                  printf("****Error interno: No se encuentra en la tabla variable que se ha insertado.\n");
                                   return -1;
                                 }
                                 fprintf(yyout, "; declararFuncion:\n");
@@ -425,7 +423,6 @@ elemento_vector:          TOK_IDENTIFICADOR TOK_CORCHETEIZQUIERDO exp TOK_CORCHE
                                     return -1;
                                   }
                                 }else {
-                                  printf("BAD"); 
                                   error_semantico(VARIABLE_NO_DECLARADA, $1.nombre);
                                   return -1;
                                 }
@@ -474,7 +471,7 @@ while_exp:                while exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA
                                 fprintf(yyout,";R:\t<while_exp> ::= <while> <exp> ) } \n");
 
                                 if($2.tipo != BOOLEAN){
-                                  error_semantico(CONDICIONAL_INT, NULL);
+                                  error_semantico(BUCLE_INT, NULL);
                                   return -1;
                                 }
                                 $$.etiqueta = $1.etiqueta;
@@ -540,7 +537,7 @@ retorno_funcion:          TOK_RETURN exp
                                 }
                                 val = get(nombre_funcion_actual, tabla_local);
                                 if(!val){
-                                  error_semantico(VARIABLE_NO_DECLARADA, nombre_funcion_actual);
+                                  printf("****Error interno: No se encuentra en la tabla variable que se ha insertado.\n");
                                   return -1;
                                 }
                                 if(val->basic_type != $2.tipo){
@@ -761,11 +758,11 @@ idf_llamada_funcion:      TOK_IDENTIFICADOR
                                   error_semantico(VARIABLE_NO_DECLARADA, $1.nombre);
                                 } else { //Si encuentra la función
                                   if(val->element_category != FUNCION){
-                                    error_semantico(PARAM_FUN, NULL);
+                                    error_semantico(LLAMADA_NO_FUNCION, NULL);
                                     return -1;
                                   }
                                   if(en_explist == TRUE){
-                                    error_semantico(PARAM_FUN, NULL);
+                                    error_semantico(PARAM_ES_FUNC, NULL);
                                     return -1; 
                                   }else {
                                     num_parametros_llamada_actual = 0;
