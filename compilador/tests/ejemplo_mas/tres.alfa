@@ -21,5 +21,6 @@ main {
   z = 0;
   d = -4;
 
-  printf x[w];
+  w = suma(z,w);
+
 }
