@@ -1,5 +1,5 @@
 main {
-  int w, z;
+  int w, z, d;
   boolean a, b, c;
   array int [30] x, y;
 
@@ -10,14 +10,16 @@ main {
 
   function int suma (int z; int w)
 	{
-    x[2] = w + 6/(z+2);
-    printf x[2];
+    w = 1;
     return 1;
   }
+  a = true;
+  b = false;
+  c = false;
 
-  w = 3;
-  z = 1;
+  w = 65;
+  z = 0;
+  d = -4;
 
-  suma(z,w);
- 
+  printf x[w];
 }

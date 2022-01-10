@@ -222,7 +222,7 @@ funcion:                  fn_declaration sentencias TOK_LLAVEDERECHA
                                 }
                                 val = get($1.nombre, tabla_global);
                                 if(val == NULL){
-                                  error_semantico(FUNC_NO_DECLARADA, $1.nombre);
+                                  error_semantico(VARIABLE_NO_DECLARADA, $1.nombre);
                                   return -1;
                                 }
                                 wipe(tabla_local);
@@ -239,8 +239,7 @@ fn_declaration:           fn_name TOK_PARENTESISIZQUIERDO parametros_funcion TOK
                                 res = set($1.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, num_variables_locales_actual, NO_CHANGE, tabla_global);
                                 res = set($1.nombre, NO_CHANGE, NO_CHANGE, NO_CHANGE, NO_CHANGE, num_parametros_actual, NO_CHANGE, num_variables_locales_actual, NO_CHANGE, tabla_local);
                                 if(res == ERROR){
-                                  //TODO: Carmen check
-                                  error_semantico(FUNC_NO_DECLARADA, $1.nombre);
+                                  error_semantico(VARIABLE_NO_DECLARADA, $1.nombre);
                                   return -1;
                                 }
                                 fprintf(yyout, "; declararFuncion:\n");
@@ -253,7 +252,7 @@ fn_name:                  TOK_FUNCTION tipo TOK_IDENTIFICADOR
                                 fprintf(yyout,";R:\t<fn_name> ::= function <tipo> TOK_IDENTIFICADOR\n");
 
                                 if(ambito == LOCAL){
-                                  error_semantico(FUNC_INSIDE_FUNC, NULL);
+                                  error_semantico(VAR_LOCAL_NO_ESCALAR, NULL);
                                   return -1;
                                 }
                                 res = insert($3.nombre, FUNCION, tipo_actual, clase_actual, 0, 0, 0, 0, 0, tabla_global);
@@ -302,7 +301,7 @@ idpf:                     TOK_IDENTIFICADOR
                               fprintf(yyout,";R:\t<idpf> ::= TOK_IDENTIFICADOR\n");
 
                               if(clase_actual == VECTOR){
-                                error_semantico(PARAM_NO_ESCALAR, NULL);
+                                error_semantico(PARAM_ES_FUNC, NULL);
                                 return -1;
                               }
                               res = insert($1.nombre, PARAMETRO, tipo_actual, clase_actual, 1, 0, pos_parametro_actual, 0, 0, tabla_local);
@@ -997,15 +996,7 @@ void error_semantico(error_sem err, char* id) {
     printf("****Error semantico en lin %ld: No esta permitido el uso de vectores en los parametros de una funcion.\n", yylin);
   }else if(err == PARAM_FUN){
     printf("****Error semantico en lin %ld: No esta permitido que los parametros sean llamadas a otras funciones.\n", yylin);
-  }else if(err == FUNC_NO_DECLARADA){
-    printf("****Error semantico en lin %ld: Llamada a función no declarada.\n", yylin);
-  }else if(err == FUNC_INSIDE_FUNC){
-    printf("****Error semantico en lin %ld: No se puede llamar a una función dentro de una función.\n", yylin);
-  }else if(err == PARAM_NO_ESCALAR){
-    printf("****Error semantico en lin %ld: Los parámetros de una función solo pueden ser escalares.\n", yylin);
   }
-
-
 
   wipe(tabla_global);
   if (ambito == LOCAL){

@@ -52,10 +52,7 @@ enum _error_semantico
 		LLAMADA_NO_FUNCION,
 		DIF_TIPOS,
 		PARAM_ES_VECTOR,
-		PARAM_FUN,
-		FUNC_NO_DECLARADA,
-		FUNC_INSIDE_FUNC,
-		PARAM_NO_ESCALAR
+		PARAM_FUN
 };
 typedef enum _error_semantico error_sem;
 

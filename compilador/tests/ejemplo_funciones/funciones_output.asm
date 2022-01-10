@@ -27,8 +27,8 @@ segment .bss
 	_y resd 1
 	_resultado resd 1
 segment .data
-	_err_div_0 db "División por 0",0
-	_err_indice_fuera_rango db "Indice fuera de rango",0
+	_err_div_0 db "****Error de ejecucion: División por 0",0
+	_err_indice_fuera_rango db "****Error de ejecucion: Indice fuera de rango",0
 segment .text
 	global main
 	extern print_int, print_boolean, print_string, print_blank, print_endofline

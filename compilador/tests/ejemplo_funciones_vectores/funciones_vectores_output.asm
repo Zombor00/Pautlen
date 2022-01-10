@@ -33,8 +33,8 @@ segment .bss
 	_resultado resd 1
 	_vector resd 3
 segment .data
-	_err_div_0 db "División por 0",0
-	_err_indice_fuera_rango db "Indice fuera de rango",0
+	_err_div_0 db "****Error de ejecucion: División por 0",0
+	_err_indice_fuera_rango db "****Error de ejecucion: Indice fuera de rango",0
 segment .text
 	global main
 	extern print_int, print_boolean, print_string, print_blank, print_endofline
@@ -288,7 +288,7 @@ main:
 	LEA EAX, [EDX + EAX*4]
 	PUSH DWORD EAX
 ;R85:	<exp> ::= <elemento_vector>
-; escribirParametro:
+; operandoEnPilaAArgumento:
 	POP DWORD EAX
 	MOV DWORD EAX, [EAX]
 	PUSH DWORD EAX
@@ -313,7 +313,7 @@ main:
 	LEA EAX, [EDX + EAX*4]
 	PUSH DWORD EAX
 ;R85:	<exp> ::= <elemento_vector>
-; escribirParametro:
+; operandoEnPilaAArgumento:
 	POP DWORD EAX
 	MOV DWORD EAX, [EAX]
 	PUSH DWORD EAX
@@ -338,7 +338,7 @@ main:
 	LEA EAX, [EDX + EAX*4]
 	PUSH DWORD EAX
 ;R85:	<exp> ::= <elemento_vector>
-; escribirParametro:
+; operandoEnPilaAArgumento:
 	POP DWORD EAX
 	MOV DWORD EAX, [EAX]
 	PUSH DWORD EAX

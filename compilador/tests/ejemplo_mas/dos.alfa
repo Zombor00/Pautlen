@@ -1,12 +1,27 @@
 main {
   int x, y, w;
+  array int [3] z,f;
   boolean a, b, c;
+
+  function int suma (int num1; int num2)
+	{
+		return num1+num2;
+	}
+
+    function int suma2 (int num1; int num2)
+	{
+		return num1+num2 + 1;
+	}
+
   x = 3;
   y = x*2;
   w = x / y + 3*x;
-  printf w;
   a = true;
   b = false || a;
   c = a && (b || false) || false;
-  printf c;
+  z[0] = 2;
+  a = false;
+
+  x = suma(0,2);
+  printf x;
 }
