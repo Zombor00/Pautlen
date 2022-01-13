@@ -455,6 +455,7 @@ if_exp:                   TOK_IF TOK_PARENTESISIZQUIERDO exp TOK_PARENTESISDEREC
 
                                 if($3.tipo != BOOLEAN){
                                   error_semantico(CONDICIONAL_INT, NULL);
+                                  return -1;
                                 }
                                 $$.etiqueta = etiqueta;
                                 ifthenelse_inicio(yyout, $3.es_direccion, $$.etiqueta);
@@ -757,6 +758,7 @@ idf_llamada_funcion:      TOK_IDENTIFICADOR
                                 val = get($1.nombre, tabla_global);
                                 if(val == NULL){
                                   error_semantico(VARIABLE_NO_DECLARADA, $1.nombre);
+                                  return -1;
                                 } else { //Si encuentra la función
                                   if(val->element_category != FUNCION){
                                     error_semantico(LLAMADA_NO_FUNCION, NULL);
